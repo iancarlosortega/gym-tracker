@@ -1,7 +1,9 @@
 import { type JWTPayload, jwtVerify, SignJWT } from 'jose';
 import { cookies } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
 import { env } from '@/env';
-import { SESSION_COOKIE_NAME } from '../constants/session';
+import { SESSION_COOKIE_NAME } from '@/features/auth/constants/session';
+import type { UserRole } from '@/features/users/types/roles';
 
 interface SessionPayload extends JWTPayload {
 	user: UserPayload;
@@ -10,6 +12,8 @@ interface SessionPayload extends JWTPayload {
 
 interface UserPayload {
 	id: string;
+	isActive: boolean;
+	role: UserRole;
 }
 
 const secretKey = env.SESSION_SECRET;
@@ -49,4 +53,29 @@ export async function createSession(user: UserPayload) {
 		sameSite: 'lax',
 		path: '/',
 	});
+}
+
+export async function updateSession(request: NextRequest) {
+	const session = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+	const payload = await decrypt(session);
+
+	if (!session || !payload) return;
+
+	// Refresh the session so it doesn't expire
+	payload.expiresAt = new Date(Date.now() + SEVEN_DAYS);
+	const res = NextResponse.next();
+	res.cookies.set({
+		name: SESSION_COOKIE_NAME,
+		value: await encrypt(payload),
+		httpOnly: true,
+		secure: true,
+		expires: payload.expiresAt,
+		sameSite: 'lax',
+	});
+	return res;
+}
+
+export async function deleteSession() {
+	const cookiesStore = await cookies();
+	cookiesStore.delete(SESSION_COOKIE_NAME);
 }
