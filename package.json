@@ -6,22 +6,35 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "biome lint",
+    "check": "biome check",
+    "format": "biome format",
+    "fix": "biome check --write && biome format --write && biome lint --write",
+    "prepare": "husky"
   },
   "dependencies": {
+    "next": "15.4.1",
     "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "next": "15.4.1"
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "15.4.1",
-    "@eslint/eslintrc": "^3"
+    "@biomejs/biome": "2.1.2",
+    "@commitlint/cli": "19.8.1",
+    "@commitlint/config-conventional": "19.8.1",
+    "@tailwindcss/postcss": "4",
+    "@types/node": "20",
+    "@types/react": "19",
+    "@types/react-dom": "19",
+    "husky": "9.1.7",
+    "lint-staged": "16.1.2",
+    "tailwindcss": "4",
+    "typescript": "5"
+  },
+  "lint-staged": {
+    "*.{js,ts,jsx,tsx}": [
+      "biome check --write",
+      "biome format --write",
+      "biome lint --write"
+    ]
   }
 }

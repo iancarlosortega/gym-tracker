@@ -1,29 +1,25 @@
-import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Poppins } from 'next/font/google';
+import './globals.css';
 
 const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
+	subsets: ['latin'],
+	weight: ['400', '600', '700'],
 });
 
 export const metadata: Metadata = {
-  title: "Gym Tracker",
-  description: "Track your gym workouts",
+	title: 'Gym Tracker',
+	description: 'Track your gym workouts',
 };
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${poppins.className} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
-  );
+	return (
+		<html lang='en'>
+			<body className={`${poppins.className} antialiased`}>{children}</body>
+		</html>
+	);
 }
