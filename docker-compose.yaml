@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:15
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER:-postgres}
+    container_name: gym-tracker-db
+    volumes:
+      - ./postgres:/var/lib/postgresql/data

@@ -10,12 +10,29 @@
     "check": "biome check",
     "format": "biome format",
     "fix": "biome check --write && biome format --write && biome lint --write",
-    "prepare": "husky"
+    "prepare": "husky",
+    "types:check": "tsc --noEmit",
+    "db:migrate:generate": "drizzle-kit generate --config=drizzle.config.ts",
+    "db:migrate": "tsx ./src/db/migrate.ts",
+    "db:migrate:prod": "dotenv -e .env.prod -- drizzle-kit migrate --config=drizzle.config.ts",
+    "db:migrate:rollback": "drizzle-kit down --config=drizzle.config.ts",
+    "db:studio": "drizzle-kit studio",
+    "db:clear": "tsx ./src/db/clear.ts",
+    "db:seed": "tsx ./src/db/seed.ts",
+    "db:reset": "npm run db:clear && npm run db:migrate && npm run db:seed"
   },
   "dependencies": {
+    "@t3-oss/env-nextjs": "0.13.8",
+    "arctic": "3.7.0",
+    "dotenv": "17.2.0",
+    "drizzle-orm": "0.44.3",
+    "jose": "6.0.12",
     "next": "15.4.1",
+    "postgres": "3.4.7",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-icons": "5.5.0",
+    "zod": "4.0.5"
   },
   "devDependencies": {
     "@biomejs/biome": "2.1.2",
@@ -25,9 +42,11 @@
     "@types/node": "20",
     "@types/react": "19",
     "@types/react-dom": "19",
+    "drizzle-kit": "0.31.4",
     "husky": "9.1.7",
     "lint-staged": "16.1.2",
     "tailwindcss": "4",
+    "tsx": "4.20.3",
     "typescript": "5"
   },
   "lint-staged": {
