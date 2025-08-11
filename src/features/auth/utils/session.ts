@@ -75,6 +75,12 @@ export async function updateSession(request: NextRequest) {
 	return res;
 }
 
+export async function getSession(): Promise<SessionPayload | null> {
+	const cookiesStore = await cookies();
+	const session = cookiesStore.get(SESSION_COOKIE_NAME)?.value;
+	return await decrypt(session);
+}
+
 export async function deleteSession() {
 	const cookiesStore = await cookies();
 	cookiesStore.delete(SESSION_COOKIE_NAME);

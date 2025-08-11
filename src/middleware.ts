@@ -21,21 +21,19 @@ export async function middleware(request: NextRequest) {
 		return NextResponse.redirect(redirectUrl);
 	}
 
-	const isProtectedRoute = pathname === '/';
-
-	if (!session && isProtectedRoute) {
-		const loginUrl = new URL('/login', request.url);
-		const redirectParam = `${pathname}${search}`;
-		loginUrl.searchParams.set('redirect', redirectParam);
-		return NextResponse.redirect(loginUrl);
-	}
-
 	const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
 	const isUserAdmin = session?.user.role === USER_ROLES.ADMIN.value;
 
 	if (!isUserAdmin && isAdminRoute) {
 		const redirectUrl = new URL('/', request.url);
 		return NextResponse.redirect(redirectUrl);
+	}
+
+	if (!session) {
+		const loginUrl = new URL('/login', request.url);
+		const redirectParam = `${pathname}${search}`;
+		loginUrl.searchParams.set('redirect', redirectParam);
+		return NextResponse.redirect(loginUrl);
 	}
 
 	return response;

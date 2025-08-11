@@ -5,5 +5,5 @@ interface Props {
 }
 
 export const Logo = ({ size }: Props) => {
-	return <LuDumbbell size={size} />;
+	return <LuDumbbell size={size} className='text-blue-400' />;
 };

@@ -17,3 +17,8 @@
 ## Run migrations on production
 - Install the global package: `npm install -g dotenv-cli`
 - Run the migrations: `npm run db:migrate:prod`
+
+## TODO:
+- Fix middleware
+- Add timer
+- Add PWA integration
