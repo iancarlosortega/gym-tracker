@@ -3,17 +3,18 @@
 import { Activity, Dumbbell, Home, Plus, Target } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { UserDropdown } from '@/features/users/components/user-dropdown';
 import { cn } from '@/lib/utils';
 
-const navigation = [
-	{ name: 'Dashboard', href: '/dashboard', icon: Home },
+const links = [
+	{ name: 'Home', href: '/', icon: Home },
 	{ name: 'Workouts', href: '/workouts', icon: Activity },
 	{ name: 'Exercises', href: '/exercises', icon: Dumbbell },
 	{ name: 'New Workout', href: '/workout/new', icon: Plus },
 	{ name: 'Measurements', href: '/measurements', icon: Target },
 ];
 
-export function Navigation() {
+export function Header() {
 	const pathname = usePathname();
 
 	return (
@@ -21,7 +22,7 @@ export function Navigation() {
 			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
 				<div className='flex justify-between items-center py-4'>
 					<div className='flex items-center'>
-						<Link href='/dashboard' className='flex items-center space-x-2'>
+						<Link href='/' className='flex items-center space-x-2'>
 							<Target className='h-8 w-8 text-blue-500' />
 							<span className='text-xl font-bold text-white'>GymTracker</span>
 						</Link>
@@ -29,7 +30,7 @@ export function Navigation() {
 
 					<div className='hidden md:block'>
 						<div className='ml-10 flex items-baseline space-x-4'>
-							{navigation.map((item) => {
+							{links.map((item) => {
 								const Icon = item.icon;
 								return (
 									<Link
@@ -46,13 +47,16 @@ export function Navigation() {
 									</Link>
 								);
 							})}
+
+							{/* User Dropdown */}
+							<UserDropdown />
 						</div>
 					</div>
 
 					{/* Mobile menu */}
 					<div className='md:hidden'>
-						<div className='flex space-x-2'>
-							{navigation.map((item) => {
+						<div className='flex space-x-2 items-center'>
+							{links.map((item) => {
 								const Icon = item.icon;
 								return (
 									<Link
@@ -69,6 +73,9 @@ export function Navigation() {
 									</Link>
 								);
 							})}
+
+							{/* Mobile User Dropdown */}
+							<UserDropdown isMobile />
 						</div>
 					</div>
 				</div>

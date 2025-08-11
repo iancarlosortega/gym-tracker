@@ -20,7 +20,6 @@ export const useWorkouts = () => {
 		queryKey: ['workouts'],
 		queryFn: async (): Promise<Workout[]> => {
 			const response = await fetch('/api/workouts');
-			console.log({ response });
 			if (!response.ok) {
 				throw new Error('Failed to fetch workouts');
 			}

@@ -20,7 +20,7 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useWorkout } from '@/hooks/use-workouts';
+import { useWorkout } from '@/features/workouts/hooks/use-workouts';
 
 interface WorkoutDetailsPageProps {
 	params: { id: string };

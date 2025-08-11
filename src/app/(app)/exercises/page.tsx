@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { FiFilter, FiSearch } from 'react-icons/fi';
-import { AddExerciseDialog } from '@/components/add-exercise-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,7 +20,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { useExercises } from '@/hooks/use-exercises';
+import { AddExerciseDialog } from '@/features/excercises/components/add-exercise-dialog';
+import { useExercises } from '@/features/excercises/hooks/use-exercises';
 
 export default function ExercisesPage() {
 	const [search, setSearch] = useState('');

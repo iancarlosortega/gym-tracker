@@ -15,8 +15,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useExercises } from '@/hooks/use-exercises';
-import { useCreateWorkout } from '@/hooks/use-workouts';
+import { useExercises } from '@/features/excercises/hooks/use-exercises';
+import { useCreateWorkout } from '@/features/workouts/hooks/use-workouts';
 
 interface SelectedExercise {
 	id: string;

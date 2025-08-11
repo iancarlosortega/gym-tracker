@@ -22,7 +22,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useCreateExercise } from '@/hooks/use-exercises';
+import { useCreateExercise } from '@/features/excercises/hooks/use-exercises';
 
 interface AddExerciseDialogProps {
 	trigger?: React.ReactNode;

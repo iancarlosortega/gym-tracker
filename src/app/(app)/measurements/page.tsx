@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import {
 	useBodyMeasurements,
 	useCreateBodyMeasurement,
-} from '@/hooks/use-body-measurements';
+} from '@/features/body-measurements/hooks/use-body-measurements';
 
 export default function MeasurementsPage() {
 	const [measurements, setMeasurements] = useState({

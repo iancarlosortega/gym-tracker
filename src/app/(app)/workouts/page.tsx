@@ -5,7 +5,7 @@ import { FiActivity, FiCalendar, FiClock, FiPlus } from 'react-icons/fi';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useWorkouts } from '@/hooks/use-workouts';
+import { useWorkouts } from '@/features/workouts/hooks/use-workouts';
 
 export default function WorkoutsPage() {
 	const { data: workouts = [], isLoading } = useWorkouts();

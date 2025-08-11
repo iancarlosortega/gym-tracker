@@ -1,6 +1,10 @@
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
-import { adminRoutes, authRoutes } from '@/features/auth/constants/routes';
+import {
+	adminRoutes,
+	authRoutes,
+	protectedRoutes,
+} from '@/features/auth/constants/routes';
 import { SESSION_COOKIE_NAME } from '@/features/auth/constants/session';
 import { USER_ROLES } from '@/features/auth/constants/user';
 import { decrypt, updateSession } from '@/features/auth/utils/session';
@@ -21,19 +25,23 @@ export async function middleware(request: NextRequest) {
 		return NextResponse.redirect(redirectUrl);
 	}
 
+	const isProtectedRoute =
+		protectedRoutes.some((route) => pathname.startsWith(route)) ||
+		pathname === '/';
+	if (!session && isProtectedRoute) {
+		console.log('No session found, redirecting to login');
+		const loginUrl = new URL('/login', request.url);
+		const redirectParam = `${pathname}${search}`;
+		loginUrl.searchParams.set('redirect', redirectParam);
+		return NextResponse.redirect(loginUrl);
+	}
+
 	const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
 	const isUserAdmin = session?.user.role === USER_ROLES.ADMIN.value;
 
 	if (!isUserAdmin && isAdminRoute) {
 		const redirectUrl = new URL('/', request.url);
 		return NextResponse.redirect(redirectUrl);
-	}
-
-	if (!session) {
-		const loginUrl = new URL('/login', request.url);
-		const redirectParam = `${pathname}${search}`;
-		loginUrl.searchParams.set('redirect', redirectParam);
-		return NextResponse.redirect(loginUrl);
 	}
 
 	return response;

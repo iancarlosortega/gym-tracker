@@ -8,8 +8,8 @@ import {
 	FiTarget,
 	FiTrendingUp,
 } from 'react-icons/fi';
-import { useBodyMeasurements } from '@/hooks/use-body-measurements';
-import { useWorkouts } from '@/hooks/use-workouts';
+import { useBodyMeasurements } from '@/features/body-measurements/hooks/use-body-measurements';
+import { useWorkouts } from '@/features/workouts/hooks/use-workouts';
 
 export default function HomePage() {
 	const { data: workouts = [], isLoading: workoutsLoading } = useWorkouts();

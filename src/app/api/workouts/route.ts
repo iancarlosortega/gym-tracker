@@ -14,7 +14,6 @@ const createWorkoutSchema = z.object({
 export async function GET() {
 	try {
 		const session = await getSession();
-		console.log({ session });
 		if (!session?.user) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
