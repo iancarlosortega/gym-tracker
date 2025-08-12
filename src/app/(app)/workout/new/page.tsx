@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { FiLoader, FiPlus, FiSave, FiSearch, FiX } from 'react-icons/fi';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,31 +18,57 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useExercises } from '@/features/excercises/hooks/use-exercises';
 import { useCreateWorkout } from '@/features/workouts/hooks/use-workouts';
-
-interface SelectedExercise {
-	id: string;
-	name: string;
-	primaryMuscleGroup: string;
-	equipment: string;
-	sets: Array<{
-		reps: number;
-		weight: string;
-		notes: string;
-	}>;
-}
+import {
+	type ExerciseSetFormData,
+	type SelectedExerciseFormData,
+	type WorkoutFormData,
+	workoutSchema,
+} from '@/features/workouts/schemas/workout';
 
 export default function NewWorkoutPage() {
 	const router = useRouter();
-	const [name, setName] = useState('');
-	const [notes, setNotes] = useState('');
 	const [selectedExercises, setSelectedExercises] = useState<
-		SelectedExercise[]
+		SelectedExerciseFormData[]
 	>([]);
 	const [showExerciseSearch, setShowExerciseSearch] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 
 	const createWorkout = useCreateWorkout();
 	const { data: exercises = [] } = useExercises();
+
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		watch,
+	} = useForm<WorkoutFormData>({
+		defaultValues: {
+			name: '',
+			notes: '',
+		},
+	});
+
+	// Manual validation for workout form
+	const validateWorkoutForm = (data: WorkoutFormData) => {
+		try {
+			workoutSchema.parse(data);
+			return { success: true, errors: {} };
+		} catch (error: unknown) {
+			const fieldErrors: Record<string, string> = {};
+			if (error && typeof error === 'object' && 'errors' in error) {
+				const zodError = error as {
+					errors: Array<{ path: string[]; message: string }>;
+				};
+				if (Array.isArray(zodError.errors)) {
+					for (const err of zodError.errors) {
+						const path = err.path[0];
+						fieldErrors[path] = err.message;
+					}
+				}
+			}
+			return { success: false, errors: fieldErrors };
+		}
+	};
 
 	const filteredExercises = exercises.filter(
 		(exercise) =>
@@ -85,7 +112,7 @@ export default function NewWorkoutPage() {
 	const updateSet = (
 		exerciseId: string,
 		setIndex: number,
-		field: string,
+		field: keyof ExerciseSetFormData,
 		value: string | number
 	) => {
 		setSelectedExercises(
@@ -115,17 +142,18 @@ export default function NewWorkoutPage() {
 		);
 	};
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-
-		if (!name.trim()) {
+	const onSubmit = async (data: WorkoutFormData) => {
+		// Validate form data
+		const validation = validateWorkoutForm(data);
+		if (!validation.success) {
+			console.error('Validation errors:', validation.errors);
 			return;
 		}
 
 		try {
 			const workout = await createWorkout.mutateAsync({
-				name: name.trim(),
-				notes: notes.trim() || undefined,
+				name: data.name.trim(),
+				notes: data.notes?.trim() || undefined,
 			});
 
 			// For now, just redirect - later we'll add exercises to the workout
@@ -134,6 +162,8 @@ export default function NewWorkoutPage() {
 			console.error('Failed to create workout:', error);
 		}
 	};
+
+	const currentName = watch('name');
 
 	return (
 		<div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
@@ -144,7 +174,7 @@ export default function NewWorkoutPage() {
 				</p>
 			</div>
 
-			<form onSubmit={handleSubmit} className='space-y-8'>
+			<form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
 				{/* Basic Information */}
 				<Card className='bg-card border-border'>
 					<CardHeader>
@@ -164,11 +194,12 @@ export default function NewWorkoutPage() {
 								id='name'
 								type='text'
 								placeholder='e.g., Upper Body Strength, Morning Cardio'
-								value={name}
-								onChange={(e) => setName(e.target.value)}
-								required
+								{...register('name')}
 								className='bg-input border-border text-foreground placeholder:text-muted-foreground focus:ring-ring focus:border-ring'
 							/>
+							{errors.name && (
+								<p className='text-sm text-red-500'>{errors.name.message}</p>
+							)}
 						</div>
 
 						<div className='space-y-2'>
@@ -178,11 +209,13 @@ export default function NewWorkoutPage() {
 							<Textarea
 								id='notes'
 								placeholder='Any additional notes about this workout...'
-								value={notes}
-								onChange={(e) => setNotes(e.target.value)}
+								{...register('notes')}
 								rows={3}
 								className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500'
 							/>
+							{errors.notes && (
+								<p className='text-sm text-red-500'>{errors.notes.message}</p>
+							)}
 						</div>
 					</CardContent>
 				</Card>
@@ -271,7 +304,7 @@ export default function NewWorkoutPage() {
 																exercise.id,
 																setIndex,
 																'reps',
-																parseInt(e.target.value) || 0
+																parseInt(e.target.value) || 1
 															)
 														}
 														className='h-8 bg-gray-700 border-gray-600 text-white focus:ring-blue-500 focus:border-blue-500'
@@ -330,7 +363,7 @@ export default function NewWorkoutPage() {
 					</Button>
 					<Button
 						type='submit'
-						disabled={!name.trim() || createWorkout.isPending}>
+						disabled={!currentName?.trim() || createWorkout.isPending}>
 						{createWorkout.isPending ? (
 							<>
 								<FiLoader className='w-4 h-4 mr-2 animate-spin' />

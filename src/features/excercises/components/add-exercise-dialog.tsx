@@ -2,6 +2,7 @@
 
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -23,6 +24,12 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useCreateExercise } from '@/features/excercises/hooks/use-exercises';
+import {
+	type AddExerciseFormData,
+	equipmentOptions,
+	exerciseTypes,
+	muscleGroups,
+} from '@/features/excercises/schemas/exercise';
 
 interface AddExerciseDialogProps {
 	trigger?: React.ReactNode;
@@ -30,76 +37,76 @@ interface AddExerciseDialogProps {
 
 export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 	const [open, setOpen] = useState(false);
-	const [formData, setFormData] = useState({
-		name: '',
-		description: '',
-		type: '',
-		equipment: '',
-		primaryMuscleGroup: '',
-		secondaryMuscleGroups: [] as { id: string; value: string }[],
-		instructions: '',
-		videoUrl: '',
-		imageUrl: '',
-	});
+	const [secondaryMuscleGroups, setSecondaryMuscleGroups] = useState<
+		{ id: string; value: string }[]
+	>([]);
 
 	const createExercise = useCreateExercise();
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+	const form = useForm<AddExerciseFormData>({
+		defaultValues: {
+			name: '',
+			description: '',
+			secondaryMuscleGroups: [],
+			instructions: '',
+			videoUrl: '',
+			imageUrl: '',
+		},
+		mode: 'onChange',
+	});
+
+	const {
+		register,
+		handleSubmit,
+		reset,
+		setValue,
+		watch,
+		formState: { errors, isValid },
+	} = form;
+
+	const _watchedValues = watch();
+
+	const onSubmit = async (data: AddExerciseFormData) => {
+		// Basic validation
+		if (!data.name.trim()) {
+			console.error('Exercise name is required');
+			return;
+		}
+		if (!data.description.trim()) {
+			console.error('Description is required');
+			return;
+		}
+		if (!data.instructions.trim()) {
+			console.error('Instructions are required');
+			return;
+		}
+		if (!data.type) {
+			console.error('Exercise type is required');
+			return;
+		}
+		if (!data.equipment) {
+			console.error('Equipment is required');
+			return;
+		}
+		if (!data.primaryMuscleGroup) {
+			console.error('Primary muscle group is required');
+			return;
+		}
 
 		try {
 			await createExercise.mutateAsync({
-				...formData,
-				type: formData.type as
-					| 'strength'
-					| 'cardio'
-					| 'flexibility'
-					| 'balance',
-				equipment: formData.equipment as
-					| 'barbell'
-					| 'dumbbell'
-					| 'machine'
-					| 'cable'
-					| 'bodyweight'
-					| 'resistance_band'
-					| 'kettlebell'
-					| 'medicine_ball'
-					| 'treadmill'
-					| 'bike'
-					| 'rowing_machine'
-					| 'other',
-				primaryMuscleGroup: formData.primaryMuscleGroup as
-					| 'chest'
-					| 'back'
-					| 'shoulders'
-					| 'biceps'
-					| 'triceps'
-					| 'forearms'
-					| 'core'
-					| 'glutes'
-					| 'quadriceps'
-					| 'hamstrings'
-					| 'calves'
-					| 'full_body',
-				secondaryMuscleGroups: formData.secondaryMuscleGroups
-					.map((group) => group.value)
-					.filter(Boolean),
-				videoUrl: formData.videoUrl || undefined,
-				imageUrl: formData.imageUrl || undefined,
+				...data,
+				type: data.type,
+				equipment: data.equipment,
+				primaryMuscleGroup: data.primaryMuscleGroup,
+				secondaryMuscleGroups: data.secondaryMuscleGroups.filter(Boolean),
+				videoUrl: data.videoUrl || undefined,
+				imageUrl: data.imageUrl || undefined,
 			});
 
 			// Reset form and close dialog
-			setFormData({
-				name: '',
-				description: '',
-				type: '',
-				equipment: '',
-				primaryMuscleGroup: '',
-				secondaryMuscleGroups: [],
-				instructions: '',
-				videoUrl: '',
-				imageUrl: '',
-			});
+			reset();
+			setSecondaryMuscleGroups([]);
 			setOpen(false);
 		} catch (error) {
 			console.error('Failed to create exercise:', error);
@@ -107,35 +114,36 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 	};
 
 	const handleSecondaryMuscleGroupChange = (value: string, index: number) => {
-		const newSecondaryMuscleGroups = [...formData.secondaryMuscleGroups];
+		const newSecondaryMuscleGroups = [...secondaryMuscleGroups];
 		newSecondaryMuscleGroups[index] = {
 			...newSecondaryMuscleGroups[index],
 			value,
 		};
-		setFormData({
-			...formData,
-			secondaryMuscleGroups: newSecondaryMuscleGroups,
-		});
+		setSecondaryMuscleGroups(newSecondaryMuscleGroups);
+
+		// Update form value
+		const newValues = newSecondaryMuscleGroups
+			.map((group) => group.value)
+			.filter(Boolean);
+		setValue('secondaryMuscleGroups', newValues);
 	};
 
 	const addSecondaryMuscleGroup = () => {
-		setFormData({
-			...formData,
-			secondaryMuscleGroups: [
-				...formData.secondaryMuscleGroups,
-				{ id: `secondary-${Date.now()}`, value: '' },
-			],
-		});
+		const newGroup = { id: `secondary-${Date.now()}`, value: '' };
+		setSecondaryMuscleGroups([...secondaryMuscleGroups, newGroup]);
 	};
 
 	const removeSecondaryMuscleGroup = (index: number) => {
-		const newSecondaryMuscleGroups = formData.secondaryMuscleGroups.filter(
+		const newSecondaryMuscleGroups = secondaryMuscleGroups.filter(
 			(_, i) => i !== index
 		);
-		setFormData({
-			...formData,
-			secondaryMuscleGroups: newSecondaryMuscleGroups,
-		});
+		setSecondaryMuscleGroups(newSecondaryMuscleGroups);
+
+		// Update form value
+		const newValues = newSecondaryMuscleGroups
+			.map((group) => group.value)
+			.filter(Boolean);
+		setValue('secondaryMuscleGroups', newValues);
 	};
 
 	return (
@@ -157,7 +165,7 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 						Create a new custom exercise for your workout library.
 					</DialogDescription>
 				</DialogHeader>
-				<form onSubmit={handleSubmit} className='space-y-6'>
+				<form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 						{/* Exercise Name */}
 						<div className='space-y-2'>
@@ -166,229 +174,152 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 							</Label>
 							<Input
 								id='name'
-								value={formData.name}
-								onChange={(e) =>
-									setFormData({ ...formData, name: e.target.value })
-								}
+								{...register('name')}
 								placeholder='e.g., Bench Press'
 								className='bg-input border-border text-foreground placeholder:text-muted-foreground'
-								required
 							/>
+							{errors.name && (
+								<p className='text-sm text-red-500'>{errors.name.message}</p>
+							)}
 						</div>
 
 						{/* Type */}
 						<div className='space-y-2'>
 							<Label className='text-foreground'>Type *</Label>
 							<Select
-								value={formData.type}
+								value={_watchedValues.type}
 								onValueChange={(value) =>
-									setFormData({ ...formData, type: value })
-								}
-								required>
+									setValue('type', value as (typeof exerciseTypes)[number])
+								}>
 								<SelectTrigger className='bg-input border-border text-foreground'>
-									<SelectValue placeholder='Select type' />
+									<SelectValue placeholder='Select exercise type' />
 								</SelectTrigger>
 								<SelectContent className='bg-popover border-border'>
-									<SelectItem
-										value='strength'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Strength
-									</SelectItem>
-									<SelectItem
-										value='cardio'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Cardio
-									</SelectItem>
-									<SelectItem
-										value='flexibility'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Flexibility
-									</SelectItem>
-									<SelectItem
-										value='balance'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Balance
-									</SelectItem>
+									{exerciseTypes.map((type) => (
+										<SelectItem
+											key={type}
+											value={type}
+											className='text-popover-foreground hover:bg-accent hover:text-accent-foreground'>
+											{type.charAt(0).toUpperCase() + type.slice(1)}
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
+							{errors.type && (
+								<p className='text-sm text-red-500'>{errors.type.message}</p>
+							)}
 						</div>
+					</div>
 
+					<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 						{/* Equipment */}
 						<div className='space-y-2'>
 							<Label className='text-foreground'>Equipment *</Label>
 							<Select
-								value={formData.equipment}
+								value={_watchedValues.equipment}
 								onValueChange={(value) =>
-									setFormData({ ...formData, equipment: value })
-								}
-								required>
+									setValue(
+										'equipment',
+										value as (typeof equipmentOptions)[number]
+									)
+								}>
 								<SelectTrigger className='bg-input border-border text-foreground'>
 									<SelectValue placeholder='Select equipment' />
 								</SelectTrigger>
 								<SelectContent className='bg-popover border-border'>
-									<SelectItem
-										value='barbell'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Barbell
-									</SelectItem>
-									<SelectItem
-										value='dumbbell'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Dumbbell
-									</SelectItem>
-									<SelectItem
-										value='machine'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Machine
-									</SelectItem>
-									<SelectItem
-										value='cable'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Cable
-									</SelectItem>
-									<SelectItem
-										value='bodyweight'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Bodyweight
-									</SelectItem>
-									<SelectItem
-										value='resistance_band'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Resistance Band
-									</SelectItem>
-									<SelectItem
-										value='kettlebell'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Kettlebell
-									</SelectItem>
-									<SelectItem
-										value='medicine_ball'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Medicine Ball
-									</SelectItem>
-									<SelectItem
-										value='treadmill'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Treadmill
-									</SelectItem>
-									<SelectItem
-										value='bike'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Bike
-									</SelectItem>
-									<SelectItem
-										value='rowing_machine'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Rowing Machine
-									</SelectItem>
-									<SelectItem
-										value='other'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Other
-									</SelectItem>
+									{equipmentOptions.map((equipment) => (
+										<SelectItem
+											key={equipment}
+											value={equipment}
+											className='text-popover-foreground hover:bg-accent hover:text-accent-foreground'>
+											{equipment
+												.split('_')
+												.map(
+													(word) => word.charAt(0).toUpperCase() + word.slice(1)
+												)
+												.join(' ')}
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
+							{errors.equipment && (
+								<p className='text-sm text-red-500'>
+									{errors.equipment.message}
+								</p>
+							)}
 						</div>
 
 						{/* Primary Muscle Group */}
 						<div className='space-y-2'>
 							<Label className='text-foreground'>Primary Muscle Group *</Label>
 							<Select
-								value={formData.primaryMuscleGroup}
+								value={_watchedValues.primaryMuscleGroup}
 								onValueChange={(value) =>
-									setFormData({ ...formData, primaryMuscleGroup: value })
-								}
-								required>
+									setValue(
+										'primaryMuscleGroup',
+										value as (typeof muscleGroups)[number]
+									)
+								}>
 								<SelectTrigger className='bg-input border-border text-foreground'>
-									<SelectValue placeholder='Select muscle group' />
+									<SelectValue placeholder='Select primary muscle group' />
 								</SelectTrigger>
 								<SelectContent className='bg-popover border-border'>
-									<SelectItem
-										value='chest'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Chest
-									</SelectItem>
-									<SelectItem
-										value='back'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Back
-									</SelectItem>
-									<SelectItem
-										value='shoulders'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Shoulders
-									</SelectItem>
-									<SelectItem
-										value='biceps'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Biceps
-									</SelectItem>
-									<SelectItem
-										value='triceps'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Triceps
-									</SelectItem>
-									<SelectItem
-										value='forearms'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Forearms
-									</SelectItem>
-									<SelectItem
-										value='core'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Core
-									</SelectItem>
-									<SelectItem
-										value='glutes'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Glutes
-									</SelectItem>
-									<SelectItem
-										value='quadriceps'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Quadriceps
-									</SelectItem>
-									<SelectItem
-										value='hamstrings'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Hamstrings
-									</SelectItem>
-									<SelectItem
-										value='calves'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Calves
-									</SelectItem>
-									<SelectItem
-										value='full_body'
-										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-										Full Body
-									</SelectItem>
+									{muscleGroups.map((group) => (
+										<SelectItem
+											key={group}
+											value={group}
+											className='text-popover-foreground hover:bg-accent hover:text-accent-foreground'>
+											{group
+												.split('_')
+												.map(
+													(word) => word.charAt(0).toUpperCase() + word.slice(1)
+												)
+												.join(' ')}
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
+							{errors.primaryMuscleGroup && (
+								<p className='text-sm text-red-500'>
+									{errors.primaryMuscleGroup.message}
+								</p>
+							)}
 						</div>
 					</div>
 
 					{/* Description */}
 					<div className='space-y-2'>
 						<Label htmlFor='description' className='text-foreground'>
-							Description
+							Description *
 						</Label>
-						<Input
+						<Textarea
 							id='description'
-							value={formData.description}
-							onChange={(e) =>
-								setFormData({ ...formData, description: e.target.value })
-							}
+							{...register('description')}
 							placeholder='Brief description of the exercise'
 							className='bg-input border-border text-foreground placeholder:text-muted-foreground'
 						/>
+						{errors.description && (
+							<p className='text-sm text-red-500'>
+								{errors.description.message}
+							</p>
+						)}
 					</div>
 
 					{/* Secondary Muscle Groups */}
-					<div className='space-y-2'>
-						<Label className='text-foreground'>Secondary Muscle Groups</Label>
-						{formData.secondaryMuscleGroups.map((group, index) => (
-							<div key={group.id} className='flex gap-2'>
+					<div className='space-y-4'>
+						<div className='flex items-center justify-between'>
+							<Label className='text-foreground'>Secondary Muscle Groups</Label>
+							<Button
+								type='button'
+								variant='outline'
+								size='sm'
+								onClick={addSecondaryMuscleGroup}
+								className='border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground'>
+								Add Secondary Group
+							</Button>
+						</div>
+						{secondaryMuscleGroups.map((group, index) => (
+							<div key={group.id} className='flex space-x-2'>
 								<Select
 									value={group.value}
 									onValueChange={(value) =>
@@ -398,66 +329,20 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 										<SelectValue placeholder='Select muscle group' />
 									</SelectTrigger>
 									<SelectContent className='bg-popover border-border'>
-										<SelectItem
-											value='chest'
-											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-											Chest
-										</SelectItem>
-										<SelectItem
-											value='back'
-											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-											Back
-										</SelectItem>
-										<SelectItem
-											value='shoulders'
-											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-											Shoulders
-										</SelectItem>
-										<SelectItem
-											value='biceps'
-											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-											Biceps
-										</SelectItem>
-										<SelectItem
-											value='triceps'
-											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-											Triceps
-										</SelectItem>
-										<SelectItem
-											value='forearms'
-											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-											Forearms
-										</SelectItem>
-										<SelectItem
-											value='core'
-											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-											Core
-										</SelectItem>
-										<SelectItem
-											value='glutes'
-											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-											Glutes
-										</SelectItem>
-										<SelectItem
-											value='quadriceps'
-											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-											Quadriceps
-										</SelectItem>
-										<SelectItem
-											value='hamstrings'
-											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-											Hamstrings
-										</SelectItem>
-										<SelectItem
-											value='calves'
-											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-											Calves
-										</SelectItem>
-										<SelectItem
-											value='full_body'
-											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
-											Full Body
-										</SelectItem>
+										{muscleGroups.map((muscle) => (
+											<SelectItem
+												key={muscle}
+												value={muscle}
+												className='text-popover-foreground hover:bg-accent hover:text-accent-foreground'>
+												{muscle
+													.split('_')
+													.map(
+														(word) =>
+															word.charAt(0).toUpperCase() + word.slice(1)
+													)
+													.join(' ')}
+											</SelectItem>
+										))}
 									</SelectContent>
 								</Select>
 								<Button
@@ -465,35 +350,29 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 									variant='outline'
 									size='sm'
 									onClick={() => removeSecondaryMuscleGroup(index)}
-									className='border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground'>
+									className='border-border text-muted-foreground hover:bg-destructive hover:text-destructive-foreground'>
 									Remove
 								</Button>
 							</div>
 						))}
-						<Button
-							type='button'
-							variant='outline'
-							size='sm'
-							onClick={addSecondaryMuscleGroup}
-							className='border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground'>
-							Add Secondary Muscle Group
-						</Button>
 					</div>
 
 					{/* Instructions */}
 					<div className='space-y-2'>
 						<Label htmlFor='instructions' className='text-foreground'>
-							Instructions
+							Instructions *
 						</Label>
 						<Textarea
 							id='instructions'
-							value={formData.instructions}
-							onChange={(e) =>
-								setFormData({ ...formData, instructions: e.target.value })
-							}
+							{...register('instructions')}
 							placeholder='Step-by-step instructions for performing the exercise'
 							className='bg-input border-border text-foreground placeholder:text-muted-foreground min-h-[100px]'
 						/>
+						{errors.instructions && (
+							<p className='text-sm text-red-500'>
+								{errors.instructions.message}
+							</p>
+						)}
 					</div>
 
 					{/* URLs */}
@@ -505,13 +384,15 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 							<Input
 								id='videoUrl'
 								type='url'
-								value={formData.videoUrl}
-								onChange={(e) =>
-									setFormData({ ...formData, videoUrl: e.target.value })
-								}
+								{...register('videoUrl')}
 								placeholder='https://example.com/video'
 								className='bg-input border-border text-foreground placeholder:text-muted-foreground'
 							/>
+							{errors.videoUrl && (
+								<p className='text-sm text-red-500'>
+									{errors.videoUrl.message}
+								</p>
+							)}
 						</div>
 
 						<div className='space-y-2'>
@@ -521,13 +402,15 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 							<Input
 								id='imageUrl'
 								type='url'
-								value={formData.imageUrl}
-								onChange={(e) =>
-									setFormData({ ...formData, imageUrl: e.target.value })
-								}
+								{...register('imageUrl')}
 								placeholder='https://example.com/image.jpg'
 								className='bg-input border-border text-foreground placeholder:text-muted-foreground'
 							/>
+							{errors.imageUrl && (
+								<p className='text-sm text-red-500'>
+									{errors.imageUrl.message}
+								</p>
+							)}
 						</div>
 					</div>
 
@@ -541,7 +424,7 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 						</Button>
 						<Button
 							type='submit'
-							disabled={createExercise.isPending}
+							disabled={createExercise.isPending || !isValid}
 							className='bg-primary hover:bg-primary/90'>
 							{createExercise.isPending ? 'Creating...' : 'Create Exercise'}
 						</Button>

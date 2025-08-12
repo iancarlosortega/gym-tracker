@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { FiLoader, FiSave, FiTrendingUp } from 'react-icons/fi';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,70 +16,63 @@ import {
 	useBodyMeasurements,
 	useCreateBodyMeasurement,
 } from '@/features/body-measurements/hooks/use-body-measurements';
+import type { MeasurementsFormData } from '@/features/body-measurements/schemas/measurements';
 
 export default function MeasurementsPage() {
-	const [measurements, setMeasurements] = useState({
-		weight: '',
-		bodyFat: '',
-		height: '',
-		chest: '',
-		waist: '',
-		hips: '',
-		bicep: '',
-		thigh: '',
-	});
-
 	const { data: allMeasurements = [], isLoading } = useBodyMeasurements();
 	const createMeasurement = useCreateBodyMeasurement();
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+	const {
+		register,
+		handleSubmit,
+		reset,
+		formState: { errors, isSubmitting },
+	} = useForm<MeasurementsFormData>({
+		defaultValues: {
+			weight: '',
+			bodyFat: '',
+			height: '',
+			chest: '',
+			waist: '',
+			hips: '',
+			bicep: '',
+			thigh: '',
+		},
+		mode: 'onChange',
+	});
 
-		const hasAnyMeasurement = Object.values(measurements).some(
-			(value) => value.trim() !== ''
+	const onSubmit = async (data: MeasurementsFormData) => {
+		// Check if at least one measurement is provided
+		const hasAnyMeasurement = Object.values(data).some(
+			(value) => value !== undefined && value !== ''
 		);
+
 		if (!hasAnyMeasurement) {
+			console.error('At least one measurement is required');
 			return;
 		}
 
 		try {
-			const data = Object.entries(measurements).reduce(
+			// Convert string values to numbers and filter out empty values
+			const processedData = Object.entries(data).reduce(
 				(acc, [key, value]) => {
-					if (value.trim() !== '') {
-						(acc as Record<string, number>)[key] = parseFloat(value);
+					if (value && value.trim() !== '') {
+						const numValue = parseFloat(value);
+						if (!Number.isNaN(numValue)) {
+							(acc as Record<string, number>)[key] = numValue;
+						}
 					}
 					return acc;
 				},
 				{} as Record<string, number>
 			);
 
-			await createMeasurement.mutateAsync(data);
-
-			// Reset form
-			setMeasurements({
-				weight: '',
-				bodyFat: '',
-				height: '',
-				chest: '',
-				waist: '',
-				hips: '',
-				bicep: '',
-				thigh: '',
-			});
+			await createMeasurement.mutateAsync(processedData);
+			reset();
 		} catch (error) {
 			console.error('Failed to create measurement:', error);
 		}
 	};
-
-	const handleInputChange =
-		(field: keyof typeof measurements) =>
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			const value = e.target.value;
-			// Allow empty string or valid decimal numbers
-			if (value === '' || /^\d*\.?\d*$/.test(value)) {
-				setMeasurements((prev) => ({ ...prev, [field]: value }));
-			}
-		};
 
 	const latestMeasurement = allMeasurements[0];
 
@@ -101,307 +94,438 @@ export default function MeasurementsPage() {
 			</header>
 
 			<main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-				<div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
-					{/* Add New Measurement */}
-					<Card className='bg-gray-900 border-gray-800'>
-						<CardHeader>
-							<CardTitle className='flex items-center text-white'>
-								<FiSave className='w-5 h-5 mr-2' />
-								Add New Measurement
-							</CardTitle>
-							<CardDescription className='text-gray-400'>
-								Record your current body measurements. You don't need to fill in
-								all fields.
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<form onSubmit={handleSubmit} className='space-y-4'>
-								<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-									<div className='space-y-2'>
-										<Label htmlFor='weight' className='text-gray-300'>
-											Weight (kg)
-										</Label>
-										<Input
-											id='weight'
-											type='text'
-											value={measurements.weight}
-											onChange={handleInputChange('weight')}
-											placeholder='0.0'
-											className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500'
-										/>
-									</div>
-									<div className='space-y-2'>
-										<Label htmlFor='height' className='text-gray-300'>
-											Height (cm)
-										</Label>
-										<Input
-											id='height'
-											type='text'
-											value={measurements.height}
-											onChange={handleInputChange('height')}
-											placeholder='0.0'
-											className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500'
-										/>
-									</div>
-									<div className='space-y-2'>
-										<Label htmlFor='bodyFat' className='text-gray-300'>
-											Body Fat (%)
-										</Label>
-										<Input
-											id='bodyFat'
-											type='text'
-											value={measurements.bodyFat}
-											onChange={handleInputChange('bodyFat')}
-											placeholder='0.0'
-											className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500'
-										/>
-									</div>
-									<div className='space-y-2'>
-										<Label htmlFor='chest' className='text-gray-300'>
-											Chest (cm)
-										</Label>
-										<Input
-											id='chest'
-											type='text'
-											value={measurements.chest}
-											onChange={handleInputChange('chest')}
-											placeholder='0.0'
-											className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500'
-										/>
-									</div>
-									<div className='space-y-2'>
-										<Label htmlFor='waist' className='text-gray-300'>
-											Waist (cm)
-										</Label>
-										<Input
-											id='waist'
-											type='text'
-											value={measurements.waist}
-											onChange={handleInputChange('waist')}
-											placeholder='0.0'
-											className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500'
-										/>
-									</div>
-									<div className='space-y-2'>
-										<Label htmlFor='hips' className='text-gray-300'>
-											Hips (cm)
-										</Label>
-										<Input
-											id='hips'
-											type='text'
-											value={measurements.hips}
-											onChange={handleInputChange('hips')}
-											placeholder='0.0'
-											className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500'
-										/>
-									</div>
-									<div className='space-y-2'>
-										<Label htmlFor='bicep' className='text-gray-300'>
-											Bicep (cm)
-										</Label>
-										<Input
-											id='bicep'
-											type='text'
-											value={measurements.bicep}
-											onChange={handleInputChange('bicep')}
-											placeholder='0.0'
-											className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500'
-										/>
-									</div>
-									<div className='space-y-2'>
-										<Label htmlFor='thigh' className='text-gray-300'>
-											Thigh (cm)
-										</Label>
-										<Input
-											id='thigh'
-											type='text'
-											value={measurements.thigh}
-											onChange={handleInputChange('thigh')}
-											placeholder='0.0'
-											className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500'
-										/>
-									</div>
-								</div>
-
-								<Button
-									type='submit'
-									disabled={createMeasurement.isPending}
-									className='w-full bg-blue-600 hover:bg-blue-700 text-white'>
-									{createMeasurement.isPending ? (
-										<>
-											<FiLoader className='w-4 h-4 mr-2 animate-spin' />
-											Saving...
-										</>
-									) : (
-										<>
-											<FiSave className='w-4 h-4 mr-2' />
-											Save Measurement
-										</>
-									)}
-								</Button>
-							</form>
-						</CardContent>
-					</Card>
-
-					{/* Latest Measurement & History */}
-					<div className='space-y-6'>
-						{latestMeasurement && (
+				<div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+					{/* Latest Measurement Overview */}
+					{latestMeasurement && (
+						<div className='lg:col-span-1'>
 							<Card className='bg-gray-900 border-gray-800'>
 								<CardHeader>
-									<CardTitle className='flex items-center text-white'>
+									<CardTitle className='text-white flex items-center'>
 										<FiTrendingUp className='w-5 h-5 mr-2' />
-										Latest Measurement
+										Latest Measurements
 									</CardTitle>
 									<CardDescription className='text-gray-400'>
-										Recorded on{' '}
-										{new Date(latestMeasurement.createdAt).toLocaleDateString()}
+										Your most recent body measurements
 									</CardDescription>
 								</CardHeader>
-								<CardContent>
-									<div className='grid grid-cols-2 gap-4 text-sm'>
-										{latestMeasurement.weight && (
-											<div>
-												<span className='font-medium text-gray-400'>
-													Weight:
-												</span>
-												<span className='ml-2 text-white'>
-													{latestMeasurement.weight} kg
-												</span>
-											</div>
-										)}
-										{latestMeasurement.height && (
-											<div>
-												<span className='font-medium text-gray-400'>
-													Height:
-												</span>
-												<span className='ml-2 text-white'>
-													{latestMeasurement.height} cm
-												</span>
-											</div>
-										)}
-										{latestMeasurement.bodyFat && (
-											<div>
-												<span className='font-medium text-gray-400'>
-													Body Fat:
-												</span>
-												<span className='ml-2 text-white'>
-													{latestMeasurement.bodyFat}%
-												</span>
-											</div>
-										)}
-										{latestMeasurement.chest && (
-											<div>
-												<span className='font-medium text-gray-400'>
-													Chest:
-												</span>
-												<span className='ml-2 text-white'>
-													{latestMeasurement.chest} cm
-												</span>
-											</div>
-										)}
-										{latestMeasurement.waist && (
-											<div>
-												<span className='font-medium text-gray-400'>
-													Waist:
-												</span>
-												<span className='ml-2 text-white'>
-													{latestMeasurement.waist} cm
-												</span>
-											</div>
-										)}
-										{latestMeasurement.hips && (
-											<div>
-												<span className='font-medium text-gray-400'>Hips:</span>
-												<span className='ml-2 text-white'>
-													{latestMeasurement.hips} cm
-												</span>
-											</div>
-										)}
-										{latestMeasurement.bicep && (
-											<div>
-												<span className='font-medium text-gray-400'>
-													Bicep:
-												</span>
-												<span className='ml-2 text-white'>
-													{latestMeasurement.bicep} cm
-												</span>
-											</div>
-										)}
-										{latestMeasurement.thigh && (
-											<div>
-												<span className='font-medium text-gray-400'>
-													Thigh:
-												</span>
-												<span className='ml-2 text-white'>
-													{latestMeasurement.thigh} cm
-												</span>
-											</div>
-										)}
-									</div>
+								<CardContent className='space-y-4'>
+									{latestMeasurement.weight && (
+										<div className='flex justify-between'>
+											<span className='text-gray-300'>Weight:</span>
+											<span className='text-white font-medium'>
+												{latestMeasurement.weight} lbs
+											</span>
+										</div>
+									)}
+									{latestMeasurement.bodyFat && (
+										<div className='flex justify-between'>
+											<span className='text-gray-300'>Body Fat:</span>
+											<span className='text-white font-medium'>
+												{latestMeasurement.bodyFat}%
+											</span>
+										</div>
+									)}
+									{latestMeasurement.height && (
+										<div className='flex justify-between'>
+											<span className='text-gray-300'>Height:</span>
+											<span className='text-white font-medium'>
+												{latestMeasurement.height} in
+											</span>
+										</div>
+									)}
+									{latestMeasurement.chest && (
+										<div className='flex justify-between'>
+											<span className='text-gray-300'>Chest:</span>
+											<span className='text-white font-medium'>
+												{latestMeasurement.chest} in
+											</span>
+										</div>
+									)}
+									{latestMeasurement.waist && (
+										<div className='flex justify-between'>
+											<span className='text-gray-300'>Waist:</span>
+											<span className='text-white font-medium'>
+												{latestMeasurement.waist} in
+											</span>
+										</div>
+									)}
+									{latestMeasurement.hips && (
+										<div className='flex justify-between'>
+											<span className='text-gray-300'>Hips:</span>
+											<span className='text-white font-medium'>
+												{latestMeasurement.hips} in
+											</span>
+										</div>
+									)}
+									{latestMeasurement.bicep && (
+										<div className='flex justify-between'>
+											<span className='text-gray-300'>Bicep:</span>
+											<span className='text-white font-medium'>
+												{latestMeasurement.bicep} in
+											</span>
+										</div>
+									)}
+									{latestMeasurement.thigh && (
+										<div className='flex justify-between'>
+											<span className='text-gray-300'>Thigh:</span>
+											<span className='text-white font-medium'>
+												{latestMeasurement.thigh} in
+											</span>
+										</div>
+									)}
 								</CardContent>
 							</Card>
-						)}
+						</div>
+					)}
 
-						{/* Measurement History */}
+					{/* Add New Measurement */}
+					<div
+						className={latestMeasurement ? 'lg:col-span-2' : 'lg:col-span-3'}>
+						<Card className='bg-gray-900 border-gray-800'>
+							<CardHeader>
+								<CardTitle className='text-white'>
+									Add New Measurements
+								</CardTitle>
+								<CardDescription className='text-gray-400'>
+									Enter your current body measurements. You don't need to fill
+									all fields.
+								</CardDescription>
+							</CardHeader>
+							<CardContent>
+								<form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+									<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+										{/* Weight */}
+										<div className='space-y-2'>
+											<Label htmlFor='weight' className='text-white'>
+												Weight (lbs)
+											</Label>
+											<Input
+												id='weight'
+												type='number'
+												step='0.1'
+												placeholder='0.0'
+												{...register('weight', {
+													pattern: {
+														value: /^\d*\.?\d*$/,
+														message: 'Please enter a valid number',
+													},
+												})}
+												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
+											/>
+											{errors.weight && (
+												<p className='text-sm text-red-500'>
+													{errors.weight.message}
+												</p>
+											)}
+										</div>
+
+										{/* Body Fat */}
+										<div className='space-y-2'>
+											<Label htmlFor='bodyFat' className='text-white'>
+												Body Fat (%)
+											</Label>
+											<Input
+												id='bodyFat'
+												type='number'
+												step='0.1'
+												placeholder='0.0'
+												{...register('bodyFat', {
+													pattern: {
+														value: /^\d*\.?\d*$/,
+														message: 'Please enter a valid number',
+													},
+												})}
+												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
+											/>
+											{errors.bodyFat && (
+												<p className='text-sm text-red-500'>
+													{errors.bodyFat.message}
+												</p>
+											)}
+										</div>
+
+										{/* Height */}
+										<div className='space-y-2'>
+											<Label htmlFor='height' className='text-white'>
+												Height (inches)
+											</Label>
+											<Input
+												id='height'
+												type='number'
+												step='0.1'
+												placeholder='0.0'
+												{...register('height', {
+													pattern: {
+														value: /^\d*\.?\d*$/,
+														message: 'Please enter a valid number',
+													},
+												})}
+												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
+											/>
+											{errors.height && (
+												<p className='text-sm text-red-500'>
+													{errors.height.message}
+												</p>
+											)}
+										</div>
+
+										{/* Chest */}
+										<div className='space-y-2'>
+											<Label htmlFor='chest' className='text-white'>
+												Chest (inches)
+											</Label>
+											<Input
+												id='chest'
+												type='number'
+												step='0.1'
+												placeholder='0.0'
+												{...register('chest', {
+													pattern: {
+														value: /^\d*\.?\d*$/,
+														message: 'Please enter a valid number',
+													},
+												})}
+												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
+											/>
+											{errors.chest && (
+												<p className='text-sm text-red-500'>
+													{errors.chest.message}
+												</p>
+											)}
+										</div>
+
+										{/* Waist */}
+										<div className='space-y-2'>
+											<Label htmlFor='waist' className='text-white'>
+												Waist (inches)
+											</Label>
+											<Input
+												id='waist'
+												type='number'
+												step='0.1'
+												placeholder='0.0'
+												{...register('waist', {
+													pattern: {
+														value: /^\d*\.?\d*$/,
+														message: 'Please enter a valid number',
+													},
+												})}
+												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
+											/>
+											{errors.waist && (
+												<p className='text-sm text-red-500'>
+													{errors.waist.message}
+												</p>
+											)}
+										</div>
+
+										{/* Hips */}
+										<div className='space-y-2'>
+											<Label htmlFor='hips' className='text-white'>
+												Hips (inches)
+											</Label>
+											<Input
+												id='hips'
+												type='number'
+												step='0.1'
+												placeholder='0.0'
+												{...register('hips', {
+													pattern: {
+														value: /^\d*\.?\d*$/,
+														message: 'Please enter a valid number',
+													},
+												})}
+												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
+											/>
+											{errors.hips && (
+												<p className='text-sm text-red-500'>
+													{errors.hips.message}
+												</p>
+											)}
+										</div>
+
+										{/* Bicep */}
+										<div className='space-y-2'>
+											<Label htmlFor='bicep' className='text-white'>
+												Bicep (inches)
+											</Label>
+											<Input
+												id='bicep'
+												type='number'
+												step='0.1'
+												placeholder='0.0'
+												{...register('bicep', {
+													pattern: {
+														value: /^\d*\.?\d*$/,
+														message: 'Please enter a valid number',
+													},
+												})}
+												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
+											/>
+											{errors.bicep && (
+												<p className='text-sm text-red-500'>
+													{errors.bicep.message}
+												</p>
+											)}
+										</div>
+
+										{/* Thigh */}
+										<div className='space-y-2'>
+											<Label htmlFor='thigh' className='text-white'>
+												Thigh (inches)
+											</Label>
+											<Input
+												id='thigh'
+												type='number'
+												step='0.1'
+												placeholder='0.0'
+												{...register('thigh', {
+													pattern: {
+														value: /^\d*\.?\d*$/,
+														message: 'Please enter a valid number',
+													},
+												})}
+												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
+											/>
+											{errors.thigh && (
+												<p className='text-sm text-red-500'>
+													{errors.thigh.message}
+												</p>
+											)}
+										</div>
+									</div>
+
+									<div className='flex justify-end pt-4'>
+										<Button
+											type='submit'
+											disabled={createMeasurement.isPending || isSubmitting}
+											className='bg-blue-600 hover:bg-blue-700 text-white'>
+											{createMeasurement.isPending || isSubmitting ? (
+												<>
+													<FiLoader className='w-4 h-4 mr-2 animate-spin' />
+													Saving...
+												</>
+											) : (
+												<>
+													<FiSave className='w-4 h-4 mr-2' />
+													Save Measurements
+												</>
+											)}
+										</Button>
+									</div>
+
+									{createMeasurement.error && (
+										<div className='p-4 bg-red-900/50 border border-red-700 rounded-md'>
+											<p className='text-red-200 text-sm'>
+												Failed to save measurements. Please try again.
+											</p>
+										</div>
+									)}
+								</form>
+							</CardContent>
+						</Card>
+					</div>
+				</div>
+
+				{/* Measurement History */}
+				{allMeasurements.length > 0 && (
+					<div className='mt-8'>
 						<Card className='bg-gray-900 border-gray-800'>
 							<CardHeader>
 								<CardTitle className='text-white'>
 									Measurement History
 								</CardTitle>
 								<CardDescription className='text-gray-400'>
-									Your recent body measurements
+									Your body measurement records over time
 								</CardDescription>
 							</CardHeader>
 							<CardContent>
 								{isLoading ? (
-									<div className='text-center py-4'>
-										<div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto'></div>
-										<p className='mt-2 text-sm text-gray-400'>
-											Loading measurements...
-										</p>
+									<div className='flex items-center justify-center py-8'>
+										<FiLoader className='w-6 h-6 animate-spin text-gray-400' />
 									</div>
-								) : allMeasurements.length === 0 ? (
-									<p className='text-center text-gray-400 py-8'>
-										No measurements recorded yet. Add your first measurement
-										above!
-									</p>
 								) : (
-									<div className='space-y-4 max-h-96 overflow-y-auto'>
-										{allMeasurements.slice(0, 10).map((measurement, index) => (
+									<div className='space-y-4'>
+										{allMeasurements.map((measurement, index) => (
 											<div
 												key={measurement.id}
-												className='p-4 border border-gray-700 rounded-lg bg-gray-800'>
-												<div className='flex items-center justify-between mb-2'>
-													<span className='text-sm font-medium text-white'>
-														Entry #{allMeasurements.length - index}
+												className='p-4 bg-gray-800 rounded-lg border border-gray-700'>
+												<div className='flex items-center justify-between mb-3'>
+													<span className='text-white font-medium'>
+														{index === 0
+															? 'Latest'
+															: `${index + 1} measurements ago`}
 													</span>
-													<span className='text-xs text-gray-400'>
+													<span className='text-gray-400 text-sm'>
 														{new Date(
 															measurement.createdAt
 														).toLocaleDateString()}
 													</span>
 												</div>
-												<div className='grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-gray-300'>
+												<div className='grid grid-cols-2 md:grid-cols-4 gap-4 text-sm'>
 													{measurement.weight && (
-														<span>Weight: {measurement.weight}kg</span>
+														<div>
+															<span className='text-gray-400'>Weight:</span>
+															<span className='text-white ml-1'>
+																{measurement.weight} lbs
+															</span>
+														</div>
 													)}
 													{measurement.bodyFat && (
-														<span>BF: {measurement.bodyFat}%</span>
+														<div>
+															<span className='text-gray-400'>Body Fat:</span>
+															<span className='text-white ml-1'>
+																{measurement.bodyFat}%
+															</span>
+														</div>
+													)}
+													{measurement.height && (
+														<div>
+															<span className='text-gray-400'>Height:</span>
+															<span className='text-white ml-1'>
+																{measurement.height} in
+															</span>
+														</div>
 													)}
 													{measurement.chest && (
-														<span>Chest: {measurement.chest}cm</span>
+														<div>
+															<span className='text-gray-400'>Chest:</span>
+															<span className='text-white ml-1'>
+																{measurement.chest} in
+															</span>
+														</div>
 													)}
 													{measurement.waist && (
-														<span>Waist: {measurement.waist}cm</span>
+														<div>
+															<span className='text-gray-400'>Waist:</span>
+															<span className='text-white ml-1'>
+																{measurement.waist} in
+															</span>
+														</div>
 													)}
 													{measurement.hips && (
-														<span>Hips: {measurement.hips}cm</span>
+														<div>
+															<span className='text-gray-400'>Hips:</span>
+															<span className='text-white ml-1'>
+																{measurement.hips} in
+															</span>
+														</div>
 													)}
 													{measurement.bicep && (
-														<span>Bicep: {measurement.bicep}cm</span>
+														<div>
+															<span className='text-gray-400'>Bicep:</span>
+															<span className='text-white ml-1'>
+																{measurement.bicep} in
+															</span>
+														</div>
 													)}
 													{measurement.thigh && (
-														<span>Thigh: {measurement.thigh}cm</span>
+														<div>
+															<span className='text-gray-400'>Thigh:</span>
+															<span className='text-white ml-1'>
+																{measurement.thigh} in
+															</span>
+														</div>
 													)}
 												</div>
 											</div>
@@ -411,7 +535,7 @@ export default function MeasurementsPage() {
 							</CardContent>
 						</Card>
 					</div>
-				</div>
+				)}
 			</main>
 		</div>
 	);
