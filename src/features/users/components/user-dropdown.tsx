@@ -24,13 +24,13 @@ export function UserDropdown({ isMobile = false }: UserDropdownProps) {
 					<Button
 						variant='ghost'
 						size='icon'
-						className='text-gray-300 hover:text-white hover:bg-gray-800 p-2'>
+						className='text-muted-foreground hover:text-foreground hover:bg-accent p-2'>
 						<User className='h-5 w-5' />
 					</Button>
 				) : (
 					<Button
 						variant='ghost'
-						className='text-gray-300 hover:text-white hover:bg-gray-800 px-3 py-2 h-auto'>
+						className='text-muted-foreground hover:text-foreground hover:bg-accent px-3 py-2 h-auto'>
 						<User className='h-4 w-4' />
 					</Button>
 				)}

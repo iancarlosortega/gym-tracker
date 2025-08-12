@@ -1,34 +1,36 @@
 @import "tailwindcss";
 
-:root {
-	--background: 7.0567% -1.76077 -8.04534; /* slate-900 LAB */
-	--foreground: 94.7793% 0 0; /* slate-100 LAB */
-	--card: 16.1051% -1.18239 -11.7533; /* slate-800 LAB */
-	--card-foreground: 94.7793% 0 0; /* slate-100 LAB */
-	--popover: 16.1051% -1.18239 -11.7533; /* slate-800 LAB */
-	--popover-foreground: 94.7793% 0 0; /* slate-100 LAB */
-	--primary: 52.2319% 18.6906 -67.9593; /* blue-600 LAB */
-	--primary-foreground: 94.7793% 0 0; /* slate-100 LAB */
-	--secondary: 25.292% -0.84523 -9.26927; /* slate-700 LAB */
-	--secondary-foreground: 94.7793% 0 0; /* slate-100 LAB */
-	--muted: 25.292% -0.84523 -9.26927; /* slate-700 LAB */
-	--muted-foreground: 66.766% 0 0; /* slate-400 LAB */
-	--accent: 25.292% -0.84523 -9.26927; /* slate-700 LAB */
-	--accent-foreground: 94.7793% 0 0; /* slate-100 LAB */
-	--destructive: 47.9981% 68.2583 48.1021; /* red-600 LAB */
-	--destructive-foreground: 94.7793% 0 0; /* slate-100 LAB */
-	--border: 16.1051% -1.18239 -11.7533; /* gray-800 LAB */
-	--input: 16.1051% -1.18239 -11.7533; /* gray-800 LAB */
-	--ring: 52.2319% 18.6906 -67.9593; /* blue-600 LAB */
+@theme {
+	--color-background: oklch(0.0898 0.0019 252.37); /* slate-900 */
+	--color-foreground: oklch(0.9843 0.0014 252.37); /* slate-100 */
+	--color-card: oklch(0.1618 0.0144 249.73); /* slate-800 */
+	--color-card-foreground: oklch(0.9843 0.0014 252.37); /* slate-100 */
+	--color-popover: oklch(0.1618 0.0144 249.73); /* slate-800 */
+	--color-popover-foreground: oklch(0.9843 0.0014 252.37); /* slate-100 */
+	--color-primary: oklch(0.5724 0.1983 251.12); /* blue-600 */
+	--color-primary-foreground: oklch(0.9843 0.0014 252.37); /* slate-100 */
+	--color-secondary: oklch(0.2803 0.0138 249.73); /* slate-700 */
+	--color-secondary-foreground: oklch(0.9843 0.0014 252.37); /* slate-100 */
+	--color-muted: oklch(0.2803 0.0138 249.73); /* slate-700 */
+	--color-muted-foreground: oklch(0.6783 0.0108 249.73); /* slate-400 */
+	--color-accent: oklch(0.2803 0.0138 249.73); /* slate-700 */
+	--color-accent-foreground: oklch(0.9843 0.0014 252.37); /* slate-100 */
+	--color-destructive: oklch(0.6262 0.2178 20.66); /* red-600 */
+	--color-destructive-foreground: oklch(0.9843 0.0014 252.37); /* slate-100 */
+	--color-border: oklch(0.1618 0.0144 249.73); /* slate-800 */
+	--color-input: oklch(0.1618 0.0144 249.73); /* slate-800 */
+	--color-ring: oklch(0.5724 0.1983 251.12); /* blue-600 */
+	--color-ring-offset: oklch(0.0898 0.0019 252.37); /* slate-900 - same as background */
 	--radius: 0.5rem;
 }
 
-* {
-	border-color: lab(var(--border));
-}
+@layer base {
+	* {
+		border-color: var(--color-border);
+	}
 
-body {
-	background-color: lab(var(--background));
-	color: lab(var(--foreground));
-	min-height: 100vh;
+	body {
+		color: var(--color-foreground);
+		min-height: 100vh;
+	}
 }

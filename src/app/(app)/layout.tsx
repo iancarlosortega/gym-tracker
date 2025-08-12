@@ -8,7 +8,7 @@ export default function AppLayout({
 	return (
 		<>
 			<Header />
-			<div className='min-h-screen bg-gray-950'>{children}</div>
+			{children}
 		</>
 	);
 }

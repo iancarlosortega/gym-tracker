@@ -136,26 +136,28 @@ export default function NewWorkoutPage() {
 	};
 
 	return (
-		<div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gray-950 min-h-screen'>
+		<div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
 			<div className='mb-8'>
-				<h1 className='text-3xl font-bold text-white'>New Workout</h1>
-				<p className='mt-1 text-sm text-gray-400'>
+				<h1 className='text-3xl font-bold text-foreground'>New Workout</h1>
+				<p className='mt-1 text-sm text-muted-foreground'>
 					Create a new training session
 				</p>
 			</div>
 
 			<form onSubmit={handleSubmit} className='space-y-8'>
 				{/* Basic Information */}
-				<Card className='bg-gray-900 border-gray-800'>
+				<Card className='bg-card border-border'>
 					<CardHeader>
-						<CardTitle className='text-white'>Workout Details</CardTitle>
-						<CardDescription className='text-gray-400'>
+						<CardTitle className='text-card-foreground'>
+							Workout Details
+						</CardTitle>
+						<CardDescription className='text-muted-foreground'>
 							Enter the basic information for your workout session
 						</CardDescription>
 					</CardHeader>
 					<CardContent className='space-y-4'>
 						<div className='space-y-2'>
-							<Label htmlFor='name' className='text-gray-300'>
+							<Label htmlFor='name' className='text-foreground'>
 								Workout Name *
 							</Label>
 							<Input
@@ -165,12 +167,12 @@ export default function NewWorkoutPage() {
 								value={name}
 								onChange={(e) => setName(e.target.value)}
 								required
-								className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500'
+								className='bg-input border-border text-foreground placeholder:text-muted-foreground focus:ring-ring focus:border-ring'
 							/>
 						</div>
 
 						<div className='space-y-2'>
-							<Label htmlFor='notes' className='text-gray-300'>
+							<Label htmlFor='notes' className='text-foreground'>
 								Notes (Optional)
 							</Label>
 							<Textarea

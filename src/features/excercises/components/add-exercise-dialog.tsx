@@ -142,16 +142,18 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				{trigger || (
-					<Button className='bg-blue-600 hover:bg-blue-700'>
+					<Button className='bg-primary hover:bg-primary/90'>
 						<Plus className='w-4 h-4 mr-2' />
 						Add Exercise
 					</Button>
 				)}
 			</DialogTrigger>
-			<DialogContent className='sm:max-w-[600px] bg-gray-900 border-gray-800 text-white max-h-[90vh] overflow-y-auto'>
+			<DialogContent className='sm:max-w-[600px] bg-card border-border text-card-foreground max-h-[90vh] overflow-y-auto'>
 				<DialogHeader>
-					<DialogTitle className='text-white'>Add New Exercise</DialogTitle>
-					<DialogDescription className='text-gray-400'>
+					<DialogTitle className='text-foreground'>
+						Add New Exercise
+					</DialogTitle>
+					<DialogDescription className='text-muted-foreground'>
 						Create a new custom exercise for your workout library.
 					</DialogDescription>
 				</DialogHeader>
@@ -159,7 +161,7 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 						{/* Exercise Name */}
 						<div className='space-y-2'>
-							<Label htmlFor='name' className='text-gray-300'>
+							<Label htmlFor='name' className='text-foreground'>
 								Exercise Name *
 							</Label>
 							<Input
@@ -169,42 +171,42 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 									setFormData({ ...formData, name: e.target.value })
 								}
 								placeholder='e.g., Bench Press'
-								className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
+								className='bg-input border-border text-foreground placeholder:text-muted-foreground'
 								required
 							/>
 						</div>
 
 						{/* Type */}
 						<div className='space-y-2'>
-							<Label className='text-gray-300'>Type *</Label>
+							<Label className='text-foreground'>Type *</Label>
 							<Select
 								value={formData.type}
 								onValueChange={(value) =>
 									setFormData({ ...formData, type: value })
 								}
 								required>
-								<SelectTrigger className='bg-gray-800 border-gray-700 text-white'>
+								<SelectTrigger className='bg-input border-border text-foreground'>
 									<SelectValue placeholder='Select type' />
 								</SelectTrigger>
-								<SelectContent className='bg-gray-800 border-gray-700'>
+								<SelectContent className='bg-popover border-border'>
 									<SelectItem
 										value='strength'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Strength
 									</SelectItem>
 									<SelectItem
 										value='cardio'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Cardio
 									</SelectItem>
 									<SelectItem
 										value='flexibility'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Flexibility
 									</SelectItem>
 									<SelectItem
 										value='balance'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Balance
 									</SelectItem>
 								</SelectContent>
@@ -213,75 +215,75 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 
 						{/* Equipment */}
 						<div className='space-y-2'>
-							<Label className='text-gray-300'>Equipment *</Label>
+							<Label className='text-foreground'>Equipment *</Label>
 							<Select
 								value={formData.equipment}
 								onValueChange={(value) =>
 									setFormData({ ...formData, equipment: value })
 								}
 								required>
-								<SelectTrigger className='bg-gray-800 border-gray-700 text-white'>
+								<SelectTrigger className='bg-input border-border text-foreground'>
 									<SelectValue placeholder='Select equipment' />
 								</SelectTrigger>
-								<SelectContent className='bg-gray-800 border-gray-700'>
+								<SelectContent className='bg-popover border-border'>
 									<SelectItem
 										value='barbell'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Barbell
 									</SelectItem>
 									<SelectItem
 										value='dumbbell'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Dumbbell
 									</SelectItem>
 									<SelectItem
 										value='machine'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Machine
 									</SelectItem>
 									<SelectItem
 										value='cable'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Cable
 									</SelectItem>
 									<SelectItem
 										value='bodyweight'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Bodyweight
 									</SelectItem>
 									<SelectItem
 										value='resistance_band'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Resistance Band
 									</SelectItem>
 									<SelectItem
 										value='kettlebell'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Kettlebell
 									</SelectItem>
 									<SelectItem
 										value='medicine_ball'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Medicine Ball
 									</SelectItem>
 									<SelectItem
 										value='treadmill'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Treadmill
 									</SelectItem>
 									<SelectItem
 										value='bike'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Bike
 									</SelectItem>
 									<SelectItem
 										value='rowing_machine'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Rowing Machine
 									</SelectItem>
 									<SelectItem
 										value='other'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Other
 									</SelectItem>
 								</SelectContent>
@@ -290,75 +292,75 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 
 						{/* Primary Muscle Group */}
 						<div className='space-y-2'>
-							<Label className='text-gray-300'>Primary Muscle Group *</Label>
+							<Label className='text-foreground'>Primary Muscle Group *</Label>
 							<Select
 								value={formData.primaryMuscleGroup}
 								onValueChange={(value) =>
 									setFormData({ ...formData, primaryMuscleGroup: value })
 								}
 								required>
-								<SelectTrigger className='bg-gray-800 border-gray-700 text-white'>
+								<SelectTrigger className='bg-input border-border text-foreground'>
 									<SelectValue placeholder='Select muscle group' />
 								</SelectTrigger>
-								<SelectContent className='bg-gray-800 border-gray-700'>
+								<SelectContent className='bg-popover border-border'>
 									<SelectItem
 										value='chest'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Chest
 									</SelectItem>
 									<SelectItem
 										value='back'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Back
 									</SelectItem>
 									<SelectItem
 										value='shoulders'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Shoulders
 									</SelectItem>
 									<SelectItem
 										value='biceps'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Biceps
 									</SelectItem>
 									<SelectItem
 										value='triceps'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Triceps
 									</SelectItem>
 									<SelectItem
 										value='forearms'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Forearms
 									</SelectItem>
 									<SelectItem
 										value='core'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Core
 									</SelectItem>
 									<SelectItem
 										value='glutes'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Glutes
 									</SelectItem>
 									<SelectItem
 										value='quadriceps'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Quadriceps
 									</SelectItem>
 									<SelectItem
 										value='hamstrings'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Hamstrings
 									</SelectItem>
 									<SelectItem
 										value='calves'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Calves
 									</SelectItem>
 									<SelectItem
 										value='full_body'
-										className='text-white focus:bg-gray-700'>
+										className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 										Full Body
 									</SelectItem>
 								</SelectContent>
@@ -368,7 +370,7 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 
 					{/* Description */}
 					<div className='space-y-2'>
-						<Label htmlFor='description' className='text-gray-300'>
+						<Label htmlFor='description' className='text-foreground'>
 							Description
 						</Label>
 						<Input
@@ -378,13 +380,13 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 								setFormData({ ...formData, description: e.target.value })
 							}
 							placeholder='Brief description of the exercise'
-							className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
+							className='bg-input border-border text-foreground placeholder:text-muted-foreground'
 						/>
 					</div>
 
 					{/* Secondary Muscle Groups */}
 					<div className='space-y-2'>
-						<Label className='text-gray-300'>Secondary Muscle Groups</Label>
+						<Label className='text-foreground'>Secondary Muscle Groups</Label>
 						{formData.secondaryMuscleGroups.map((group, index) => (
 							<div key={group.id} className='flex gap-2'>
 								<Select
@@ -392,68 +394,68 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 									onValueChange={(value) =>
 										handleSecondaryMuscleGroupChange(value, index)
 									}>
-									<SelectTrigger className='bg-gray-800 border-gray-700 text-white'>
+									<SelectTrigger className='bg-input border-border text-foreground'>
 										<SelectValue placeholder='Select muscle group' />
 									</SelectTrigger>
-									<SelectContent className='bg-gray-800 border-gray-700'>
+									<SelectContent className='bg-popover border-border'>
 										<SelectItem
 											value='chest'
-											className='text-white focus:bg-gray-700'>
+											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 											Chest
 										</SelectItem>
 										<SelectItem
 											value='back'
-											className='text-white focus:bg-gray-700'>
+											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 											Back
 										</SelectItem>
 										<SelectItem
 											value='shoulders'
-											className='text-white focus:bg-gray-700'>
+											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 											Shoulders
 										</SelectItem>
 										<SelectItem
 											value='biceps'
-											className='text-white focus:bg-gray-700'>
+											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 											Biceps
 										</SelectItem>
 										<SelectItem
 											value='triceps'
-											className='text-white focus:bg-gray-700'>
+											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 											Triceps
 										</SelectItem>
 										<SelectItem
 											value='forearms'
-											className='text-white focus:bg-gray-700'>
+											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 											Forearms
 										</SelectItem>
 										<SelectItem
 											value='core'
-											className='text-white focus:bg-gray-700'>
+											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 											Core
 										</SelectItem>
 										<SelectItem
 											value='glutes'
-											className='text-white focus:bg-gray-700'>
+											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 											Glutes
 										</SelectItem>
 										<SelectItem
 											value='quadriceps'
-											className='text-white focus:bg-gray-700'>
+											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 											Quadriceps
 										</SelectItem>
 										<SelectItem
 											value='hamstrings'
-											className='text-white focus:bg-gray-700'>
+											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 											Hamstrings
 										</SelectItem>
 										<SelectItem
 											value='calves'
-											className='text-white focus:bg-gray-700'>
+											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 											Calves
 										</SelectItem>
 										<SelectItem
 											value='full_body'
-											className='text-white focus:bg-gray-700'>
+											className='text-popover-foreground focus:bg-accent focus:text-accent-foreground'>
 											Full Body
 										</SelectItem>
 									</SelectContent>
@@ -463,7 +465,7 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 									variant='outline'
 									size='sm'
 									onClick={() => removeSecondaryMuscleGroup(index)}
-									className='border-gray-700 text-gray-300 hover:bg-gray-800'>
+									className='border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground'>
 									Remove
 								</Button>
 							</div>
@@ -473,14 +475,14 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 							variant='outline'
 							size='sm'
 							onClick={addSecondaryMuscleGroup}
-							className='border-gray-700 text-gray-300 hover:bg-gray-800'>
+							className='border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground'>
 							Add Secondary Muscle Group
 						</Button>
 					</div>
 
 					{/* Instructions */}
 					<div className='space-y-2'>
-						<Label htmlFor='instructions' className='text-gray-300'>
+						<Label htmlFor='instructions' className='text-foreground'>
 							Instructions
 						</Label>
 						<Textarea
@@ -490,14 +492,14 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 								setFormData({ ...formData, instructions: e.target.value })
 							}
 							placeholder='Step-by-step instructions for performing the exercise'
-							className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 min-h-[100px]'
+							className='bg-input border-border text-foreground placeholder:text-muted-foreground min-h-[100px]'
 						/>
 					</div>
 
 					{/* URLs */}
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 						<div className='space-y-2'>
-							<Label htmlFor='videoUrl' className='text-gray-300'>
+							<Label htmlFor='videoUrl' className='text-foreground'>
 								Video URL
 							</Label>
 							<Input
@@ -508,12 +510,12 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 									setFormData({ ...formData, videoUrl: e.target.value })
 								}
 								placeholder='https://example.com/video'
-								className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
+								className='bg-input border-border text-foreground placeholder:text-muted-foreground'
 							/>
 						</div>
 
 						<div className='space-y-2'>
-							<Label htmlFor='imageUrl' className='text-gray-300'>
+							<Label htmlFor='imageUrl' className='text-foreground'>
 								Image URL
 							</Label>
 							<Input
@@ -524,7 +526,7 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 									setFormData({ ...formData, imageUrl: e.target.value })
 								}
 								placeholder='https://example.com/image.jpg'
-								className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
+								className='bg-input border-border text-foreground placeholder:text-muted-foreground'
 							/>
 						</div>
 					</div>
@@ -534,13 +536,13 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 							type='button'
 							variant='outline'
 							onClick={() => setOpen(false)}
-							className='border-gray-700 text-gray-300 hover:bg-gray-800'>
+							className='border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground'>
 							Cancel
 						</Button>
 						<Button
 							type='submit'
 							disabled={createExercise.isPending}
-							className='bg-blue-600 hover:bg-blue-700'>
+							className='bg-primary hover:bg-primary/90'>
 							{createExercise.isPending ? 'Creating...' : 'Create Exercise'}
 						</Button>
 					</DialogFooter>
