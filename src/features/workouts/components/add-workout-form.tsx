@@ -4,14 +4,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiPlus } from 'react-icons/fi';
-import { Button } from '@/components/ui/button';
+import { useExercises } from '@/features/excercises/hooks/use-exercises';
+import { Button } from '@/features/shared/components/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from '@/components/ui/card';
+} from '@/features/shared/components/card';
 import {
 	Form,
 	FormControl,
@@ -19,10 +20,9 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { useExercises } from '@/features/excercises/hooks/use-exercises';
+} from '@/features/shared/components/form';
+import { Input } from '@/features/shared/components/input';
+import { Textarea } from '@/features/shared/components/textarea';
 import { useCreateWorkout } from '@/features/workouts/hooks/use-workouts';
 import type {
 	ExerciseSetFormData,

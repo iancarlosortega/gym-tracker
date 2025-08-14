@@ -1,6 +1,6 @@
 import { LogOut } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/features/shared/components/button';
 
 export const LogoutButton = () => {
 	return (

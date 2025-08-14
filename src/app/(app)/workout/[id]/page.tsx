@@ -10,16 +10,16 @@ import {
 	FiTrash2,
 	FiX,
 } from 'react-icons/fi';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/features/shared/components/badge';
+import { Button } from '@/features/shared/components/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+} from '@/features/shared/components/card';
+import { Input } from '@/features/shared/components/input';
 import { useWorkout } from '@/features/workouts/hooks/use-workouts';
 
 interface WorkoutDetailsPageProps {

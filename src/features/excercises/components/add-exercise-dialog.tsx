@@ -2,7 +2,7 @@
 
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/features/shared/components/button';
 import {
 	Dialog,
 	DialogContent,
@@ -10,7 +10,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from '@/components/ui/dialog';
+} from '@/features/shared/components/dialog';
 import { AddExerciseForm } from './add-exercise-form';
 
 interface AddExerciseDialogProps {

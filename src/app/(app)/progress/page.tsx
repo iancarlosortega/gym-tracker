@@ -1,8 +1,13 @@
 'use client';
 
 import { FiBarChart, FiCalendar, FiTarget, FiTrendingUp } from 'react-icons/fi';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/features/shared/components/badge';
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@/features/shared/components/card';
 
 export default function ProgressPage() {
 	return (

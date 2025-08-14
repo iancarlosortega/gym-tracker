@@ -2,10 +2,15 @@
 
 import { useState } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Badge } from '@/features/shared/components/badge';
+import { Button } from '@/features/shared/components/button';
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@/features/shared/components/card';
+import { Input } from '@/features/shared/components/input';
 
 export interface Exercise {
 	id: string;

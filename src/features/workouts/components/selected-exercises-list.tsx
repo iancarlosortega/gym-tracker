@@ -1,9 +1,9 @@
 'use client';
 
 import { FiPlus, FiX } from 'react-icons/fi';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Badge } from '@/features/shared/components/badge';
+import { Button } from '@/features/shared/components/button';
+import { Input } from '@/features/shared/components/input';
 import type {
 	ExerciseSetFormData,
 	SelectedExerciseFormData,

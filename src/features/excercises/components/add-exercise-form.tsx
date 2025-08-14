@@ -3,24 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { useCreateExercise } from '@/features/excercises/hooks/use-exercises';
 import {
 	type AddExerciseFormData,
@@ -29,6 +11,24 @@ import {
 	exerciseTypes,
 	muscleGroups,
 } from '@/features/excercises/schemas/exercise';
+import { Button } from '@/features/shared/components/button';
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/features/shared/components/form';
+import { Input } from '@/features/shared/components/input';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/features/shared/components/select';
+import { Textarea } from '@/features/shared/components/textarea';
 
 interface AddExerciseFormProps {
 	onSuccess?: () => void;

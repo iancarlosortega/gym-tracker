@@ -2,9 +2,14 @@
 
 import Link from 'next/link';
 import { FiActivity, FiCalendar, FiClock, FiPlus } from 'react-icons/fi';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/features/shared/components/badge';
+import { Button } from '@/features/shared/components/button';
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@/features/shared/components/card';
 import { useWorkouts } from '@/features/workouts/hooks/use-workouts';
 
 export default function WorkoutsPage() {

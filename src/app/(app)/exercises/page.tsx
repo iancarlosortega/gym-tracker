@@ -2,26 +2,26 @@
 
 import { useState } from 'react';
 import { FiFilter, FiSearch } from 'react-icons/fi';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { AddExerciseDialog } from '@/features/excercises/components/add-exercise-dialog';
+import { useExercises } from '@/features/excercises/hooks/use-exercises';
+import { Badge } from '@/features/shared/components/badge';
+import { Button } from '@/features/shared/components/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from '@/features/shared/components/card';
+import { Input } from '@/features/shared/components/input';
+import { Label } from '@/features/shared/components/label';
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@/components/ui/select';
-import { AddExerciseDialog } from '@/features/excercises/components/add-exercise-dialog';
-import { useExercises } from '@/features/excercises/hooks/use-exercises';
+} from '@/features/shared/components/select';
 
 export default function ExercisesPage() {
 	const [search, setSearch] = useState('');

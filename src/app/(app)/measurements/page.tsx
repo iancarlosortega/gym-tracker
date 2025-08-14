@@ -2,21 +2,21 @@
 
 import { useForm } from 'react-hook-form';
 import { FiLoader, FiSave, FiTrendingUp } from 'react-icons/fi';
-import { Button } from '@/components/ui/button';
+import {
+	useBodyMeasurements,
+	useCreateBodyMeasurement,
+} from '@/features/body-measurements/hooks/use-body-measurements';
+import type { MeasurementsFormData } from '@/features/body-measurements/schemas/measurements';
+import { Button } from '@/features/shared/components/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-	useBodyMeasurements,
-	useCreateBodyMeasurement,
-} from '@/features/body-measurements/hooks/use-body-measurements';
-import type { MeasurementsFormData } from '@/features/body-measurements/schemas/measurements';
+} from '@/features/shared/components/card';
+import { Input } from '@/features/shared/components/input';
+import { Label } from '@/features/shared/components/label';
 
 export default function MeasurementsPage() {
 	const { data: allMeasurements = [], isLoading } = useBodyMeasurements();
