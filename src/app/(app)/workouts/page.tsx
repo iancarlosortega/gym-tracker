@@ -27,39 +27,35 @@ export default function WorkoutsPage() {
 	}
 
 	return (
-		<div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gray-950 min-h-screen'>
+		<div className='container mx-auto py-8'>
 			<div className='flex items-center justify-between mb-8'>
 				<div>
-					<h1 className='text-3xl font-bold text-white'>My Workouts</h1>
-					<p className='mt-1 text-sm text-gray-400'>
+					<h1 className='text-3xl font-bold'>My Workouts</h1>
+					<p className='mt-1 text-sm text-muted-foreground'>
 						Track and manage your training sessions
 					</p>
 				</div>
-				<Link href='/workout/new'>
-					<Button className='bg-blue-600 hover:bg-blue-700 text-white'>
-						<FiPlus className='w-4 h-4 mr-2' />
+				<Button asChild>
+					<Link href='/workout/new'>
+						<FiPlus />
 						New Workout
-					</Button>
-				</Link>
+					</Link>
+				</Button>
 			</div>
 
 			{workouts.length === 0 ? (
 				<div className='text-center py-12'>
-					<FiActivity className='w-16 h-16 mx-auto text-gray-500 mb-4' />
-					<h3 className='text-xl font-semibold text-white mb-2'>
-						No workouts yet
-					</h3>
-					<p className='text-gray-400 mb-6'>
+					<FiActivity className='w-16 h-16 mx-auto  mb-4' />
+					<h3 className='text-xl font-semibold mb-2'>No workouts yet</h3>
+					<p className='text-muted-foreground mb-6'>
 						Start your fitness journey by creating your first workout
 					</p>
-					<Link href='/workout/new'>
-						<Button
-							size='lg'
-							className='bg-blue-600 hover:bg-blue-700 text-white'>
-							<FiPlus className='w-5 h-5 mr-2' />
+					<Button size='lg' asChild>
+						<Link href='/workout/new'>
+							<FiPlus />
 							Create First Workout
-						</Button>
-					</Link>
+						</Link>
+					</Button>
 				</div>
 			) : (
 				<div className='grid gap-6'>

@@ -62,46 +62,44 @@ export default function WorkoutDetailsPage({
 	};
 
 	return (
-		<div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+		<div className='container mx-auto py-8'>
 			<div className='mb-8 flex items-center justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold text-white'>{workout.name}</h1>
-					<p className='mt-1 text-sm text-gray-400'>
+					<h1 className='text-3xl font-bold'>{workout.name}</h1>
+					<p className='mt-1 text-sm text-muted-foreground'>
 						Created {new Date(workout.createdAt).toLocaleDateString()}
 					</p>
 				</div>
 				<div className='flex space-x-2'>
 					<Button variant='outline' onClick={() => setIsEditing(!isEditing)}>
-						<FiEdit className='w-4 h-4 mr-2' />
+						<FiEdit />
 						{isEditing ? 'Cancel' : 'Edit'}
 					</Button>
 					<Button onClick={handleAddExercise}>
-						<FiPlus className='w-4 h-4 mr-2' />
+						<FiPlus />
 						Add Exercise
 					</Button>
 				</div>
 			</div>
 
 			{workout.notes && (
-				<Card className='mb-6 bg-gray-900 border-gray-800'>
+				<Card>
 					<CardHeader>
-						<CardTitle className='text-lg text-white'>Notes</CardTitle>
+						<CardTitle className='text-lg '>Notes</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<p className='text-gray-300'>{workout.notes}</p>
+						<p>{workout.notes}</p>
 					</CardContent>
 				</Card>
 			)}
 
 			<div className='space-y-6'>
 				{workout.exercises?.map((workoutExercise: any) => (
-					<Card
-						key={workoutExercise.id}
-						className='bg-gray-900 border-gray-800'>
+					<Card key={workoutExercise.id}>
 						<CardHeader>
 							<div className='flex items-center justify-between'>
 								<div>
-									<CardTitle className='text-xl text-white'>
+									<CardTitle className='text-xl'>
 										{workoutExercise.exercise?.name}
 									</CardTitle>
 									<CardDescription>
