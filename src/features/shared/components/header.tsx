@@ -18,7 +18,7 @@ export function Header() {
 	const pathname = usePathname();
 
 	return (
-		<nav className='shadow border-b sticky top-0 z-40'>
+		<header className='shadow border-b sticky top-0 z-40 bg-background'>
 			<div className='container mx-auto'>
 				<div className='flex justify-between items-center py-4'>
 					<div className='flex items-center'>
@@ -29,7 +29,7 @@ export function Header() {
 					</div>
 
 					<div className='hidden md:block'>
-						<div className='ml-10 flex items-baseline space-x-4'>
+						<nav className='ml-10 flex items-baseline space-x-4'>
 							{links.map((item) => {
 								const Icon = item.icon;
 								return (
@@ -50,12 +50,12 @@ export function Header() {
 
 							{/* User Dropdown */}
 							<UserDropdown />
-						</div>
+						</nav>
 					</div>
 
 					{/* Mobile menu */}
 					<div className='md:hidden'>
-						<div className='flex space-x-2 items-center'>
+						<nav className='flex space-x-2 items-center'>
 							{links.map((item) => {
 								const Icon = item.icon;
 								return (
@@ -74,10 +74,10 @@ export function Header() {
 								);
 							})}
 							<UserDropdown />
-						</div>
+						</nav>
 					</div>
 				</div>
 			</div>
-		</nav>
+		</header>
 	);
 }

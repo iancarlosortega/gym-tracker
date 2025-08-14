@@ -9,7 +9,35 @@ import {
 	FiTrendingUp,
 } from 'react-icons/fi';
 import { useBodyMeasurements } from '@/features/body-measurements/hooks/use-body-measurements';
+import { Button } from '@/features/shared/components/button';
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@/features/shared/components/card';
 import { useWorkouts } from '@/features/workouts/hooks/use-workouts';
+
+const QUICK_ACTIONS = [
+	{
+		href: '/workout/new',
+		icon: FiPlus,
+		title: 'Start Workout',
+		description: 'Begin a new training session',
+	},
+	{
+		href: '/exercises',
+		icon: FiTarget,
+		title: 'Browse Exercises',
+		description: 'Explore exercise library',
+	},
+	{
+		href: '/progress',
+		icon: FiTrendingUp,
+		title: 'View Progress',
+		description: 'Check your improvements',
+	},
+];
 
 export default function HomePage() {
 	const { data: workouts = [], isLoading: workoutsLoading } = useWorkouts();
@@ -32,128 +60,113 @@ export default function HomePage() {
 	}
 
 	return (
-		<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+		<div className='container mx-auto py-8'>
 			<div className='mb-8'>
-				<h1 className='text-3xl font-bold text-white'>Dashboard</h1>
-				<p className='mt-1 text-sm text-gray-400'>Track your fitness journey</p>
+				<h1 className='text-3xl font-bold'>Dashboard</h1>
+				<p className='mt-1 text-sm'>Track your fitness journey</p>
 			</div>
 			{/* Quick Actions */}
 			<div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
-				<Link
-					href='/workout/new'
-					className='bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-6 text-center transition-colors group'>
-					<FiPlus className='w-8 h-8 mx-auto mb-2 group-hover:scale-110 transition-transform' />
-					<h3 className='text-lg font-semibold'>Start Workout</h3>
-					<p className='text-blue-100 text-sm mt-1'>
-						Begin a new training session
-					</p>
-				</Link>
-
-				<Link
-					href='/exercises'
-					className='bg-green-600 hover:bg-green-700 text-white rounded-lg p-6 text-center transition-colors group'>
-					<FiTarget className='w-8 h-8 mx-auto mb-2 group-hover:scale-110 transition-transform' />
-					<h3 className='text-lg font-semibold'>Browse Exercises</h3>
-					<p className='text-green-100 text-sm mt-1'>
-						Explore exercise library
-					</p>
-				</Link>
-
-				<Link
-					href='/progress'
-					className='bg-purple-600 hover:bg-purple-700 text-white rounded-lg p-6 text-center transition-colors group'>
-					<FiTrendingUp className='w-8 h-8 mx-auto mb-2 group-hover:scale-110 transition-transform' />
-					<h3 className='text-lg font-semibold'>View Progress</h3>
-					<p className='text-purple-100 text-sm mt-1'>
-						Check your improvements
-					</p>
-				</Link>
+				{QUICK_ACTIONS.map((action) => {
+					const IconComponent = action.icon;
+					return (
+						<Card
+							key={action.href}
+							className='p-0 flex justify-center items-center'>
+							<Link
+								href={action.href}
+								className='w-full py-8 text-center transition-colors group'>
+								<IconComponent className='w-8 h-8 mx-auto mb-2 group-hover:scale-110 transition-transform' />
+								<h3 className='text-lg font-semibold'>{action.title}</h3>
+								<p className='text-muted-foreground text-sm mt-1'>
+									{action.description}
+								</p>
+							</Link>
+						</Card>
+					);
+				})}
 			</div>
 
 			<div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
 				{/* Recent Workouts */}
-				<div className='bg-gray-900 border border-gray-800 rounded-lg shadow-sm p-6'>
-					<div className='flex items-center justify-between mb-6'>
-						<h2 className='text-xl font-semibold text-white flex items-center'>
-							<FiActivity className='w-5 h-5 mr-2 text-blue-500' />
+				<Card>
+					<CardHeader className='flex items-center justify-between mb-6'>
+						<CardTitle className='text-xl font-semibold flex items-center'>
+							<FiActivity className='w-5 h-5 mr-2 text-primary' />
 							Recent Workouts
-						</h2>
+						</CardTitle>
 						<Link
 							href='/workouts'
-							className='text-blue-400 hover:text-blue-300 text-sm font-medium'>
+							className='text-primary hover:primary/90 text-sm font-medium'>
 							View All
 						</Link>
-					</div>
+					</CardHeader>
 
 					{recentWorkouts.length > 0 ? (
-						<div className='space-y-4'>
+						<CardContent>
 							{recentWorkouts.map((workout) => (
 								<div
 									key={workout.id}
-									className='flex items-center justify-between p-4 bg-gray-800 rounded-lg'>
+									className='flex items-center justify-between p-4 rounded-lg'>
 									<div>
-										<h3 className='font-medium text-white'>{workout.name}</h3>
+										<h3 className='font-medium'>{workout.name}</h3>
 										<p className='text-sm text-gray-400'>
 											{new Date(workout.createdAt).toLocaleDateString()}
 											{workout.duration && ` • ${workout.duration} min`}
 										</p>
 									</div>
-									<Link
-										href={`/workout/${workout.id}`}
-										className='text-blue-400 hover:text-blue-300 text-sm font-medium'>
-										View
-									</Link>
+									<Button asChild>
+										<Link href={`/workout/${workout.id}`}>View</Link>
+									</Button>
 								</div>
 							))}
-						</div>
+						</CardContent>
 					) : (
-						<div className='text-center py-8'>
-							<FiActivity className='w-12 h-12 mx-auto text-gray-500 mb-4' />
-							<h3 className='text-lg font-medium text-white mb-2'>
-								No workouts yet
-							</h3>
+						<CardContent className='text-center py-8'>
+							<FiActivity className='w-12 h-12 mx-auto mb-4' />
+							<h3 className='text-lg font-medium  mb-2'>No workouts yet</h3>
 							<p className='text-gray-400 mb-4'>
 								Start your first workout to track your progress
 							</p>
-							<Link
-								href='/workout/new'
-								className='inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors'>
-								<FiPlus className='w-4 h-4 mr-2' />
-								Start First Workout
-							</Link>
-						</div>
+							<Button asChild>
+								<Link href='/workout/new'>
+									<FiPlus />
+									Start First Workout
+								</Link>
+							</Button>
+						</CardContent>
 					)}
-				</div>
+				</Card>
 
 				{/* Progress Overview */}
-				<div className='bg-gray-900 border border-gray-800 rounded-lg shadow-sm p-6'>
-					<div className='flex items-center justify-between mb-6'>
-						<h2 className='text-xl font-semibold text-white flex items-center'>
-							<FiTrendingUp className='w-5 h-5 mr-2 text-green-500' />
+				<Card>
+					<CardHeader className='flex items-center justify-between mb-6'>
+						<CardTitle className='text-xl font-semibold flex items-center'>
+							<FiTrendingUp className='w-5 h-5 mr-2 text-primary' />
 							Progress Overview
-						</h2>
+						</CardTitle>
 						<Link
 							href='/measurements'
-							className='text-blue-400 hover:text-blue-300 text-sm font-medium'>
+							className='text-primary hover:text-primary/90 text-sm font-medium'>
 							Update
 						</Link>
-					</div>
+					</CardHeader>
 
 					{latestMeasurement ? (
-						<div className='space-y-4'>
+						<CardContent>
 							<div className='grid grid-cols-2 gap-4'>
 								{latestMeasurement.weight && (
-									<div className='bg-gray-800 rounded-lg p-4'>
+									<div className='rounded-lg p-4'>
 										<p className='text-sm text-gray-400'>Current Weight</p>
-										<p className='text-2xl font-bold text-white'>
+										<p className='text-2xl font-bold'>
 											{latestMeasurement.weight} kg
 										</p>
 									</div>
 								)}
 								{latestMeasurement.bodyFat && (
-									<div className='bg-gray-800 rounded-lg p-4'>
+									<div className='rounded-lg p-4'>
 										<p className='text-sm text-gray-400'>Body Fat</p>
-										<p className='text-2xl font-bold text-white'>
+										<p className='text-2xl font-bold'>
 											{latestMeasurement.bodyFat}%
 										</p>
 									</div>
@@ -163,44 +176,44 @@ export default function HomePage() {
 								Last updated:{' '}
 								{new Date(latestMeasurement.recordedAt).toLocaleDateString()}
 							</p>
-						</div>
+						</CardContent>
 					) : (
-						<div className='text-center py-8'>
-							<FiTrendingUp className='w-12 h-12 mx-auto text-gray-500 mb-4' />
-							<h3 className='text-lg font-medium text-white mb-2'>
-								No measurements yet
-							</h3>
+						<CardContent className='text-center py-8'>
+							<FiTrendingUp className='w-12 h-12 mx-auto mb-4' />
+							<h3 className='text-lg font-medium mb-2'>No measurements yet</h3>
 							<p className='text-gray-400 mb-4'>
 								Track your body measurements to monitor progress
 							</p>
-							<Link
-								href='/measurements'
-								className='inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors'>
-								<FiPlus className='w-4 h-4 mr-2' />
-								Add Measurements
-							</Link>
-						</div>
+							<Button asChild>
+								<Link href='/measurements'>
+									<FiPlus className='w-4 h-4 mr-2' />
+									Add Measurements
+								</Link>
+							</Button>
+						</CardContent>
 					)}
-				</div>
+				</Card>
 			</div>
 
 			{/* Weekly Schedule Preview */}
-			<div className='mt-8 bg-gray-900 border border-gray-800 rounded-lg shadow-sm p-6'>
-				<h2 className='text-xl font-semibold text-white flex items-center mb-6'>
+			<Card className='mt-8'>
+				<CardHeader className='text-xl font-semibold flex items-center'>
 					<FiCalendar className='w-5 h-5 mr-2 text-orange-500' />
 					This Week
-				</h2>
-				<div className='grid grid-cols-7 gap-2'>
+				</CardHeader>
+				<CardContent className='grid grid-cols-7 gap-2'>
 					{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
 						<div key={day} className='text-center'>
-							<p className='text-sm font-medium text-white mb-2'>{day}</p>
-							<div className='h-16 bg-gray-800 rounded-lg flex items-center justify-center'>
-								<span className='text-xs text-gray-400'>Rest</span>
+							<p className='text-sm font-medium text-muted-foreground mb-2'>
+								{day}
+							</p>
+							<div className='h-16 bg-secondary rounded-lg flex items-center justify-center'>
+								<span className='text-xs text-accent-foreground'>Rest</span>
 							</div>
 						</div>
 					))}
-				</div>
-			</div>
+				</CardContent>
+			</Card>
 		</div>
 	);
 }
