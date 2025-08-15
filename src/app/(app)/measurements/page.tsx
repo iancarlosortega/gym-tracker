@@ -77,15 +77,13 @@ export default function MeasurementsPage() {
 	const latestMeasurement = allMeasurements[0];
 
 	return (
-		<div className='min-h-screen bg-gray-950'>
-			<header className='bg-gray-900 shadow-sm border-b border-gray-800'>
-				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+		<div className='space-y-8'>
+			<header className='bg-gradient-to-br from-primary to-primary/80 text-muted shadow-sm border-b'>
+				<div className='container mx-auto'>
 					<div className='flex items-center justify-between py-6'>
 						<div>
-							<h1 className='text-3xl font-bold text-white'>
-								Body Measurements
-							</h1>
-							<p className='mt-1 text-sm text-gray-400'>
+							<h1 className='text-3xl font-bold'>Body Measurements</h1>
+							<p className='mt-1 text-sm'>
 								Track your body measurements over time
 							</p>
 						</div>
@@ -93,82 +91,82 @@ export default function MeasurementsPage() {
 				</div>
 			</header>
 
-			<main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+			<main className='container mx-auto'>
 				<div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
 					{/* Latest Measurement Overview */}
 					{latestMeasurement && (
 						<div className='lg:col-span-1'>
-							<Card className='bg-gray-900 border-gray-800'>
+							<Card>
 								<CardHeader>
-									<CardTitle className='text-white flex items-center'>
+									<CardTitle className='flex items-center'>
 										<FiTrendingUp className='w-5 h-5 mr-2' />
 										Latest Measurements
 									</CardTitle>
-									<CardDescription className='text-gray-400'>
+									<CardDescription className='text-muted-foreground'>
 										Your most recent body measurements
 									</CardDescription>
 								</CardHeader>
 								<CardContent className='space-y-4'>
 									{latestMeasurement.weight && (
 										<div className='flex justify-between'>
-											<span className='text-gray-300'>Weight:</span>
-											<span className='text-white font-medium'>
+											<span className='text-muted-foreground'>Weight:</span>
+											<span className='font-medium'>
 												{latestMeasurement.weight} lbs
 											</span>
 										</div>
 									)}
 									{latestMeasurement.bodyFat && (
 										<div className='flex justify-between'>
-											<span className='text-gray-300'>Body Fat:</span>
-											<span className='text-white font-medium'>
+											<span className='text-muted-foreground'>Body Fat:</span>
+											<span className='font-medium'>
 												{latestMeasurement.bodyFat}%
 											</span>
 										</div>
 									)}
 									{latestMeasurement.height && (
 										<div className='flex justify-between'>
-											<span className='text-gray-300'>Height:</span>
-											<span className='text-white font-medium'>
+											<span className='text-muted-foreground'>Height:</span>
+											<span className='font-medium'>
 												{latestMeasurement.height} in
 											</span>
 										</div>
 									)}
 									{latestMeasurement.chest && (
 										<div className='flex justify-between'>
-											<span className='text-gray-300'>Chest:</span>
-											<span className='text-white font-medium'>
+											<span className='text-muted-foreground'>Chest:</span>
+											<span className='font-medium'>
 												{latestMeasurement.chest} in
 											</span>
 										</div>
 									)}
 									{latestMeasurement.waist && (
 										<div className='flex justify-between'>
-											<span className='text-gray-300'>Waist:</span>
-											<span className='text-white font-medium'>
+											<span className='text-muted-foreground'>Waist:</span>
+											<span className='font-medium'>
 												{latestMeasurement.waist} in
 											</span>
 										</div>
 									)}
 									{latestMeasurement.hips && (
 										<div className='flex justify-between'>
-											<span className='text-gray-300'>Hips:</span>
-											<span className='text-white font-medium'>
+											<span className='text-muted-foreground'>Hips:</span>
+											<span className='font-medium'>
 												{latestMeasurement.hips} in
 											</span>
 										</div>
 									)}
 									{latestMeasurement.bicep && (
 										<div className='flex justify-between'>
-											<span className='text-gray-300'>Bicep:</span>
-											<span className='text-white font-medium'>
+											<span className='text-muted-foreground'>Bicep:</span>
+											<span className='font-medium'>
 												{latestMeasurement.bicep} in
 											</span>
 										</div>
 									)}
 									{latestMeasurement.thigh && (
 										<div className='flex justify-between'>
-											<span className='text-gray-300'>Thigh:</span>
-											<span className='text-white font-medium'>
+											<span className='text-muted-foreground'>Thigh:</span>
+											<span className='font-medium'>
 												{latestMeasurement.thigh} in
 											</span>
 										</div>
@@ -181,12 +179,10 @@ export default function MeasurementsPage() {
 					{/* Add New Measurement */}
 					<div
 						className={latestMeasurement ? 'lg:col-span-2' : 'lg:col-span-3'}>
-						<Card className='bg-gray-900 border-gray-800'>
+						<Card>
 							<CardHeader>
-								<CardTitle className='text-white'>
-									Add New Measurements
-								</CardTitle>
-								<CardDescription className='text-gray-400'>
+								<CardTitle>Add New Measurements</CardTitle>
+								<CardDescription className='text-muted-foreground'>
 									Enter your current body measurements. You don't need to fill
 									all fields.
 								</CardDescription>
@@ -196,9 +192,7 @@ export default function MeasurementsPage() {
 									<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 										{/* Weight */}
 										<div className='space-y-2'>
-											<Label htmlFor='weight' className='text-white'>
-												Weight (lbs)
-											</Label>
+											<Label htmlFor='weight'>Weight (lbs)</Label>
 											<Input
 												id='weight'
 												type='number'
@@ -210,7 +204,6 @@ export default function MeasurementsPage() {
 														message: 'Please enter a valid number',
 													},
 												})}
-												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
 											/>
 											{errors.weight && (
 												<p className='text-sm text-red-500'>
@@ -221,9 +214,7 @@ export default function MeasurementsPage() {
 
 										{/* Body Fat */}
 										<div className='space-y-2'>
-											<Label htmlFor='bodyFat' className='text-white'>
-												Body Fat (%)
-											</Label>
+											<Label htmlFor='bodyFat'>Body Fat (%)</Label>
 											<Input
 												id='bodyFat'
 												type='number'
@@ -235,7 +226,6 @@ export default function MeasurementsPage() {
 														message: 'Please enter a valid number',
 													},
 												})}
-												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
 											/>
 											{errors.bodyFat && (
 												<p className='text-sm text-red-500'>
@@ -246,9 +236,7 @@ export default function MeasurementsPage() {
 
 										{/* Height */}
 										<div className='space-y-2'>
-											<Label htmlFor='height' className='text-white'>
-												Height (inches)
-											</Label>
+											<Label htmlFor='height'>Height (inches)</Label>
 											<Input
 												id='height'
 												type='number'
@@ -260,7 +248,6 @@ export default function MeasurementsPage() {
 														message: 'Please enter a valid number',
 													},
 												})}
-												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
 											/>
 											{errors.height && (
 												<p className='text-sm text-red-500'>
@@ -271,9 +258,7 @@ export default function MeasurementsPage() {
 
 										{/* Chest */}
 										<div className='space-y-2'>
-											<Label htmlFor='chest' className='text-white'>
-												Chest (inches)
-											</Label>
+											<Label htmlFor='chest'>Chest (inches)</Label>
 											<Input
 												id='chest'
 												type='number'
@@ -285,7 +270,6 @@ export default function MeasurementsPage() {
 														message: 'Please enter a valid number',
 													},
 												})}
-												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
 											/>
 											{errors.chest && (
 												<p className='text-sm text-red-500'>
@@ -296,9 +280,7 @@ export default function MeasurementsPage() {
 
 										{/* Waist */}
 										<div className='space-y-2'>
-											<Label htmlFor='waist' className='text-white'>
-												Waist (inches)
-											</Label>
+											<Label htmlFor='waist'>Waist (inches)</Label>
 											<Input
 												id='waist'
 												type='number'
@@ -310,7 +292,6 @@ export default function MeasurementsPage() {
 														message: 'Please enter a valid number',
 													},
 												})}
-												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
 											/>
 											{errors.waist && (
 												<p className='text-sm text-red-500'>
@@ -321,9 +302,7 @@ export default function MeasurementsPage() {
 
 										{/* Hips */}
 										<div className='space-y-2'>
-											<Label htmlFor='hips' className='text-white'>
-												Hips (inches)
-											</Label>
+											<Label htmlFor='hips'>Hips (inches)</Label>
 											<Input
 												id='hips'
 												type='number'
@@ -335,7 +314,6 @@ export default function MeasurementsPage() {
 														message: 'Please enter a valid number',
 													},
 												})}
-												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
 											/>
 											{errors.hips && (
 												<p className='text-sm text-red-500'>
@@ -346,9 +324,7 @@ export default function MeasurementsPage() {
 
 										{/* Bicep */}
 										<div className='space-y-2'>
-											<Label htmlFor='bicep' className='text-white'>
-												Bicep (inches)
-											</Label>
+											<Label htmlFor='bicep'>Bicep (inches)</Label>
 											<Input
 												id='bicep'
 												type='number'
@@ -360,7 +336,6 @@ export default function MeasurementsPage() {
 														message: 'Please enter a valid number',
 													},
 												})}
-												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
 											/>
 											{errors.bicep && (
 												<p className='text-sm text-red-500'>
@@ -371,9 +346,7 @@ export default function MeasurementsPage() {
 
 										{/* Thigh */}
 										<div className='space-y-2'>
-											<Label htmlFor='thigh' className='text-white'>
-												Thigh (inches)
-											</Label>
+											<Label htmlFor='thigh'>Thigh (inches)</Label>
 											<Input
 												id='thigh'
 												type='number'
@@ -385,7 +358,6 @@ export default function MeasurementsPage() {
 														message: 'Please enter a valid number',
 													},
 												})}
-												className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500'
 											/>
 											{errors.thigh && (
 												<p className='text-sm text-red-500'>
@@ -398,11 +370,10 @@ export default function MeasurementsPage() {
 									<div className='flex justify-end pt-4'>
 										<Button
 											type='submit'
-											disabled={createMeasurement.isPending || isSubmitting}
-											className='bg-blue-600 hover:bg-blue-700 text-white'>
+											disabled={createMeasurement.isPending || isSubmitting}>
 											{createMeasurement.isPending || isSubmitting ? (
 												<>
-													<FiLoader className='w-4 h-4 mr-2 animate-spin' />
+													<FiLoader className='w-4 h-4 animate-spin' />
 													Saving...
 												</>
 											) : (
@@ -430,12 +401,10 @@ export default function MeasurementsPage() {
 				{/* Measurement History */}
 				{allMeasurements.length > 0 && (
 					<div className='mt-8'>
-						<Card className='bg-gray-900 border-gray-800'>
+						<Card>
 							<CardHeader>
-								<CardTitle className='text-white'>
-									Measurement History
-								</CardTitle>
-								<CardDescription className='text-gray-400'>
+								<CardTitle>Measurement History</CardTitle>
+								<CardDescription className='text-muted-foreground'>
 									Your body measurement records over time
 								</CardDescription>
 							</CardHeader>
