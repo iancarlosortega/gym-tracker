@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import { useCreateExercise } from '@/features/excercises/hooks/use-exercises';
@@ -265,10 +266,10 @@ export function AddExerciseForm({ onSuccess, onCancel }: AddExerciseFormProps) {
 							</Select>
 							<Button
 								type='button'
-								variant='outline'
-								size='sm'
+								variant='destructive'
+								size='icon'
 								onClick={() => removeSecondaryMuscleGroup(index)}>
-								Remove
+								<Trash2 />
 							</Button>
 						</div>
 					))}

@@ -23,6 +23,46 @@ import {
 	SelectValue,
 } from '@/features/shared/components/select';
 
+const EXERCISE_TYPES = [
+	{ value: 'all', label: 'All Types' },
+	{ value: 'strength', label: 'Strength' },
+	{ value: 'cardio', label: 'Cardio' },
+	{ value: 'flexibility', label: 'Flexibility' },
+	{ value: 'balance', label: 'Balance' },
+];
+
+const MUSCLE_GROUPS = [
+	{ value: 'all', label: 'All Muscle Groups' },
+	{ value: 'chest', label: 'Chest' },
+	{ value: 'back', label: 'Back' },
+	{ value: 'shoulders', label: 'Shoulders' },
+	{ value: 'biceps', label: 'Biceps' },
+	{ value: 'triceps', label: 'Triceps' },
+	{ value: 'forearms', label: 'Forearms' },
+	{ value: 'core', label: 'Core' },
+	{ value: 'glutes', label: 'Glutes' },
+	{ value: 'quadriceps', label: 'Quadriceps' },
+	{ value: 'hamstrings', label: 'Hamstrings' },
+	{ value: 'calves', label: 'Calves' },
+	{ value: 'full_body', label: 'Full Body' },
+];
+
+const EQUIPMENT_OPTIONS = [
+	{ value: 'all', label: 'All Equipment' },
+	{ value: 'barbell', label: 'Barbell' },
+	{ value: 'dumbbell', label: 'Dumbbell' },
+	{ value: 'machine', label: 'Machine' },
+	{ value: 'cable', label: 'Cable' },
+	{ value: 'bodyweight', label: 'Bodyweight' },
+	{ value: 'resistance_band', label: 'Resistance Band' },
+	{ value: 'kettlebell', label: 'Kettlebell' },
+	{ value: 'medicine_ball', label: 'Medicine Ball' },
+	{ value: 'treadmill', label: 'Treadmill' },
+	{ value: 'bike', label: 'Bike' },
+	{ value: 'rowing_machine', label: 'Rowing Machine' },
+	{ value: 'other', label: 'Other' },
+];
+
 export default function ExercisesPage() {
 	const [search, setSearch] = useState('');
 	const [type, setType] = useState('all');
@@ -53,252 +93,106 @@ export default function ExercisesPage() {
 	};
 
 	return (
-		<div className='min-h-screen bg-gray-950'>
-			<header className='bg-gray-900 shadow-sm border-b border-gray-800'>
-				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+		<div>
+			<header className='bg-gradient-to-br from-primary to-primary/80 text-muted shadow-sm border-b'>
+				<div className='container mx-auto'>
 					<div className='flex items-center justify-between py-6'>
 						<div>
-							<h1 className='text-3xl font-bold text-white'>
-								Exercise Library
-							</h1>
-							<p className='mt-1 text-sm text-gray-400'>
-								Browse and search for exercises
-							</p>
+							<h1 className='text-3xl font-bold'>Exercise Library</h1>
+							<p className='mt-1 text-sm'>Browse and search for exercises</p>
 						</div>
 						<AddExerciseDialog />
 					</div>
 				</div>
 			</header>
 
-			<main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+			<main className='container mx-auto py-8 space-y-8'>
 				{/* Filters */}
-				<Card className='mb-8 bg-gray-900 border-gray-800'>
+				<Card>
 					<CardHeader>
-						<CardTitle className='flex items-center text-white'>
-							<FiFilter className='w-5 h-5 mr-2' />
+						<CardTitle className='flex items-center'>
+							<FiFilter className='w-5 h-5 mr-2 text-primary' />
 							Filters
 						</CardTitle>
-						<CardDescription className='text-gray-400'>
+						<CardDescription className='text-muted-foreground'>
 							Search and filter exercises by type, muscle group, and equipment
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
 							<div className='space-y-2'>
-								<Label htmlFor='search' className='text-gray-300'>
-									Search
-								</Label>
+								<Label htmlFor='search'>Search</Label>
 								<div className='relative'>
-									<FiSearch className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4' />
+									<FiSearch className='absolute left-3 top-1/2 transform -translate-y-1/2 text-input w-4 h-4' />
 									<Input
 										id='search'
 										type='text'
 										placeholder='Search exercises...'
 										value={search}
 										onChange={(e) => setSearch(e.target.value)}
-										className='pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500'
+										className='pl-10'
 									/>
 								</div>
 							</div>
 
-							<div className='space-y-2'>
-								<Label className='text-gray-300'>Type</Label>
+							<div className='space-y-2 '>
+								<Label>Type</Label>
 								<Select value={type} onValueChange={setType}>
-									<SelectTrigger className='bg-gray-800 border-gray-700 text-white focus:ring-blue-500 focus:border-blue-500'>
+									<SelectTrigger>
 										<SelectValue placeholder='All Types' />
 									</SelectTrigger>
-									<SelectContent className='bg-gray-800 border-gray-700'>
-										<SelectItem
-											value='all'
-											className='text-white focus:bg-gray-700'>
-											All Types
-										</SelectItem>
-										<SelectItem
-											value='strength'
-											className='text-white focus:bg-gray-700'>
-											Strength
-										</SelectItem>
-										<SelectItem
-											value='cardio'
-											className='text-white focus:bg-gray-700'>
-											Cardio
-										</SelectItem>
-										<SelectItem
-											value='flexibility'
-											className='text-white focus:bg-gray-700'>
-											Flexibility
-										</SelectItem>
-										<SelectItem
-											value='balance'
-											className='text-white focus:bg-gray-700'>
-											Balance
-										</SelectItem>
+									<SelectContent>
+										{EXERCISE_TYPES.map((exerciseType) => (
+											<SelectItem
+												key={exerciseType.value}
+												value={exerciseType.value}>
+												{exerciseType.label}
+											</SelectItem>
+										))}
 									</SelectContent>
 								</Select>
 							</div>
 
 							<div className='space-y-2'>
-								<Label className='text-gray-300'>Muscle Group</Label>
+								<Label>Muscle Group</Label>
 								<Select value={muscleGroup} onValueChange={setMuscleGroup}>
-									<SelectTrigger className='bg-gray-800 border-gray-700 text-white focus:ring-blue-500 focus:border-blue-500'>
+									<SelectTrigger>
 										<SelectValue placeholder='All Muscle Groups' />
 									</SelectTrigger>
-									<SelectContent className='bg-gray-800 border-gray-700'>
-										<SelectItem
-											value='all'
-											className='text-white focus:bg-gray-700'>
-											All Muscle Groups
-										</SelectItem>
-										<SelectItem
-											value='chest'
-											className='text-white focus:bg-gray-700'>
-											Chest
-										</SelectItem>
-										<SelectItem
-											value='back'
-											className='text-white focus:bg-gray-700'>
-											Back
-										</SelectItem>
-										<SelectItem
-											value='shoulders'
-											className='text-white focus:bg-gray-700'>
-											Shoulders
-										</SelectItem>
-										<SelectItem
-											value='biceps'
-											className='text-white focus:bg-gray-700'>
-											Biceps
-										</SelectItem>
-										<SelectItem
-											value='triceps'
-											className='text-white focus:bg-gray-700'>
-											Triceps
-										</SelectItem>
-										<SelectItem
-											value='forearms'
-											className='text-white focus:bg-gray-700'>
-											Forearms
-										</SelectItem>
-										<SelectItem
-											value='core'
-											className='text-white focus:bg-gray-700'>
-											Core
-										</SelectItem>
-										<SelectItem
-											value='glutes'
-											className='text-white focus:bg-gray-700'>
-											Glutes
-										</SelectItem>
-										<SelectItem
-											value='quadriceps'
-											className='text-white focus:bg-gray-700'>
-											Quadriceps
-										</SelectItem>
-										<SelectItem
-											value='hamstrings'
-											className='text-white focus:bg-gray-700'>
-											Hamstrings
-										</SelectItem>
-										<SelectItem
-											value='calves'
-											className='text-white focus:bg-gray-700'>
-											Calves
-										</SelectItem>
-										<SelectItem
-											value='full_body'
-											className='text-white focus:bg-gray-700'>
-											Full Body
-										</SelectItem>
+									<SelectContent>
+										{MUSCLE_GROUPS.map((muscle) => (
+											<SelectItem key={muscle.value} value={muscle.value}>
+												{muscle.label}
+											</SelectItem>
+										))}
 									</SelectContent>
 								</Select>
 							</div>
 
 							<div className='space-y-2'>
-								<Label className='text-gray-300'>Equipment</Label>
+								<Label>Equipment</Label>
 								<Select value={equipment} onValueChange={setEquipment}>
-									<SelectTrigger className='bg-gray-800 border-gray-700 text-white focus:ring-blue-500 focus:border-blue-500'>
+									<SelectTrigger>
 										<SelectValue placeholder='All Equipment' />
 									</SelectTrigger>
-									<SelectContent className='bg-gray-800 border-gray-700'>
-										<SelectItem
-											value='all'
-											className='text-white focus:bg-gray-700'>
-											All Equipment
-										</SelectItem>
-										<SelectItem
-											value='barbell'
-											className='text-white focus:bg-gray-700'>
-											Barbell
-										</SelectItem>
-										<SelectItem
-											value='dumbbell'
-											className='text-white focus:bg-gray-700'>
-											Dumbbell
-										</SelectItem>
-										<SelectItem
-											value='machine'
-											className='text-white focus:bg-gray-700'>
-											Machine
-										</SelectItem>
-										<SelectItem
-											value='cable'
-											className='text-white focus:bg-gray-700'>
-											Cable
-										</SelectItem>
-										<SelectItem
-											value='bodyweight'
-											className='text-white focus:bg-gray-700'>
-											Bodyweight
-										</SelectItem>
-										<SelectItem
-											value='resistance_band'
-											className='text-white focus:bg-gray-700'>
-											Resistance Band
-										</SelectItem>
-										<SelectItem
-											value='kettlebell'
-											className='text-white focus:bg-gray-700'>
-											Kettlebell
-										</SelectItem>
-										<SelectItem
-											value='medicine_ball'
-											className='text-white focus:bg-gray-700'>
-											Medicine Ball
-										</SelectItem>
-										<SelectItem
-											value='treadmill'
-											className='text-white focus:bg-gray-700'>
-											Treadmill
-										</SelectItem>
-										<SelectItem
-											value='bike'
-											className='text-white focus:bg-gray-700'>
-											Bike
-										</SelectItem>
-										<SelectItem
-											value='rowing_machine'
-											className='text-white focus:bg-gray-700'>
-											Rowing Machine
-										</SelectItem>
-										<SelectItem
-											value='other'
-											className='text-white focus:bg-gray-700'>
-											Other
-										</SelectItem>
+									<SelectContent>
+										{EQUIPMENT_OPTIONS.map((equipmentItem) => (
+											<SelectItem
+												key={equipmentItem.value}
+												value={equipmentItem.value}>
+												{equipmentItem.label}
+											</SelectItem>
+										))}
 									</SelectContent>
 								</Select>
 							</div>
 						</div>
 
 						<div className='mt-4 flex gap-2'>
-							<Button
-								variant='outline'
-								onClick={clearFilters}
-								size='sm'
-								className='border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white'>
+							<Button variant='secondary' onClick={clearFilters} size='sm'>
 								Clear All Filters
 							</Button>
-							<div className='text-sm text-gray-400 self-center'>
+							<div className='text-sm text-muted-foreground self-center'>
 								{filteredExercises?.length || 0} exercises found
 							</div>
 						</div>
@@ -318,22 +212,14 @@ export default function ExercisesPage() {
 				) : (
 					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
 						{filteredExercises.map((exercise) => (
-							<Card
-								key={exercise.id}
-								className='hover:shadow-lg transition-shadow bg-gray-900 border-gray-800 hover:border-gray-700'>
+							<Card key={exercise.id}>
 								<CardHeader>
 									<div className='flex items-start justify-between'>
-										<CardTitle className='text-lg text-white'>
-											{exercise.name}
-										</CardTitle>
-										<Badge
-											variant='secondary'
-											className='bg-gray-800 text-gray-300 hover:bg-gray-700'>
-											{exercise.type}
-										</Badge>
+										<CardTitle className='text-xl'>{exercise.name}</CardTitle>
+										<Badge variant='secondary'>{exercise.type}</Badge>
 									</div>
 									{exercise.description && (
-										<CardDescription className='text-gray-400'>
+										<CardDescription className='text-muted-foreground'>
 											{exercise.description}
 										</CardDescription>
 									)}
@@ -341,20 +227,17 @@ export default function ExercisesPage() {
 								<CardContent>
 									<div className='space-y-3'>
 										<div>
-											<div className='text-sm font-medium mb-2 text-gray-300'>
+											<div className='text-sm font-semibold mb-2'>
 												Target Muscles
 											</div>
 											<div className='flex flex-wrap gap-1'>
-												<Badge className='bg-blue-600 text-white hover:bg-blue-700'>
+												<Badge>
 													{exercise.primaryMuscleGroup.replace('_', ' ')}
 												</Badge>
 												{exercise.secondaryMuscleGroups &&
 													exercise.secondaryMuscleGroups.length > 0 &&
 													exercise.secondaryMuscleGroups.map((muscle) => (
-														<Badge
-															key={muscle}
-															variant='outline'
-															className='text-xs border-gray-600 text-gray-300 hover:bg-gray-800'>
+														<Badge key={muscle} variant='outline'>
 															{muscle.replace('_', ' ')}
 														</Badge>
 													))}
@@ -362,22 +245,20 @@ export default function ExercisesPage() {
 										</div>
 
 										<div>
-											<div className='text-sm font-medium mb-2 text-gray-300'>
+											<div className='text-sm font-semibold mb-2'>
 												Equipment
 											</div>
-											<Badge
-												variant='outline'
-												className='border-gray-600 text-gray-300 hover:bg-gray-800'>
+											<Badge variant='outline'>
 												{exercise.equipment.replace('_', ' ')}
 											</Badge>
 										</div>
 
 										{exercise.instructions && (
 											<div>
-												<div className='text-sm font-medium mb-1 text-gray-300'>
+												<div className='text-sm font-semibold mb-1'>
 													Instructions
 												</div>
-												<p className='text-sm text-gray-400'>
+												<p className='text-sm text-muted-foreground'>
 													{exercise.instructions.length > 150
 														? `${exercise.instructions.substring(0, 150)}...`
 														: exercise.instructions}

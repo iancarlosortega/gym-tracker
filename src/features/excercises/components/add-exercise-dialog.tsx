@@ -32,7 +32,7 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				{trigger || (
-					<Button className='bg-primary hover:bg-primary/90'>
+					<Button variant='secondary'>
 						<Plus className='w-4 h-4 mr-2' />
 						Add Exercise
 					</Button>
