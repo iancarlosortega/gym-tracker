@@ -3,6 +3,7 @@
 import { Activity, Dumbbell, Home, Target } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { MobileNavDropdown } from '@/features/shared/components/mobile-nav-dropdown';
 import { cn } from '@/features/shared/lib/utils';
 import { UserDropdown } from '@/features/users/components/user-dropdown';
 
@@ -18,16 +19,16 @@ export function Header() {
 
 	return (
 		<header className='shadow border-b sticky top-0 z-40 bg-background'>
-			<div className='container mx-auto'>
+			<div className='container'>
 				<div className='flex justify-between items-center py-4'>
 					<div className='flex items-center'>
 						<Link href='/' className='flex items-center space-x-2'>
 							<Target className='h-8 w-8 text-primary' />
-							<span className='text-xl font-bold'>GymTracker</span>
+							<span className='md:text-xl font-bold'>GymTracker</span>
 						</Link>
 					</div>
 
-					<div className='hidden md:block'>
+					<div className='hidden lg:block'>
 						<nav className='ml-10 flex items-baseline space-x-4'>
 							{links.map((item) => {
 								const Icon = item.icon;
@@ -53,27 +54,8 @@ export function Header() {
 					</div>
 
 					{/* Mobile menu */}
-					<div className='md:hidden'>
-						<nav className='flex space-x-2 items-center'>
-							{links.map((item) => {
-								const Icon = item.icon;
-								return (
-									<Link
-										key={item.name}
-										href={item.href}
-										className={cn(
-											pathname === item.href
-												? 'bg-primary text-primary-foreground'
-												: 'text-muted-foreground hover:text-secondary-foreground hover:bg-secondary',
-											'p-2 rounded-md transition-colors'
-										)}
-										title={item.name}>
-										<Icon className='h-5 w-5' />
-									</Link>
-								);
-							})}
-							<UserDropdown />
-						</nav>
+					<div className='lg:hidden'>
+						<MobileNavDropdown />
 					</div>
 				</div>
 			</div>
