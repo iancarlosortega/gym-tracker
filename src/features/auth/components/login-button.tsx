@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Button } from '@/features/shared/components/button';
 
 interface Props {
 	name: string;
@@ -8,11 +9,11 @@ interface Props {
 
 export const LoginButton = ({ name, label, icon }: Props) => {
 	return (
-		<Link
-			href={`/api/login/${name}`}
-			className='rounded-md border border-border px-4 py-2 w-full flex items-center gap-x-2 justify-center hover:bg-accent hover:text-accent-foreground transition-colors text-foreground bg-card'>
-			<span>{label}</span>
-			{icon}
-		</Link>
+		<Button asChild variant='outline' className='w-full py-5 hover:bg-muted'>
+			<Link href={`/api/login/${name}`}>
+				<span>{label}</span>
+				{icon}
+			</Link>
+		</Button>
 	);
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import { Activity, Dumbbell, Home, Plus, Target } from 'lucide-react';
+import { Activity, Dumbbell, Home, Target } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/features/shared/lib/utils';
@@ -10,7 +10,6 @@ const links = [
 	{ name: 'Home', href: '/', icon: Home },
 	{ name: 'Workouts', href: '/workouts', icon: Activity },
 	{ name: 'Exercises', href: '/exercises', icon: Dumbbell },
-	{ name: 'New Workout', href: '/workout/new', icon: Plus },
 	{ name: 'Measurements', href: '/measurements', icon: Target },
 ];
 
