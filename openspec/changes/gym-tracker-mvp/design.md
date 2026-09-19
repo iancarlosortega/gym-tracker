@@ -90,11 +90,16 @@ Every entity in `packages/domain` follows the same shape. Entities carry identit
 - **Class, with private state.** Fields live behind a private `props` object; the instance is frozen in the constructor. There are no public fields and no setters.
 - **Getters only.** Mutable values handed out — dates in particular — are copied on the way in and on the way out, so a caller cannot reach back through a reference and change the entity.
 - **The constructor is private.** Instances are produced by named static factories, never by `new`.
+- **Factories are named `create` and `restore`, never after a process.** `create` makes the object; `register`, `issue`, `enrol` and the like are business processes that belong to use cases, where they may later send email, publish events or seed related records. Naming an entity factory after a process steals the name the application layer will want. Variant factories keep descriptive names when they distinguish *shapes* rather than processes: `LoadEntry.total`, `LoadEntry.perSide`, `LoadEntry.stack`.
 - **`create` and `restore` are different operations.** `create` records something that has just happened and starts its revision at zero. `restore` rebuilds a row that already exists and preserves its stored revision. Collapsing the two is a real bug: restoring through `create` resets the counter that orders corrections, so a replayed sync could overwrite a newer edit with an older one.
 - **Invariants are enforced in the factories**, so an invalid instance cannot exist. `LoggedSet` rejects a `PER_SIDE` set whose snapshot bar weight contradicts its entry, and an ordinal set that claims a bar weight at all.
 - **Identity, not value, decides equality.** `equals` compares ids. Two instances of the same set with different repetition counts are the same set; that is precisely what separates an entity from a value object.
 - **Changes return a new instance.** `correctReps` produces a new `LoggedSet` at `revision + 1` and leaves the original untouched.
 - **`toJSON` is the persistence shape**, consumed by the mapper in `infrastructure/persistence/`.
+- **Creation factories take primitives and do the assembling.** `User.create({ email, passwordHash })` generates its own `Id`, normalises and validates the address, defaults the display unit and stamps its creation time. A use case should express intent, not assemble a valid entity field by field — every caller doing that identically is a rule waiting to be broken by the caller that does it differently.
+- **Defaults belong to the entity**, not to each caller. The display unit defaults to kilograms in one place.
+
+**Time is injected only when behaviour depends on it.** `User.create` stamps its own `createdAt` because a creation time is a record of birth that nothing branches on; an explicit value may still be passed, so an import can preserve history. `AuthSession.create` requires `now`, because expiry *is* behaviour: a test that cannot choose the current instant cannot assert when a session lapses. The line is whether a test would ever need to control the clock, not whether the entity could reach for it.
 
 Value objects follow the same private-state-and-factories rule, but are compared by value and carry no id. `LoadEntry` keeps its three-mode discriminated union as private state so that `resolveMass` remains exhaustively checked by the compiler: adding a fourth mode is a build error, not an unhandled case.
 
@@ -121,6 +126,23 @@ The Specification pattern was considered and rejected for this system: composabl
 `packages/domain/shared/` holds domain building blocks that belong to no single feature: `Criteria`, `QueryOptions`, `DateRange`, and the errors they raise. A type earns a place here only when a second feature genuinely needs it — a shared kernel that accumulates everything is just a `utils` folder with a better name.
 
 Everything in it obeys the same rules as the rest of the domain: immutable, private state, named factories, no framework imports.
+
+
+### 1.9 Imports and module boundaries
+
+Four rules, all enforced rather than remembered.
+
+**No barrel files.** An `index.ts` that re-exports a folder hides the real dependency graph, defeats tree-shaking, and turns one import into a load of everything the barrel touches. `pnpm lint` fails when any `index.ts` exists under `packages/` or `apps/`. Import the module itself: `@domain/auth/value-objects/email.vo.js`.
+
+**One alias prefix per package**, not a shared `@/`. The domain is consumed as source by the API's tests, so a single `@/` would mean two different roots in the same compilation and resolve to the wrong files. Each package therefore owns its prefix: `@domain/*`, `@api/*`, `@contracts/*`, with `apps/web` keeping Next's `@/*` because nothing imports its source.
+
+**Alias specifiers carry the `.js` extension**, while relative specifiers carry `.ts`. This is not a preference — the compiler refuses the alternative:
+
+> `error TS2877: This import uses a '.ts' extension to resolve to an input TypeScript file, but will not be rewritten during emit because it is not a relative path.`
+
+`rewriteRelativeImportExtensions` only rewrites relative paths, so an alias must already name the file that will exist at runtime. `tsc-alias` then rewrites the alias to a relative path on emit, and the extension is already correct. Verified by loading the built output in Node.
+
+**Cross-package imports use the package's subpath exports** and carry no extension: `@gym/domain/auth/entities/user.entity`. The `exports` map resolves them to `dist`, so no extension is needed or allowed.
 
 ### 1.4 Dependency rule
 

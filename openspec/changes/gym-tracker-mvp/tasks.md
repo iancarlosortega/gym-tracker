@@ -51,12 +51,12 @@
 - [x] 3.5 `DrizzleSetRepository` implementing the `SetRepository` port, plus `SetMapper` — the only layer where `snake_case` columns meet `camelCase` properties
 - [x] 3.6 Integration test: the database rejects a `STACK_POSITION` row carrying `resolved_grams`
 
-## Slice 4a — Auth domain and application (~220 lines)
+## Slice 4a — Auth domain and application (~220 lines) ✅ awaiting review
 
-- [ ] 4a.1 Domain: `User`, `Email`, `PasswordHash`, `SessionId` value objects
-- [ ] 4a.2 Ports: `UserRepository`, `SessionRepository`, `PasswordHasher`, `Clock`
-- [ ] 4a.3 Use cases: `SignInUseCase`, `SignOutUseCase`, `SeedAccountUseCase`
-- [ ] 4a.4 Tests with in-memory port fakes — no database, no framework
+- [x] 4a.1 Domain: `User`, `Email`, `PasswordHash`, `SessionId` value objects
+- [x] 4a.2 Ports: `UserRepository`, `SessionRepository`, `PasswordHasher`, `Clock`
+- [x] 4a.3 Use cases: `SignInUseCase`, `SignOutUseCase`, `SeedAccountUseCase`
+- [x] 4a.4 Tests with in-memory port fakes — no database, no framework
 
 ## Slice 4b — Auth infrastructure and presentation (~280 lines)
 
