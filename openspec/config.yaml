@@ -1,0 +1,37 @@
+# SDD configuration — gymtracker
+project: gymtracker
+
+context: |
+  Personal gym tracker. Single user (the owner), explicitly not a SaaS.
+  Greenfield: the repository was empty at init on 2026-09-19.
+  Stated stack preference: Next.js (latest) frontend + NestJS backend.
+  Primary client: iPhone 16 Pro Max, used inside the gym to log sets.
+  Hosting and database must be cheap at single-user scale.
+  Core domain difficulty: weight is recorded in several incompatible
+  measurement modes (machine plate ordinals, kg/lb totals, kg/lb per side).
+
+artifact_store: hybrid
+
+strict_tdd: false
+# Fail-closed. Zero project roots existed at init, so no workspace-level test
+# command covers the in-scope set. Re-resolve once the first project root exists.
+
+testing:
+  projects: []
+  workspace_test_command: null
+  linter: null
+  type_checker: null
+  formatter: null
+
+delivery:
+  strategy: ask-on-risk
+  max_changed_lines_per_pr: 400
+
+rules:
+  propose: Settle no architectural decision that a selected research lane is still answering.
+  spec: Requirements must be behavioural and testable; no implementation detail.
+  design: Record the measurement-mode model and history-immutability decision explicitly.
+  tasks: Slice vertically; keep each PR within the 400-line review budget.
+  apply: Follow existing patterns once they exist; this project has none yet.
+  verify: Validate against spec scenarios, not against the implementation.
+  archive: Merge delta specs into openspec/specs/ before closing.

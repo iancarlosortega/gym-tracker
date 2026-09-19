@@ -1,0 +1,23 @@
+change: gym-tracker-mvp
+created: 2026-09-19
+artifact_store: hybrid
+execution_mode: interactive
+delivery_strategy: ask-on-risk
+delivery_decision: chained-prs-per-slice
+chain_strategy: stacked-to-main
+
+phases:
+  explore: done
+  research: done
+  proposal: done
+  spec: done
+  design: done
+  tasks: done
+  apply: ready
+  verify: blocked
+  archive: blocked
+
+blocked_reasons:
+  - Slice 0 prerequisite: repository is not under git and has no remote; chained PRs cannot be opened until that exists.
+
+next_recommended: apply
