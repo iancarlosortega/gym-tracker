@@ -14,10 +14,14 @@
 ```
 packages/
   domain/          pure TypeScript. ZERO framework dependencies.
+    shared/           the shared kernel — building blocks used by every feature
+      value-objects/    criteria.vo.ts, query-options.vo.ts, date-range.vo.ts
+      errors.ts
     <feature>/
       entities/         logged-set.ts, routine.ts, exercise.ts ...
       value-objects/    grams.ts, load-entry.ts, stack-position.ts ...
-      ports/            set-repository.ts, clock.ts, password-hasher.ts
+      repositories/     set.repository.ts        (persistence boundaries)
+      ports/            clock.port.ts, password-hasher.port.ts
       services/         resolve-mass.ts, progression.ts
   contracts/       zod schemas + wire DTO types shared across the boundary
 
@@ -77,6 +81,46 @@ A file's name is the kebab-case form of its primary export: `LoggedSet` lives in
 **Enforced mechanically**, not by discipline. Biome's `style/useFilenamingConvention` is enabled with `filenameCases: ["kebab-case"]` — the rule is off by default and must be switched on explicitly. It already understands Next.js dynamic-route syntax such as `[...slug].tsx`, so App Router files do not need an exception. Identifier casing is enforced by `style/useNamingConvention`.
 
 The `snake_case` boundary is the database and nothing else. Mappers in `infrastructure/persistence/` are the only place where a `snake_case` column name and a `camelCase` property meet; neither the domain nor the application layer ever sees a column name.
+
+
+### 1.6 Entity convention
+
+Every entity in `packages/domain` follows the same shape. Entities carry identity and rules, so they are the one place where uniformity matters most.
+
+- **Class, with private state.** Fields live behind a private `props` object; the instance is frozen in the constructor. There are no public fields and no setters.
+- **Getters only.** Mutable values handed out — dates in particular — are copied on the way in and on the way out, so a caller cannot reach back through a reference and change the entity.
+- **The constructor is private.** Instances are produced by named static factories, never by `new`.
+- **`create` and `restore` are different operations.** `create` records something that has just happened and starts its revision at zero. `restore` rebuilds a row that already exists and preserves its stored revision. Collapsing the two is a real bug: restoring through `create` resets the counter that orders corrections, so a replayed sync could overwrite a newer edit with an older one.
+- **Invariants are enforced in the factories**, so an invalid instance cannot exist. `LoggedSet` rejects a `PER_SIDE` set whose snapshot bar weight contradicts its entry, and an ordinal set that claims a bar weight at all.
+- **Identity, not value, decides equality.** `equals` compares ids. Two instances of the same set with different repetition counts are the same set; that is precisely what separates an entity from a value object.
+- **Changes return a new instance.** `correctReps` produces a new `LoggedSet` at `revision + 1` and leaves the original untouched.
+- **`toJSON` is the persistence shape**, consumed by the mapper in `infrastructure/persistence/`.
+
+Value objects follow the same private-state-and-factories rule, but are compared by value and carry no id. `LoadEntry` keeps its three-mode discriminated union as private state so that `resolveMass` remains exhaustively checked by the compiler: adding a fourth mode is a build error, not an unhandled case.
+
+
+### 1.7 Repository convention
+
+A repository is a port, but not every port is a repository, so persistence boundaries live in `repositories/` (`set.repository.ts`) and other outbound boundaries stay in `ports/` (`clock.port.ts`, `push-sender.port.ts`).
+
+Repositories expose a fixed set of operations — `save`, `saveMany`, `findOne`, `findMany`, `count`, `delete` — and take a **closed criteria type** rather than a method per field. `findByExercise`, `findBySession`, `findByExerciseAndWeek` is a list that never stops growing; one method per screen is not an interface, it is a backlog.
+
+The criteria type is what keeps this honest:
+
+- It is **not** `Partial<Entity>` and **not** a predicate or expression language. It is an explicit list of the filters this application actually uses, owned by the domain.
+- Adding a filter is therefore a deliberate decision that shows up in review, instead of a caller inventing a query the domain never sanctioned.
+- Because it is closed, both adapters can be held to the same contract tests: whatever `DrizzleSetRepository` answers, `IndexedDbSetRepository` must answer identically.
+
+`Criteria<TFields>` and `QueryOptions<TSortField>` are generic classes in the shared kernel, so every repository inherits the same behaviour — `with`, `without`, `has`, `keys`, `isEmpty`, `orderedBy`, `limitedTo`, `offsetBy` — while still declaring its own closed field list. A repository writes `type SetCriteria = Criteria<SetCriteriaFields>`; the discipline is per repository, the mechanics are shared.
+
+The Specification pattern was considered and rejected for this system: composable specifications that translate themselves to SQL are more expressive, but they amount to maintaining a small query compiler, which is disproportionate for a single-user application.
+
+
+### 1.8 The shared kernel
+
+`packages/domain/shared/` holds domain building blocks that belong to no single feature: `Criteria`, `QueryOptions`, `DateRange`, and the errors they raise. A type earns a place here only when a second feature genuinely needs it — a shared kernel that accumulates everything is just a `utils` folder with a better name.
+
+Everything in it obeys the same rules as the rest of the domain: immutable, private state, named factories, no framework imports.
 
 ### 1.4 Dependency rule
 

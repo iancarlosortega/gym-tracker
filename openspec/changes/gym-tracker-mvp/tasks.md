@@ -29,16 +29,16 @@
 - [x] 1.6 Biome `style/useFilenamingConvention` set to `filenameCases: ["kebab-case"]` (off by default, must be enabled) and `style/useNamingConvention` for identifiers
 - [x] 1.7 Record the resolved workspace test command into `openspec/config.yaml` and re-evaluate `strict_tdd`
 
-## Slice 2 — Measurement domain (~380 lines) ⚠️ correctness-critical
+## Slice 2 — Measurement domain (~380 lines) ⚠️ correctness-critical ✅ awaiting review
 
-- [ ] 2.1 Value objects: `Grams`, `LoadEntry` (discriminated union), `StackPosition`, `Reps` — in `grams.ts`, `load-entry.ts`, `stack-position.ts`, `reps.ts`
-- [ ] 2.2 Entity: `LoggedSet` with its resolution snapshot
-- [ ] 2.3 Service: `resolveMass()` returning `NotApplicable` for `STACK_POSITION` — never `null`, never `0`
-- [ ] 2.4 Port: `SetRepository` interface (no implementation in this slice)
-- [ ] 2.5 Tests first: `PER_SIDE` 20 kg on a 20 kg bar → 60 kg; 15 kg on a 10 kg bar → 40 kg
-- [ ] 2.6 Tests first: `PER_SIDE` without a bar weight is rejected
-- [ ] 2.7 Tests first: `STACK_POSITION` exposes no mass; cross-exercise ordinal comparison is refused
-- [ ] 2.8 Tests first: repeated kg↔lb conversion does not drift; unknown mode rejected
+- [x] 2.1 Value objects: `Grams`, `LoadEntry` (discriminated union), `StackPosition`, `Reps` — in `grams.ts`, `load-entry.ts`, `stack-position.ts`, `reps.ts`
+- [x] 2.2 Entity: `LoggedSet` with its resolution snapshot
+- [x] 2.3 Service: `resolveMass()` returning `NotApplicable` for `STACK_POSITION` — never `null`, never `0`
+- [x] 2.4 Port: `SetRepository` interface (no implementation in this slice)
+- [x] 2.5 Tests first: `PER_SIDE` 20 kg on a 20 kg bar → 60 kg; 15 kg on a 10 kg bar → 40 kg
+- [x] 2.6 Tests first: `PER_SIDE` without a bar weight is rejected
+- [x] 2.7 Tests first: `STACK_POSITION` exposes no mass; cross-exercise ordinal comparison is refused
+- [x] 2.8 Tests first: repeated kg↔lb conversion does not drift; unknown mode rejected
 
 **Write 2.5–2.8 before the code they cover.** Every correctness risk in the product lives in this slice.
 
@@ -179,6 +179,14 @@
 - [ ] 14.6 End-to-end smoke test against the deployed subdomains from the iPhone
 
 ---
+
+## Backlog — agreed, not yet scheduled
+
+- [ ] B1 Introduce a generic `DomainError` base class carrying an `errorCode` and a message, and re-parent every domain error onto it. Requested 2026-09-19. Rationale: error codes survive translation and message edits, so the presentation layer can map a code to user-facing copy and to an HTTP status without string-matching prose. Slice 2's errors are plain `Error` subclasses today; converting them is mechanical and belongs with the first slice that needs to surface errors over the wire (slice 4b or 7b).
+
+## Naming — type suffixes
+
+Files carry a suffix naming what they are: `*.entity.ts`, `*.vo.ts`, `*.service.ts`, `*.port.ts`, `*.use-case.ts`, `*.repository.ts`, `*.mapper.ts`, `*.controller.ts`, `*.module.ts`. Applied to slice 2 on 2026-09-19.
 
 ## Review Workload Forecast
 
