@@ -1,4 +1,4 @@
-import { InvalidQueryOptionError } from '../errors.ts'
+import { InvalidQueryOptionError } from '@domain/shared/errors.js'
 
 export type SortDirection = 'asc' | 'desc'
 

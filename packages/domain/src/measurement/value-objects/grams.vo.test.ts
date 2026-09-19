@@ -1,5 +1,4 @@
-import { describe, expect, it } from 'vitest'
-import { InvalidGramsError } from '../errors.ts'
+import { InvalidGramsError } from '@domain/measurement/errors.js'
 import {
   addGrams,
   doubleGrams,
@@ -8,7 +7,8 @@ import {
   grams,
   toKilograms,
   toPounds,
-} from './grams.vo.ts'
+} from '@domain/measurement/value-objects/grams.vo.js'
+import { describe, expect, it } from 'vitest'
 
 describe('grams', () => {
   it('accepts a non-negative integer', () => {

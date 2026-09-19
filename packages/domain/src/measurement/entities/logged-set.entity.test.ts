@@ -1,10 +1,10 @@
+import { LoggedSet } from '@domain/measurement/entities/logged-set.entity.js'
+import { SnapshotMismatchError } from '@domain/measurement/errors.js'
+import { fromKilograms } from '@domain/measurement/value-objects/grams.vo.js'
+import { LoadEntry } from '@domain/measurement/value-objects/load-entry.vo.js'
+import { reps } from '@domain/measurement/value-objects/reps.vo.js'
+import { stackPosition } from '@domain/measurement/value-objects/stack-position.vo.js'
 import { describe, expect, it } from 'vitest'
-import { SnapshotMismatchError } from '../errors.ts'
-import { fromKilograms } from '../value-objects/grams.vo.ts'
-import { LoadEntry } from '../value-objects/load-entry.vo.ts'
-import { reps } from '../value-objects/reps.vo.ts'
-import { stackPosition } from '../value-objects/stack-position.vo.ts'
-import { LoggedSet } from './logged-set.entity.ts'
 
 const benchPressProps = {
   id: '0199a1f0-0000-7000-8000-000000000001',

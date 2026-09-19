@@ -1,4 +1,4 @@
-import { InvalidDateRangeError } from '../errors.ts'
+import { InvalidDateRangeError } from '@domain/shared/errors.js'
 
 /** A closed interval in time. Both bounds are inclusive. */
 export class DateRange {

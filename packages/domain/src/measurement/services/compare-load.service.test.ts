@@ -1,6 +1,6 @@
+import { compareStackPositions } from '@domain/measurement/services/compare-load.service.js'
+import { stackPosition } from '@domain/measurement/value-objects/stack-position.vo.js'
 import { describe, expect, it } from 'vitest'
-import { stackPosition } from '../value-objects/stack-position.vo.ts'
-import { compareStackPositions } from './compare-load.service.ts'
 
 const latPulldown = 'exercise-lat-pulldown'
 const chestPress = 'exercise-chest-press'

@@ -1,8 +1,8 @@
-import type { Criteria } from '../../shared/value-objects/criteria.vo.ts'
-import type { DateRange } from '../../shared/value-objects/date-range.vo.ts'
-import type { QueryOptions } from '../../shared/value-objects/query-options.vo.ts'
-import type { LoggedSet } from '../entities/logged-set.entity.ts'
-import type { MeasurementMode } from '../value-objects/load-entry.vo.ts'
+import type { LoggedSet } from '@domain/measurement/entities/logged-set.entity.js'
+import type { MeasurementMode } from '@domain/measurement/value-objects/load-entry.vo.js'
+import type { Criteria } from '@domain/shared/value-objects/criteria.vo.js'
+import type { DateRange } from '@domain/shared/value-objects/date-range.vo.js'
+import type { QueryOptions } from '@domain/shared/value-objects/query-options.vo.js'
 
 /**
  * The filters a logged set may be selected by.

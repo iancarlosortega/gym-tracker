@@ -20,7 +20,7 @@ export class Criteria<TFields extends object> {
     return new Criteria<TFields>({} as Partial<TFields>)
   }
 
-  static of<TFields extends object>(fields: Partial<TFields>): Criteria<TFields> {
+  static create<TFields extends object>(fields: Partial<TFields>): Criteria<TFields> {
     return new Criteria<TFields>(Criteria.compact(fields))
   }
 
@@ -65,7 +65,7 @@ export class Criteria<TFields extends object> {
 
   /** Add or replace filters, returning a new criteria. */
   with(fields: Partial<TFields>): Criteria<TFields> {
-    return Criteria.of<TFields>({ ...this.fields, ...fields } as Partial<TFields>)
+    return Criteria.create<TFields>({ ...this.fields, ...fields } as Partial<TFields>)
   }
 
   /** Remove filters, returning a new criteria. */
@@ -74,6 +74,6 @@ export class Criteria<TFields extends object> {
     for (const key of keys) {
       delete remaining[key]
     }
-    return Criteria.of<TFields>(remaining)
+    return Criteria.create<TFields>(remaining)
   }
 }

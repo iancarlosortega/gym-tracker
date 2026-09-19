@@ -1,5 +1,5 @@
-import { CrossExerciseComparisonError } from '../errors.ts'
-import type { StackPosition } from '../value-objects/stack-position.vo.ts'
+import { CrossExerciseComparisonError } from '@domain/measurement/errors.js'
+import type { StackPosition } from '@domain/measurement/value-objects/stack-position.vo.js'
 
 export interface StackPositionSample {
   readonly exerciseId: string

@@ -1,3 +1,6 @@
+import { equipment } from '@api/database/schema/equipment.table.js'
+import { exercise } from '@api/database/schema/exercise.table.js'
+import { workoutSession } from '@api/database/schema/workout-session.table.js'
 import { sql } from 'drizzle-orm'
 import {
   bigint,
@@ -10,9 +13,6 @@ import {
   timestamp,
   uuid,
 } from 'drizzle-orm/pg-core'
-import { equipment } from './equipment.table.ts'
-import { exercise } from './exercise.table.ts'
-import { workoutSession } from './workout-session.table.ts'
 
 export const loggedSet = pgTable(
   'logged_set',

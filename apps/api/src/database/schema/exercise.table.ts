@@ -1,5 +1,5 @@
+import { appUser } from '@api/database/schema/user.table.js'
 import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
-import { appUser } from './user.table.ts'
 
 export const exercise = pgTable('exercise', {
   id: uuid('id').primaryKey().defaultRandom(),

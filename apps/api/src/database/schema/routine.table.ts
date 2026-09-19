@@ -1,8 +1,8 @@
+import { equipment } from '@api/database/schema/equipment.table.js'
+import { exercise } from '@api/database/schema/exercise.table.js'
+import { appUser } from '@api/database/schema/user.table.js'
 import { sql } from 'drizzle-orm'
 import { check, integer, pgTable, smallint, text, timestamp, uuid } from 'drizzle-orm/pg-core'
-import { equipment } from './equipment.table.ts'
-import { exercise } from './exercise.table.ts'
-import { appUser } from './user.table.ts'
 
 export const routine = pgTable('routine', {
   id: uuid('id').primaryKey().defaultRandom(),

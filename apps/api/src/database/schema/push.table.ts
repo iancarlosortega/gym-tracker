@@ -1,5 +1,5 @@
+import { appUser } from '@api/database/schema/user.table.js'
 import { index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
-import { appUser } from './user.table.ts'
 
 export const pushSubscription = pgTable(
   'push_subscription',

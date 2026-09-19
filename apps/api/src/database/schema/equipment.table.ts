@@ -1,6 +1,6 @@
+import { appUser } from '@api/database/schema/user.table.js'
 import { sql } from 'drizzle-orm'
 import { bigint, check, pgTable, smallint, text, timestamp, uuid } from 'drizzle-orm/pg-core'
-import { appUser } from './user.table.ts'
 
 export const equipment = pgTable(
   'equipment',

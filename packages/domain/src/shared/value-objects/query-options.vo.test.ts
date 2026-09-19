@@ -1,5 +1,5 @@
+import { QueryOptions } from '@domain/shared/value-objects/query-options.vo.js'
 import { describe, expect, it } from 'vitest'
-import { QueryOptions } from './query-options.vo.ts'
 
 type SortField = 'loggedAt' | 'reps'
 

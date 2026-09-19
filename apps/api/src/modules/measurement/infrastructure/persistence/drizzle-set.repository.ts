@@ -1,8 +1,13 @@
-import type { LoggedSet, SetCriteria, SetQueryOptions, SetRepository } from '@gym/domain'
+import { loggedSet } from '@api/database/schema/logged-set.table.js'
+import { setMapper } from '@api/modules/measurement/infrastructure/persistence/set.mapper.js'
+import type { LoggedSet } from '@gym/domain/measurement/entities/logged-set.entity'
+import type {
+  SetCriteria,
+  SetQueryOptions,
+  SetRepository,
+} from '@gym/domain/measurement/repositories/set.repository'
 import { and, asc, count, desc, eq, gte, inArray, isNull, lte, type SQL, sql } from 'drizzle-orm'
 import type { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core'
-import { loggedSet } from '../../../../database/schema/logged-set.table.ts'
-import { setMapper } from './set.mapper.ts'
 
 export type MeasurementDatabase = PgDatabase<PgQueryResultHKT>
 

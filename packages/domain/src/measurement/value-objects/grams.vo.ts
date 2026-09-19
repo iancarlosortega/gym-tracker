@@ -1,4 +1,4 @@
-import { InvalidGramsError } from '../errors.ts'
+import { InvalidGramsError } from '@domain/measurement/errors.js'
 
 declare const gramsBrand: unique symbol
 

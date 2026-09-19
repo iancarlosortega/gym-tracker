@@ -1,10 +1,10 @@
-import type { PGlite } from '@electric-sql/pglite'
-import { beforeEach, describe, expect, it } from 'vitest'
 import {
   createTestDatabase,
   type SeededReferences,
   seedReferences,
-} from '../testing/test-database.ts'
+} from '@api/database/testing/test-database.js'
+import type { PGlite } from '@electric-sql/pglite'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 let database: PGlite
 let references: SeededReferences

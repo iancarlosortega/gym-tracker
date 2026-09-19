@@ -1,6 +1,6 @@
+import { routine } from '@api/database/schema/routine.table.js'
+import { appUser } from '@api/database/schema/user.table.js'
 import { index, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core'
-import { routine } from './routine.table.ts'
-import { appUser } from './user.table.ts'
 
 export const workoutSession = pgTable(
   'workout_session',

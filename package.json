@@ -9,13 +9,15 @@
   "scripts": {
     "build": "pnpm -r build",
     "test": "pnpm -r test",
-    "typecheck": "pnpm -r typecheck",
-    "lint": "biome check .",
-    "format": "biome format --write ."
+    "typecheck": "pnpm build:packages && pnpm -r typecheck",
+    "lint": "biome check . && ./scripts/check-no-barrels.sh",
+    "format": "biome format --write .",
+    "build:packages": "pnpm --filter \"./packages/**\" build"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",
     "@types/node": "^26.6.2",
+    "tsc-alias": "^1.9.5",
     "typescript": "^7.0.2",
     "vitest": "^5.0.1"
   }

@@ -1,4 +1,4 @@
-import type { Grams } from './grams.vo.ts'
+import type { Grams } from '@domain/measurement/value-objects/grams.vo.js'
 
 /**
  * The outcome of asking a load for its mass.

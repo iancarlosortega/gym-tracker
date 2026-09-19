@@ -1,5 +1,5 @@
+import { DateRange } from '@domain/shared/value-objects/date-range.vo.js'
 import { describe, expect, it } from 'vitest'
-import { DateRange } from './date-range.vo.ts'
 
 const monday = new Date('2026-09-14T00:00:00.000Z')
 const sunday = new Date('2026-09-20T23:59:59.999Z')

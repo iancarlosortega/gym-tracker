@@ -1,8 +1,11 @@
-import { SnapshotMismatchError } from '../errors.ts'
-import type { DisplayUnit, Grams } from '../value-objects/grams.vo.ts'
-import type { LoadEntry } from '../value-objects/load-entry.vo.ts'
-import { isResolved, type MassResolution } from '../value-objects/mass-resolution.vo.ts'
-import type { Reps } from '../value-objects/reps.vo.ts'
+import { SnapshotMismatchError } from '@domain/measurement/errors.js'
+import type { DisplayUnit, Grams } from '@domain/measurement/value-objects/grams.vo.js'
+import type { LoadEntry } from '@domain/measurement/value-objects/load-entry.vo.js'
+import {
+  isResolved,
+  type MassResolution,
+} from '@domain/measurement/value-objects/mass-resolution.vo.js'
+import type { Reps } from '@domain/measurement/value-objects/reps.vo.js'
 
 /**
  * The parameters used to resolve an entry at the moment it was logged.

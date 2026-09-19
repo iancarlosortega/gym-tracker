@@ -1,4 +1,4 @@
-import { InvalidCountError } from '../errors.ts'
+import { InvalidCountError } from '@domain/measurement/errors.js'
 
 declare const stackPositionBrand: unique symbol
 

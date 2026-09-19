@@ -1,5 +1,5 @@
+import { appUser } from '@api/database/schema/user.table.js'
 import { index, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core'
-import { appUser } from './user.table.ts'
 
 /** Server-held authentication sessions. The cookie carries only this opaque id. */
 export const authSession = pgTable(

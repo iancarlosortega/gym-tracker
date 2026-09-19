@@ -2,10 +2,18 @@ import {
   MissingBarWeightError,
   MissingMeasurementModeError,
   UnknownMeasurementModeError,
-} from '../errors.ts'
-import { addGrams, doubleGrams, type Grams, grams } from './grams.vo.ts'
-import type { MassResolution } from './mass-resolution.vo.ts'
-import { type StackPosition, stackPosition } from './stack-position.vo.ts'
+} from '@domain/measurement/errors.js'
+import {
+  addGrams,
+  doubleGrams,
+  type Grams,
+  grams,
+} from '@domain/measurement/value-objects/grams.vo.js'
+import type { MassResolution } from '@domain/measurement/value-objects/mass-resolution.vo.js'
+import {
+  type StackPosition,
+  stackPosition,
+} from '@domain/measurement/value-objects/stack-position.vo.js'
 
 /**
  * How a load was measured. The three modes are not interchangeable: TOTAL and

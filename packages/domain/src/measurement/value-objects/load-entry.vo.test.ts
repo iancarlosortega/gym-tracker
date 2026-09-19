@@ -1,8 +1,8 @@
+import { fromKilograms } from '@domain/measurement/value-objects/grams.vo.js'
+import { LoadEntry } from '@domain/measurement/value-objects/load-entry.vo.js'
+import { isResolved } from '@domain/measurement/value-objects/mass-resolution.vo.js'
+import { stackPosition } from '@domain/measurement/value-objects/stack-position.vo.js'
 import { describe, expect, it } from 'vitest'
-import { fromKilograms } from './grams.vo.ts'
-import { LoadEntry } from './load-entry.vo.ts'
-import { isResolved } from './mass-resolution.vo.ts'
-import { stackPosition } from './stack-position.vo.ts'
 
 describe('load entry construction', () => {
   it('builds a TOTAL entry', () => {

@@ -1,23 +1,26 @@
 import {
-  Criteria,
-  DateRange,
-  fromKilograms,
-  LoadEntry,
-  LoggedSet,
-  QueryOptions,
-  reps,
-  type SetCriteriaFields,
-  type SetSortField,
-  stackPosition,
-} from '@gym/domain'
-import { drizzle } from 'drizzle-orm/pglite'
-import { beforeEach, describe, expect, it } from 'vitest'
-import {
   createTestDatabase,
   type SeededReferences,
   seedReferences,
-} from '../../../../database/testing/test-database.ts'
-import { DrizzleSetRepository, type MeasurementDatabase } from './drizzle-set.repository.ts'
+} from '@api/database/testing/test-database.js'
+import {
+  DrizzleSetRepository,
+  type MeasurementDatabase,
+} from '@api/modules/measurement/infrastructure/persistence/drizzle-set.repository.js'
+import { LoggedSet } from '@gym/domain/measurement/entities/logged-set.entity'
+import type {
+  SetCriteriaFields,
+  SetSortField,
+} from '@gym/domain/measurement/repositories/set.repository'
+import { fromKilograms } from '@gym/domain/measurement/value-objects/grams.vo'
+import { LoadEntry } from '@gym/domain/measurement/value-objects/load-entry.vo'
+import { reps } from '@gym/domain/measurement/value-objects/reps.vo'
+import { stackPosition } from '@gym/domain/measurement/value-objects/stack-position.vo'
+import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
+import { DateRange } from '@gym/domain/shared/value-objects/date-range.vo'
+import { QueryOptions } from '@gym/domain/shared/value-objects/query-options.vo'
+import { drizzle } from 'drizzle-orm/pglite'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 let repository: DrizzleSetRepository
 let references: SeededReferences
@@ -70,7 +73,7 @@ describe('round-tripping a set', () => {
   it('restores a per-side set with its resolved mass intact', async () => {
     await repository.save(benchPress(ids.first))
 
-    const found = await repository.findOne(Criteria.of<SetCriteriaFields>({ id: ids.first }))
+    const found = await repository.findOne(Criteria.create<SetCriteriaFields>({ id: ids.first }))
 
     expect(found?.id).toBe(ids.first)
     expect(found?.mass()).toEqual({ kind: 'resolved', grams: 60_000 })
@@ -81,7 +84,7 @@ describe('round-tripping a set', () => {
   it('restores an ordinal set without inventing a mass', async () => {
     await repository.save(machineRow(ids.second))
 
-    const found = await repository.findOne(Criteria.of<SetCriteriaFields>({ id: ids.second }))
+    const found = await repository.findOne(Criteria.create<SetCriteriaFields>({ id: ids.second }))
 
     expect(found?.mass().kind).toBe('not-applicable')
     expect(found?.entry.position).toBe(7)
@@ -91,7 +94,7 @@ describe('round-tripping a set', () => {
     const corrected = benchPress(ids.first).correctReps(reps(10))
     await repository.save(corrected)
 
-    const found = await repository.findOne(Criteria.of<SetCriteriaFields>({ id: ids.first }))
+    const found = await repository.findOne(Criteria.create<SetCriteriaFields>({ id: ids.first }))
 
     expect(found?.revision).toBe(1)
     expect(found?.reps).toBe(10)
@@ -112,7 +115,7 @@ describe('idempotent delivery', () => {
     await repository.save(benchPress(ids.first))
     await repository.save(benchPress(ids.first).correctReps(reps(12)))
 
-    const found = await repository.findOne(Criteria.of<SetCriteriaFields>({ id: ids.first }))
+    const found = await repository.findOne(Criteria.create<SetCriteriaFields>({ id: ids.first }))
     expect(found?.reps).toBe(12)
     expect(found?.revision).toBe(1)
   })
@@ -122,7 +125,7 @@ describe('idempotent delivery', () => {
     await repository.save(original.correctReps(reps(12)))
     await repository.save(original)
 
-    const found = await repository.findOne(Criteria.of<SetCriteriaFields>({ id: ids.first }))
+    const found = await repository.findOne(Criteria.create<SetCriteriaFields>({ id: ids.first }))
     expect(found?.reps).toBe(12)
   })
 })
@@ -138,14 +141,14 @@ describe('querying by criteria', () => {
 
   it('filters by session', async () => {
     const found = await repository.findMany(
-      Criteria.of<SetCriteriaFields>({ sessionId: references.sessionId }),
+      Criteria.create<SetCriteriaFields>({ sessionId: references.sessionId }),
     )
     expect(found).toHaveLength(3)
   })
 
   it('filters by measurement mode', async () => {
     const ordinal = await repository.findMany(
-      Criteria.of<SetCriteriaFields>({ mode: 'STACK_POSITION' }),
+      Criteria.create<SetCriteriaFields>({ mode: 'STACK_POSITION' }),
     )
     expect(ordinal).toHaveLength(1)
     expect(ordinal[0]?.id).toBe(ids.second)
@@ -157,14 +160,16 @@ describe('querying by criteria', () => {
       new Date('2026-09-20T23:59:59.999Z'),
     )
 
-    const found = await repository.findMany(Criteria.of<SetCriteriaFields>({ loggedBetween: week }))
+    const found = await repository.findMany(
+      Criteria.create<SetCriteriaFields>({ loggedBetween: week }),
+    )
 
     expect(found.map((set) => set.id)).toEqual([ids.first, ids.second])
   })
 
   it('filters by a list of ids', async () => {
     const found = await repository.findMany(
-      Criteria.of<SetCriteriaFields>({ ids: [ids.first, ids.third] }),
+      Criteria.create<SetCriteriaFields>({ ids: [ids.first, ids.third] }),
     )
     expect(found).toHaveLength(2)
   })
@@ -178,7 +183,7 @@ describe('querying by criteria', () => {
   })
 
   it('counts with the same criteria it queries with', async () => {
-    expect(await repository.count(Criteria.of<SetCriteriaFields>({ mode: 'PER_SIDE' }))).toBe(2)
+    expect(await repository.count(Criteria.create<SetCriteriaFields>({ mode: 'PER_SIDE' }))).toBe(2)
   })
 })
 
@@ -187,7 +192,9 @@ describe('deleting', () => {
     await repository.save(benchPress(ids.first))
     await repository.delete(ids.first)
 
-    expect(await repository.findOne(Criteria.of<SetCriteriaFields>({ id: ids.first }))).toBeNull()
+    expect(
+      await repository.findOne(Criteria.create<SetCriteriaFields>({ id: ids.first })),
+    ).toBeNull()
     expect(await repository.count(noCriteria)).toBe(0)
   })
 
@@ -197,6 +204,8 @@ describe('deleting', () => {
     await repository.delete(ids.first)
     await repository.save(set)
 
-    expect(await repository.findOne(Criteria.of<SetCriteriaFields>({ id: ids.first }))).toBeNull()
+    expect(
+      await repository.findOne(Criteria.create<SetCriteriaFields>({ id: ids.first })),
+    ).toBeNull()
   })
 })

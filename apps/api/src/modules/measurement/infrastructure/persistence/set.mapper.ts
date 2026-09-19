@@ -1,5 +1,9 @@
-import { type DisplayUnit, grams, LoadEntry, LoggedSet, reps, stackPosition } from '@gym/domain'
-import type { loggedSet } from '../../../../database/schema/logged-set.table.ts'
+import type { loggedSet } from '@api/database/schema/logged-set.table.js'
+import { LoggedSet } from '@gym/domain/measurement/entities/logged-set.entity'
+import { type DisplayUnit, grams } from '@gym/domain/measurement/value-objects/grams.vo'
+import { LoadEntry } from '@gym/domain/measurement/value-objects/load-entry.vo'
+import { reps } from '@gym/domain/measurement/value-objects/reps.vo'
+import { stackPosition } from '@gym/domain/measurement/value-objects/stack-position.vo'
 
 type LoggedSetRow = typeof loggedSet.$inferSelect
 type LoggedSetInsert = typeof loggedSet.$inferInsert
