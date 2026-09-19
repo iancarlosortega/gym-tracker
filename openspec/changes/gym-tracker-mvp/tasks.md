@@ -42,14 +42,14 @@
 
 **Write 2.5–2.8 before the code they cover.** Every correctness risk in the product lives in this slice.
 
-## Slice 3 — Persistence foundation (~300 lines)
+## Slice 3 — Persistence foundation (~300 lines) ✅ awaiting review
 
-- [ ] 3.1 Drizzle schema for all tables
-- [ ] 3.2 `logged_set` `CHECK`: `resolved_grams` non-null **XOR** `stack_position` non-null
-- [ ] 3.3 Tombstone and `client_revision` columns
-- [ ] 3.4 Initial migration
-- [ ] 3.5 `DrizzleSetRepository` implementing the `SetRepository` port, plus `SetMapper` — the only layer where `snake_case` columns meet `camelCase` properties
-- [ ] 3.6 Integration test: the database rejects a `STACK_POSITION` row carrying `resolved_grams`
+- [x] 3.1 Drizzle schema for all tables
+- [x] 3.2 `logged_set` `CHECK`: `resolved_grams` non-null **XOR** `stack_position` non-null
+- [x] 3.3 Tombstone and `client_revision` columns
+- [x] 3.4 Initial migration
+- [x] 3.5 `DrizzleSetRepository` implementing the `SetRepository` port, plus `SetMapper` — the only layer where `snake_case` columns meet `camelCase` properties
+- [x] 3.6 Integration test: the database rejects a `STACK_POSITION` row carrying `resolved_grams`
 
 ## Slice 4a — Auth domain and application (~220 lines)
 
