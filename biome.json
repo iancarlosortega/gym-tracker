@@ -1,6 +1,10 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
-  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
   "files": {
     "includes": ["**/*.ts", "**/*.tsx", "**/*.json", "**/*.jsonc"]
   },
@@ -25,13 +29,18 @@
         },
         "useNamingConvention": {
           "level": "error",
-          "options": { "strictCase": false }
+          "options": {
+            "strictCase": false
+          }
         }
       }
     }
   },
   "javascript": {
-    "formatter": { "quoteStyle": "single", "semicolons": "asNeeded" }
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "asNeeded"
+    }
   },
   "overrides": [
     {
@@ -49,8 +58,12 @@
                   "@nestjs/core": {
                     "message": "The domain must not depend on a framework. Define a port instead."
                   },
-                  "next": { "message": "The domain must not depend on a framework." },
-                  "react": { "message": "The domain must not depend on a framework." },
+                  "next": {
+                    "message": "The domain must not depend on a framework."
+                  },
+                  "react": {
+                    "message": "The domain must not depend on a framework."
+                  },
                   "drizzle-orm": {
                     "message": "The domain must not depend on persistence. Define a port instead."
                   },
@@ -60,6 +73,16 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/database/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": "off"
           }
         }
       }
