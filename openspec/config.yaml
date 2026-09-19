@@ -12,16 +12,33 @@ context: |
 
 artifact_store: hybrid
 
-strict_tdd: false
-# Fail-closed. Zero project roots existed at init, so no workspace-level test
-# command covers the in-scope set. Re-resolve once the first project root exists.
+strict_tdd: true
+# Re-resolved 2026-09-19 after slice 1. Four project roots now exist and the
+# workspace-level command `pnpm test` covers every one of them, so the default
+# applies. This was `false` at init only because zero projects existed.
 
 testing:
-  projects: []
-  workspace_test_command: null
-  linter: null
-  type_checker: null
-  formatter: null
+  workspace_test_command: pnpm test
+  linter: biome check .
+  formatter: biome format --write .
+  type_checker: pnpm typecheck
+  projects:
+    - path: packages/domain
+      stack: TypeScript (no framework)
+      test_command: vitest run
+      framework: Vitest
+    - path: packages/contracts
+      stack: TypeScript + zod
+      test_command: vitest run
+      framework: Vitest
+    - path: apps/api
+      stack: NestJS 12 / Node 22
+      test_command: vitest run
+      framework: Vitest
+    - path: apps/web
+      stack: Next.js 16.3.5 / React 19
+      test_command: vitest run
+      framework: Vitest
 
 delivery:
   strategy: ask-on-risk

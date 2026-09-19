@@ -19,15 +19,15 @@
 
 **Completed by the user on 2026-09-19.** Repo on `main`, remote `git@github.com:iancarlosortega/gym-tracker.git`, initial commit `600b020`. `.gitignore` added and generated `.atl/` untracked — **staged, awaiting local review.**
 
-## Slice 1 — Workspace foundation (~220 lines)
+## Slice 1 — Workspace foundation (~220 lines) ✅ awaiting review
 
-- [ ] 1.1 pnpm workspace: `apps/web`, `apps/api`, `packages/domain`, `packages/contracts`
-- [ ] 1.2 Shared TypeScript config; **Biome** for formatting and linting at the root
-- [ ] 1.3 Vitest configured in `apps/api`, `apps/web`, and `packages/domain`
-- [ ] 1.4 Root scripts: `test`, `lint` (`biome check`), `format`, `typecheck`, `build` across all packages
-- [ ] 1.5 Lint rule forbidding framework imports inside `packages/domain` (enforces the dependency rule mechanically)
-- [ ] 1.6 Biome `style/useFilenamingConvention` set to `filenameCases: ["kebab-case"]` (off by default, must be enabled) and `style/useNamingConvention` for identifiers
-- [ ] 1.7 Record the resolved workspace test command into `openspec/config.yaml` and re-evaluate `strict_tdd`
+- [x] 1.1 pnpm workspace: `apps/web`, `apps/api`, `packages/domain`, `packages/contracts`
+- [x] 1.2 Shared TypeScript config; **Biome** for formatting and linting at the root
+- [x] 1.3 Vitest configured in `apps/api`, `apps/web`, and `packages/domain`
+- [x] 1.4 Root scripts: `test`, `lint` (`biome check`), `format`, `typecheck`, `build` across all packages
+- [x] 1.5 Lint rule forbidding framework imports inside `packages/domain` (enforces the dependency rule mechanically)
+- [x] 1.6 Biome `style/useFilenamingConvention` set to `filenameCases: ["kebab-case"]` (off by default, must be enabled) and `style/useNamingConvention` for identifiers
+- [x] 1.7 Record the resolved workspace test command into `openspec/config.yaml` and re-evaluate `strict_tdd`
 
 ## Slice 2 — Measurement domain (~380 lines) ⚠️ correctness-critical
 
