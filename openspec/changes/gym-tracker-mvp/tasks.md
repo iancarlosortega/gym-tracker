@@ -58,15 +58,15 @@
 - [x] 4a.3 Use cases: `SignInUseCase`, `SignOutUseCase`, `SeedAccountUseCase`
 - [x] 4a.4 Tests with in-memory port fakes — no database, no framework
 
-## Slice 4b — Auth infrastructure and presentation (~280 lines)
+## Slice 4b — Auth infrastructure and presentation (~280 lines) ✅ awaiting review
 
-- [ ] 4b.1 `Argon2Hasher` adapter
-- [ ] 4b.2 `DrizzleUserRepository`, `DrizzleSessionRepository`
-- [ ] 4b.3 Controller, module wiring, auth guard refusing all workout data without a session
-- [ ] 4b.4 Cookie: `HttpOnly; Secure; SameSite=Lax`, 90-day expiry, sliding renewal
-- [ ] 4b.5 Generic failure message that does not reveal email existence
-- [ ] 4b.6 **Startup validation: frontend and API origins must share a registrable domain, else exit** (RK7)
-- [ ] 4b.7 Tests: expired session refused; 14-day idle session survives
+- [x] 4b.1 `Argon2Hasher` adapter
+- [x] 4b.2 `DrizzleUserRepository`, `DrizzleSessionRepository`
+- [x] 4b.3 Controller, module wiring, auth guard refusing all workout data without a session
+- [x] 4b.4 Cookie: `HttpOnly; Secure; SameSite=Lax`, 90-day expiry, sliding renewal
+- [x] 4b.5 Generic failure message that does not reveal email existence
+- [x] 4b.6 **Startup validation: frontend and API origins must share a registrable domain, else exit** (RK7)
+- [x] 4b.7 Tests: expired session refused; 14-day idle session survives
 
 ## Slice 5a — Catalog: exercises (~280 lines)
 

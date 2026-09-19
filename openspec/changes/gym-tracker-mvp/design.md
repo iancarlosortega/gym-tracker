@@ -128,6 +128,34 @@ The Specification pattern was considered and rejected for this system: composabl
 Everything in it obeys the same rules as the rest of the domain: immutable, private state, named factories, no framework imports.
 
 
+### 1.8b Configuration
+
+Environment configuration uses `@nestjs/config` with a zod `validationSchema`, not a hand-written reader. The framework already solves loading, caching, typed access and fail-fast validation; reimplementing it produces a second, weaker version of the same thing.
+
+Validation runs while the application is created, so a contradictory configuration stops the process before it listens. Logic that deserves its own tests stays outside the schema and is called from it — `shareRegistrableDomain` is a tested module in its own right, invoked from `superRefine`, rather than a regular expression buried in a config file.
+
+### 1.8c Errors and their HTTP mapping
+
+Every domain error extends `DomainError` and carries a `code`. The presentation layer maps that code to an HTTP status, so the domain never learns what a status is and the mapping never becomes an `instanceof` chain.
+
+**Codes are grouped per feature**, and so are their mappings: `auth.http-errors.ts` lives beside the auth module, `measurement.http-errors.ts` beside measurement. A single table would grow with the whole system and belong to nobody.
+
+**There is still one filter.** Nest dispatches exception filters by exception *type*, not by module, so several filters catching `DomainError` would not compose — the last global registration would win and the rest would be dead code. Splitting the tables gives the colocation; splitting the filters would give a bug.
+
+The composition is what keeps it safe:
+
+```ts
+const httpErrors: HttpErrorMapping<DomainErrorCode> = {
+  ...sharedHttpErrors,
+  ...authHttpErrors,
+  ...measurementHttpErrors
+}
+```
+
+Because the result must satisfy `Record<DomainErrorCode, …>`, adding a code without mapping it is a compile error rather than a 500 found in production. An unmapped code reaching the filter at runtime is treated as a server fault and logged, never as a 400 that blames the caller.
+
+**Requests are validated by DTOs**, not by hand. Controllers take a `class-validator` DTO and a global `ValidationPipe` runs with `whitelist` and `forbidNonWhitelisted`, so an unexpected field is rejected rather than ignored. Controllers state the happy path; failures travel to the filter.
+
 ### 1.9 Imports and module boundaries
 
 Four rules, all enforced rather than remembered.
