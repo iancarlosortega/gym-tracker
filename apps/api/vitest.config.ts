@@ -15,5 +15,9 @@ export default defineConfig({
       { find: /^@gym\/domain\/(.*)$/, replacement: `${domain}/$1.ts` },
     ],
   },
-  test: { include: ['src/**/*.test.ts'], environment: 'node' },
+  test: {
+    setupFiles: ['reflect-metadata'],
+    include: ['src/**/*.test.ts'],
+    environment: 'node',
+  },
 })

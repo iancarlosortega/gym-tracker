@@ -40,6 +40,9 @@
     "formatter": {
       "quoteStyle": "single",
       "semicolons": "asNeeded"
+    },
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
     }
   },
   "overrides": [
@@ -83,6 +86,26 @@
         "rules": {
           "style": {
             "useNamingConvention": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/config/**", "apps/api/src/common/**", "**/*.http-errors.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useImportType": "off"
           }
         }
       }
