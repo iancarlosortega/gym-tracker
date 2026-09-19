@@ -1,138 +1,173 @@
 # Tasks — gym-tracker-mvp
 
-**Date**: 2026-09-19
+**Date**: 2026-09-19 · **Re-sliced**: 2026-09-19 after the strict Clean Architecture decision
 **Inputs**: `proposal.md`, `specs/*/spec.md`, `design.md`
 **Delivery strategy**: `ask-on-risk` → resolved to **chained PRs, one per slice**
 **Chain strategy**: **stacked to main**
 **Review budget**: 400 changed lines per PR
-
-Slices are ordered by dependency and each one is independently reviewable. Estimates are changed lines including tests.
-
----
-
-## Slice 0 — Repository prerequisite (~20 lines)
-
-- [ ] 0.1 `git init` the project and make the initial commit (the openspec artifacts are the first commit)
-- [ ] 0.2 Create the remote repository and push the default branch
-- [ ] 0.3 Add `.gitignore` covering `node_modules`, build output, and environment files
-
-Chained PRs cannot exist without this. It is listed as a slice so it is not skipped silently.
+**MUST**: nothing is committed or pushed until Ian has reviewed it locally.
+**Architecture**: strict Clean Architecture in every feature — `domain` (in `packages/domain`) / `application` / `infrastructure` / `presentation`. Tooling: Biome.
+**Naming**: files and directories `kebab-case`; classes and types `PascalCase`; variables and functions `camelCase`; database tables and columns `snake_case`. Enforced by Biome, see design §1.5.
 
 ---
 
-## Slice 1 — Workspace foundation (~180 lines)
+## Slice 0 — Repository prerequisite (~20 lines) ✅
 
-- [ ] 1.1 Initialise pnpm workspace with `apps/web`, `apps/api`, `packages/contracts`
-- [ ] 1.2 Shared TypeScript config, ESLint, Prettier at the root
-- [ ] 1.3 Vitest configured in `apps/api` and `apps/web`
-- [ ] 1.4 Root scripts: `test`, `lint`, `typecheck`, `build` covering every workspace package
-- [ ] 1.5 Record the resolved workspace test command back into `openspec/config.yaml` and re-evaluate `strict_tdd`
+- [x] 0.1 `git init` the project and make the initial commit (the openspec artifacts are the first commit)
+- [x] 0.2 Create the remote repository and push the default branch
+- [x] 0.3 Add `.gitignore` covering `node_modules`, build output, and environment files
 
-## Slice 2 — Measurement domain core (~320 lines) ⚠️ correctness-critical
+**Completed by the user on 2026-09-19.** Repo on `main`, remote `git@github.com:iancarlosortega/gym-tracker.git`, initial commit `600b020`. `.gitignore` added and generated `.atl/` untracked — **staged, awaiting local review.**
 
-- [ ] 2.1 `LoadEntry` discriminated union and `Grams` type in `packages/contracts`
-- [ ] 2.2 `resolveMass()` returning `NotApplicable` for `STACK_POSITION` — never `null`, never `0`
-- [ ] 2.3 Unit tests: `PER_SIDE` 20 kg on a 20 kg bar resolves to 60 kg; 15 kg on a 10 kg bar resolves to 40 kg
-- [ ] 2.4 Unit tests: `PER_SIDE` without a bar weight is rejected
-- [ ] 2.5 Unit tests: `STACK_POSITION` exposes no mass and is refused across exercises
-- [ ] 2.6 Unit tests: repeated kg↔lb display conversion does not drift
-- [ ] 2.7 Reject entries with a missing or unknown mode
+## Slice 1 — Workspace foundation (~220 lines)
 
-**Write the tests in 2.3–2.6 before the implementation they cover.** This slice carries every correctness risk in the product.
+- [ ] 1.1 pnpm workspace: `apps/web`, `apps/api`, `packages/domain`, `packages/contracts`
+- [ ] 1.2 Shared TypeScript config; **Biome** for formatting and linting at the root
+- [ ] 1.3 Vitest configured in `apps/api`, `apps/web`, and `packages/domain`
+- [ ] 1.4 Root scripts: `test`, `lint` (`biome check`), `format`, `typecheck`, `build` across all packages
+- [ ] 1.5 Lint rule forbidding framework imports inside `packages/domain` (enforces the dependency rule mechanically)
+- [ ] 1.6 Biome `style/useFilenamingConvention` set to `filenameCases: ["kebab-case"]` (off by default, must be enabled) and `style/useNamingConvention` for identifiers
+- [ ] 1.7 Record the resolved workspace test command into `openspec/config.yaml` and re-evaluate `strict_tdd`
 
-## Slice 3 — Schema and migrations (~260 lines)
+## Slice 2 — Measurement domain (~380 lines) ⚠️ correctness-critical
 
-- [ ] 3.1 Drizzle schema: `user`, `session`, `exercise`, `equipment`, `routine`, `routine_exercise`, `workout_session`, `logged_set`, `scheduled_push`, `push_subscription`, `recompute_audit`
+- [ ] 2.1 Value objects: `Grams`, `LoadEntry` (discriminated union), `StackPosition`, `Reps` — in `grams.ts`, `load-entry.ts`, `stack-position.ts`, `reps.ts`
+- [ ] 2.2 Entity: `LoggedSet` with its resolution snapshot
+- [ ] 2.3 Service: `resolveMass()` returning `NotApplicable` for `STACK_POSITION` — never `null`, never `0`
+- [ ] 2.4 Port: `SetRepository` interface (no implementation in this slice)
+- [ ] 2.5 Tests first: `PER_SIDE` 20 kg on a 20 kg bar → 60 kg; 15 kg on a 10 kg bar → 40 kg
+- [ ] 2.6 Tests first: `PER_SIDE` without a bar weight is rejected
+- [ ] 2.7 Tests first: `STACK_POSITION` exposes no mass; cross-exercise ordinal comparison is refused
+- [ ] 2.8 Tests first: repeated kg↔lb conversion does not drift; unknown mode rejected
+
+**Write 2.5–2.8 before the code they cover.** Every correctness risk in the product lives in this slice.
+
+## Slice 3 — Persistence foundation (~300 lines)
+
+- [ ] 3.1 Drizzle schema for all tables
 - [ ] 3.2 `logged_set` `CHECK`: `resolved_grams` non-null **XOR** `stack_position` non-null
-- [ ] 3.3 Tombstone and `client_revision` columns for sync
+- [ ] 3.3 Tombstone and `client_revision` columns
 - [ ] 3.4 Initial migration
-- [ ] 3.5 Integration test: inserting a `STACK_POSITION` row carrying `resolved_grams` is rejected by the database
+- [ ] 3.5 `DrizzleSetRepository` implementing the `SetRepository` port, plus `SetMapper` — the only layer where `snake_case` columns meet `camelCase` properties
+- [ ] 3.6 Integration test: the database rejects a `STACK_POSITION` row carrying `resolved_grams`
 
-## Slice 4 — Auth (~300 lines)
+## Slice 4a — Auth domain and application (~220 lines)
 
-- [ ] 4.1 Argon2id hashing; one-time account seeding command (not a public route)
-- [ ] 4.2 Sign-in and sign-out; generic failure message that does not reveal email existence
-- [ ] 4.3 Session table, opaque cookie id, `HttpOnly; Secure; SameSite=Lax`, 90-day expiry with sliding renewal
-- [ ] 4.4 Auth guard refusing all workout data without a valid session
-- [ ] 4.5 **Startup validation: frontend origin and API origin must share a registrable domain, else exit with a configuration error** (RK7)
-- [ ] 4.6 Tests: expired session refused; session survives 14 days idle; cookie absent from script-readable storage
+- [ ] 4a.1 Domain: `User`, `Email`, `PasswordHash`, `SessionId` value objects
+- [ ] 4a.2 Ports: `UserRepository`, `SessionRepository`, `PasswordHasher`, `Clock`
+- [ ] 4a.3 Use cases: `SignInUseCase`, `SignOutUseCase`, `SeedAccountUseCase`
+- [ ] 4a.4 Tests with in-memory port fakes — no database, no framework
 
-## Slice 5 — Catalog: exercises and equipment (~340 lines)
+## Slice 4b — Auth infrastructure and presentation (~280 lines)
 
-- [ ] 5.1 Exercise CRUD with a mandatory default measurement mode
-- [ ] 5.2 Archive preserves history and removes the exercise from routine building
-- [ ] 5.3 Equipment CRUD: bar weight required for `PER_SIDE`; stack position count required for `STACK_POSITION`
-- [ ] 5.4 Reject stack entries above the declared position count
-- [ ] 5.5 Equipment edits apply forward only; existing snapshots untouched
-- [ ] 5.6 Web UI for both
+- [ ] 4b.1 `Argon2Hasher` adapter
+- [ ] 4b.2 `DrizzleUserRepository`, `DrizzleSessionRepository`
+- [ ] 4b.3 Controller, module wiring, auth guard refusing all workout data without a session
+- [ ] 4b.4 Cookie: `HttpOnly; Secure; SameSite=Lax`, 90-day expiry, sliding renewal
+- [ ] 4b.5 Generic failure message that does not reveal email existence
+- [ ] 4b.6 **Startup validation: frontend and API origins must share a registrable domain, else exit** (RK7)
+- [ ] 4b.7 Tests: expired session refused; 14-day idle session survives
 
-## Slice 6 — Routines (~280 lines)
+## Slice 5a — Catalog: exercises (~280 lines)
 
-- [ ] 6.1 Routine CRUD with ordered exercises
-- [ ] 6.2 Per-exercise target sets, reps, and rest duration
-- [ ] 6.3 Routine edits do not alter completed sessions
-- [ ] 6.4 Web UI
+- [ ] 5a.1 Domain: `Exercise` entity, mandatory default `MeasurementMode`, `ExerciseRepository` port
+- [ ] 5a.2 Use cases: create, rename, archive
+- [ ] 5a.3 Infrastructure: `DrizzleExerciseRepository`, mapper
+- [ ] 5a.4 Presentation: controller and module
+- [ ] 5a.5 Tests: archive preserves history and removes the exercise from routine building
 
-## Slice 7 — Session logging, online path (~360 lines)
+## Slice 5b — Catalog: equipment (~280 lines)
 
-- [ ] 7.1 Start a session from a routine or ad hoc; resume an unfinished session
-- [ ] 7.2 Log a set: raw entry, mode, reps, resolution snapshot persisted
-- [ ] 7.3 Idempotent upsert keyed on the client-generated UUIDv7
-- [ ] 7.4 Test: the same set delivered twice produces exactly one row
-- [ ] 7.5 One-handed, large-target logging UI
+- [ ] 5b.1 Domain: `Equipment` entity, `BarWeight` and `StackSize` value objects, repository port
+- [ ] 5b.2 Invariants: bar weight required for `PER_SIDE`; stack size required for `STACK_POSITION`
+- [ ] 5b.3 Use cases: create, update, archive — edits apply forward only
+- [ ] 5b.4 Infrastructure and presentation
+- [ ] 5b.5 Tests: entries above the declared stack size are rejected; existing snapshots untouched by edits
 
-## Slice 8 — Offline capture and sync (~380 lines)
+## Slice 6 — Routines (~380 lines)
 
-- [ ] 8.1 IndexedDB write-ahead queue holding pending writes only, never history
-- [ ] 8.2 Client-side UUIDv7 generation at log time
-- [ ] 8.3 Immediate local render; no error surfaced while offline
-- [ ] 8.4 Batch transmission on reconnect; dequeue only after server confirmation
-- [ ] 8.5 Failed transmission retains the item for retry
-- [ ] 8.6 Tombstoned deletes; last-write-wins by `(client_revision, logged_at)`
-- [ ] 8.7 Pending-count indicator; explicit warning when a queue write fails
-- [ ] 8.8 Tests: offline log survives restart; queue drains on reconnect; replay does not duplicate
+- [ ] 6.1 Domain: `Routine`, `RoutineExercise`, `RestDuration`, `TargetReps`, repository port
+- [ ] 6.2 Use cases: create, reorder, update targets, archive
+- [ ] 6.3 Infrastructure and presentation
+- [ ] 6.4 Tests: order preserved; routine edits do not alter completed sessions
 
-## Slice 9 — Service worker and PWA install (~200 lines)
+## Slice 7a — Workout sessions (~220 lines)
 
-- [ ] 9.1 Web app manifest, `display: standalone`, icons
-- [ ] 9.2 Hand-rolled service worker: precache the shell, network-first for API reads, never intercept the sync queue
-- [ ] 9.3 First-run hint teaching Share → Add to Home Screen (iOS offers no install prompt)
+- [ ] 7a.1 Domain: `WorkoutSession` entity, `SessionRepository` port
+- [ ] 7a.2 Use cases: start from routine, start ad hoc, resume, finish
+- [ ] 7a.3 Infrastructure and presentation
+- [ ] 7a.4 Tests: an unfinished session is resumable
 
-## Slice 10 — Foreground rest timer (~220 lines)
+## Slice 7b — Logging a set, online path (~260 lines)
 
-- [ ] 10.1 Countdown offered on set completion, defaulting to the exercise's rest duration
-- [ ] 10.2 Adjust and skip
+- [ ] 7b.1 `LogSetUseCase` composing `resolveMass` and `SetRepository`
+- [ ] 7b.2 Idempotent upsert keyed on the client-generated UUIDv7
+- [ ] 7b.3 Presentation endpoint accepting batches
+- [ ] 7b.4 Test: the same set delivered twice produces exactly one row
+
+## Slice 8a — Offline repository adapter (~220 lines)
+
+- [ ] 8a.1 `IndexedDbSetRepository` implementing the **same `SetRepository` port** as Drizzle
+- [ ] 8a.2 Client-side UUIDv7 generation at log time
+- [ ] 8a.3 Pending-writes-only discipline; history is never stored in the queue
+- [ ] 8a.4 Tests against the port contract, shared with the Drizzle implementation
+
+## Slice 8b — Sync orchestration (~240 lines)
+
+- [ ] 8b.1 `SyncPendingSetsUseCase`: drain the IndexedDB repository into the API repository
+- [ ] 8b.2 Dequeue only after server confirmation; retain on failure
+- [ ] 8b.3 Tombstoned deletes; last-write-wins by `(client_revision, logged_at)`
+- [ ] 8b.4 Pending-count indicator; explicit warning when a queue write fails
+- [ ] 8b.5 Tests: offline log survives restart; queue drains on reconnect; replay does not duplicate
+
+## Slice 9 — Logging UI and PWA shell (~260 lines)
+
+- [ ] 9.1 Logging containers and pure presentational components, one-handed and large-target
+- [ ] 9.2 Web app manifest, `display: standalone`, icons
+- [ ] 9.3 Service worker: precache the shell, network-first for API reads, never intercept the sync queue
+- [ ] 9.4 First-run hint teaching Share → Add to Home Screen (iOS offers no install prompt)
+
+## Slice 10 — Foreground rest timer (~240 lines)
+
+- [ ] 10.1 Domain: `RestInterval` value object; `StartRestUseCase`, `DismissRestUseCase`
+- [ ] 10.2 Countdown defaulting to the exercise's rest duration; adjust and skip
 - [ ] 10.3 `navigator.wakeLock` acquired during countdown; released on completion, dismissal, or visibility change
-- [ ] 10.4 Wake-lock acquisition failure degrades silently, countdown still runs
+- [ ] 10.4 Acquisition failure degrades silently; countdown still runs
 - [ ] 10.5 Audible and visual completion cue
 
-## Slice 11 — Push-backed pocketed alerts (~340 lines) ⚠️ carries AR3
+## Slice 11a — Push scheduling (~260 lines)
 
-- [ ] 11.1 VAPID key generation and configuration
-- [ ] 11.2 Push subscription registration, stored per user
-- [ ] 11.3 `scheduled_push` row written when rest starts; deleted when rest is dismissed
-- [ ] 11.4 One-second tick claiming due rows with `SELECT ... FOR UPDATE SKIP LOCKED`
-- [ ] 11.5 Delivery via `web-push`; `410`/`404` marks the subscription invalid
-- [ ] 11.6 Disclosure UI: not installed, permission denied, or subscription invalid states
-- [ ] 11.7 Tests: dismissal cancels the scheduled push; a restart does not drop a pending push
-- [ ] 11.8 **Physical device test on the iPhone: rest alert arrives with the app backgrounded and the phone locked.** Record the result; do not mark this slice complete on unit tests alone.
+- [ ] 11a.1 Domain: `ScheduledPush` entity, `PushScheduler` and `PushSender` ports
+- [ ] 11a.2 `SchedulePushUseCase` / `CancelPushUseCase` — dismissal cancels the scheduled row
+- [ ] 11a.3 Infrastructure: one-second tick claiming due rows with `SELECT ... FOR UPDATE SKIP LOCKED`
+- [ ] 11a.4 `WebPushSender` adapter with VAPID configuration
+- [ ] 11a.5 Tests: dismissal cancels; a restart does not drop a pending push
 
-## Slice 12 — Statistics (~320 lines)
+## Slice 11b — Subscriptions and disclosure (~200 lines) ⚠️ carries AR3
 
-- [ ] 12.1 Per-exercise progression for all three modes; ordinal series labelled as plate positions
-- [ ] 12.2 Mass aggregates excluding every `STACK_POSITION` set
+- [ ] 11b.1 Push subscription registration stored per user
+- [ ] 11b.2 `410`/`404` from the push service marks the subscription invalid
+- [ ] 11b.3 Disclosure UI: not installed, permission denied, or subscription invalid
+- [ ] 11b.4 **Physical iPhone test: rest alert arrives with the app backgrounded and the phone locked.** Record the result; this slice does not close on unit tests alone.
+
+## Slice 12 — Statistics (~380 lines)
+
+- [ ] 12.1 Domain: `progression()` and aggregate services; `StatisticsRepository` port
+- [ ] 12.2 Mass aggregates exclude every `STACK_POSITION` set
 - [ ] 12.3 All-ordinal period returns "not applicable" rather than zero
 - [ ] 12.4 Excluded-set count disclosed alongside every mass aggregate
-- [ ] 12.5 Week-over-week within one exercise and one mode; report mode changes instead of drawing a continuous trend
-- [ ] 12.6 Tests for 12.2–12.5
+- [ ] 12.5 Week-over-week within one exercise and one mode; mode changes reported, not drawn as a continuous trend
+- [ ] 12.6 Presentation: per-exercise progression views, ordinal series labelled as plate positions
+- [ ] 12.7 Tests for 12.2–12.5
 
-## Slice 13 — Recompute history (~280 lines)
+## Slice 13 — Recompute history (~320 lines)
 
-- [ ] 13.1 Preview endpoint: in-memory recomputation, per-set before/after, affected count, personal-record impact, zero writes
+- [ ] 13.1 `PreviewRecomputeUseCase`: in-memory recomputation, per-set before/after, affected count, personal-record impact, zero writes
 - [ ] 13.2 `preview_token` binding a confirmation to the exact diff displayed
-- [ ] 13.3 Apply endpoint: re-derive, compare against the token, apply in one transaction, write `recompute_audit`
+- [ ] 13.3 `ApplyRecomputeUseCase`: re-derive, compare against the token, apply in one transaction, write `recompute_audit`
 - [ ] 13.4 `STACK_POSITION` sets excluded from scope
-- [ ] 13.5 Tests: declining changes nothing; a stale token is refused
+- [ ] 13.5 Presentation: preview and confirm UI
+- [ ] 13.6 Tests: declining changes nothing; a stale token is refused
 
 ## Slice 14 — VPS deployment (~260 lines)
 
@@ -140,24 +175,23 @@ Chained PRs cannot exist without this. It is listed as a slice so it is not skip
 - [ ] 14.2 Compose stack with declared memory limits
 - [ ] 14.3 Caddy reverse proxy: `gym.<domain>` and `api.gym.<domain>`, automatic TLS
 - [ ] 14.4 Shared Postgres with a dedicated database and role for this app
-- [ ] 14.5 Production environment configuration and the one-time account seed
+- [ ] 14.5 Production configuration and the one-time account seed
 - [ ] 14.6 End-to-end smoke test against the deployed subdomains from the iPhone
 
 ---
 
 ## Review Workload Forecast
 
-| Metric | Value |
-|---|---|
-| Estimated total changed lines | **~4040** |
-| Slices | 14 |
-| Largest single slice | Slice 8, ~380 lines |
-| Slices over the 400-line budget | 0 |
-| **400-line budget risk** | **High** (total is ~10× a single PR budget) |
-| **Chained PRs recommended** | **Yes** |
-| **Decision needed before apply** | **Yes** |
+| Metric | Before (depth-where-earned) | **After (strict Clean Architecture)** |
+|---|---|---|
+| Estimated total changed lines | ~4040 | **~5160** |
+| Slices / PRs | 14 | **20** |
+| Largest single slice | 380 | **380** |
+| Slices over the 400-line budget | 0 | **0** |
+| 400-line budget risk | High | **High** |
+| Chained PRs recommended | Yes | **Yes — confirmed by the user** |
 
-Every slice was deliberately sized under 400 lines so that each one can ship as its own reviewable PR. The total cannot ship as a single PR.
+The uniform four-layer shape adds roughly **1100 lines and 6 additional PRs**. That is the accepted cost of never having to decide where a piece of code belongs. Slices 4, 5, 7, 8, and 11 were split so that every slice stays inside the review budget.
 
-**Confirmed dependency chain**: 0 → 1 → 2 → 3 → 4 → {5 → 6 → 7} → 8 → 9 → 10 → 11 → 12 → 13 → 14.
-Slices 12 and 13 depend only on 3 and 7, so they can run in parallel with 9–11 if desired.
+**Confirmed dependency chain**: 0 → 1 → 2 → 3 → 4a → 4b → 5a → 5b → 6 → 7a → 7b → 8a → 8b → 9 → 10 → 11a → 11b → 12 → 13 → 14.
+Slices 12 and 13 depend only on 3 and 7b, so they may run in parallel with 9–11b.

@@ -3,24 +3,88 @@
 **Date**: 2026-09-19
 **Inputs**: `proposal.md`, `preproposal.md`, `specs/*/spec.md`, `research.md`
 **Purpose**: settle the four open architectural questions and the stack choices they depend on.
+**Amended 2026-09-19**: §1 rewritten for strict Clean Architecture and Biome, at the user's direction.
 
 ---
 
-## 1. Repository and deployable shape
+## 1. Repository shape and architecture
 
-**Decision**: a single pnpm workspace monorepo with two deployables and one shared package.
+**Decision**: a pnpm workspace monorepo, with **strict Clean Architecture applied uniformly to every feature in both apps**.
 
 ```
-apps/web      Next.js 16.3.5   → gym.<domain>
-apps/api      NestJS           → api.gym.<domain>
-packages/contracts   shared TypeScript types + zod schemas
+packages/
+  domain/          pure TypeScript. ZERO framework dependencies.
+    <feature>/
+      entities/         logged-set.ts, routine.ts, exercise.ts ...
+      value-objects/    grams.ts, load-entry.ts, stack-position.ts ...
+      ports/            set-repository.ts, clock.ts, password-hasher.ts
+      services/         resolve-mass.ts, progression.ts
+  contracts/       zod schemas + wire DTO types shared across the boundary
+
+apps/api/src/modules/<feature>/
+  application/
+    use-cases/     log-set.use-case.ts, recompute-history.use-case.ts
+    dto/           log-set.input.ts
+  infrastructure/
+    persistence/   drizzle-set.repository.ts, set.mapper.ts
+    adapters/      argon2-hasher.ts, web-push-sender.ts, system-clock.ts
+  presentation/
+    <feature>.controller.ts, <feature>.module.ts
+
+apps/web/src/features/<feature>/
+  application/     log-set-offline.use-case.ts, start-rest.use-case.ts
+  infrastructure/  api-set.repository.ts, indexed-db-set.repository.ts
+  presentation/    containers/ (stateful) + components/ (pure)
+apps/web/src/app/  routes only — thin, delegating to features
 ```
 
-**Why**: P5 keeps two deployables, and the highest risk of that split is contract drift — the frontend and backend disagreeing about the shape of a logged set. A shared `contracts` package makes that a compile error instead of a runtime surprise. One repo, one version, one CI.
+### 1.1 Why the domain is a shared package, not a backend folder
 
-**Rejected**: two separate repositories (contract drift with no compiler to catch it); a Nx/Turbo build graph (unjustified machinery for two apps).
+This is forced by P1 (offline-first), not chosen for elegance. The spec requires that logging a set while offline renders immediately with no error. The resolved load must therefore be computed **on the device, with the API unreachable**. If `resolveMass` lived only in `apps/api`, the web app would need a second implementation of the single most correctness-critical function in the product, and two implementations of the same rule drift. They always drift.
 
----
+So `packages/domain` is pure TypeScript with no dependency on Nest, Next, Drizzle, or IndexedDB, and both apps import it. The dependency rule here is not a philosophical commitment; it is the only arrangement in which the application works in a basement.
+
+### 1.2 Ports are implemented on both sides
+
+Because domain ports live in `packages/domain`, the same interface has two implementations:
+
+| Port | Server implementation | Client implementation |
+|---|---|---|
+| `SetRepository` | `DrizzleSetRepository` (Postgres) | `IndexedDbSetRepository` (offline queue) |
+| `Clock` | `SystemClock` | `SystemClock` |
+
+The offline queue is therefore not a bolt-on cache — it is a repository adapter satisfying the same contract as the database. Sync becomes "drain one repository into another" rather than a special code path.
+
+### 1.3 Uniformity is the point
+
+Every feature receives the same four-layer shape — `domain` (in `packages/domain`), `application`, `infrastructure`, `presentation` — including features whose logic is a single row insert. This is a deliberate trade, chosen by the user: creating a routine costs more files than it strictly needs, and in exchange there is never a judgement call about where a given piece of code belongs. Predictability was ranked above brevity.
+
+Consequence, stated plainly: the uniform shape raises the estimate from roughly 4040 changed lines across 14 slices to roughly **5140 lines across 20 slices**. That cost is accepted, not hidden.
+
+
+### 1.5 Naming conventions
+
+| Subject | Convention | Example |
+|---|---|---|
+| Files and directories | `kebab-case` | `logged-set.ts`, `drizzle-set.repository.ts`, `value-objects/` |
+| Classes, types, interfaces, enums | `PascalCase` | `LoggedSet`, `SetRepository`, `MeasurementMode` |
+| Variables, functions, methods | `camelCase` | `resolveMass`, `perSideGrams` |
+| Database columns and tables | `snake_case` | `logged_set`, `resolved_grams`, `stack_position` |
+| Constants | `SCREAMING_SNAKE_CASE` | `DEFAULT_REST_SECONDS` |
+
+A file's name is the kebab-case form of its primary export: `LoggedSet` lives in `logged-set.ts`, `DrizzleSetRepository` in `drizzle-set.repository.ts`.
+
+**Enforced mechanically**, not by discipline. Biome's `style/useFilenamingConvention` is enabled with `filenameCases: ["kebab-case"]` — the rule is off by default and must be switched on explicitly. It already understands Next.js dynamic-route syntax such as `[...slug].tsx`, so App Router files do not need an exception. Identifier casing is enforced by `style/useNamingConvention`.
+
+The `snake_case` boundary is the database and nothing else. Mappers in `infrastructure/persistence/` are the only place where a `snake_case` column name and a `camelCase` property meet; neither the domain nor the application layer ever sees a column name.
+
+### 1.4 Dependency rule
+
+`presentation → application → domain`, and `infrastructure → domain`. Nothing in `domain` imports from any other layer or from any framework. Nest decorators, Drizzle types, zod schemas, and React never appear in `packages/domain`. Use cases depend on ports; the Nest module binds each port to its concrete adapter at composition time.
+
+**Tooling**: **Biome** for formatting and linting across the workspace, replacing ESLint and Prettier. One binary, one config, no plugin conflicts to reconcile between two apps, and it carries the naming rules in §1.5.
+
+**Rejected**: two separate repositories (contract drift with no compiler to catch it); domain logic owned by the backend (breaks offline rendering per §1.1); depth-proportional-to-complexity layering (rejected by the user in favour of uniform predictability).
 
 ## 2. Persistence and the measurement model
 
