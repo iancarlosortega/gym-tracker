@@ -1,11 +1,11 @@
+import { GetSessionId } from '@api/common/http/decorators/caller.decorator.js'
 import type { EnvironmentVariables } from '@api/config/environment.schema.js'
 import { SignOutUseCase } from '@api/modules/auth/application/use-cases/sign-out.use-case.js'
 import {
   clearedSessionCookieOptions,
   SESSION_COOKIE_NAME,
 } from '@api/modules/auth/presentation/session.cookie.js'
-import type { RequestWithCaller } from '@api/modules/auth/presentation/session.guard.js'
-import { Controller, HttpCode, Post, Req, Res } from '@nestjs/common'
+import { Controller, HttpCode, Post, Res } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import type { Response } from 'express'
 
@@ -20,10 +20,9 @@ export class SignOutController {
   @Post('sign-out')
   @HttpCode(204)
   async handle(
-    @Req() request: RequestWithCaller,
+    @GetSessionId() sessionId: string | undefined,
     @Res({ passthrough: true }) response: Response,
   ): Promise<void> {
-    const sessionId = request.caller?.session.id.value
     if (sessionId !== undefined) {
       await this.signOut.execute({ sessionId })
     }
