@@ -1,5 +1,5 @@
 import type { RequestWithCaller } from '@api/common/http/decorators/caller.decorator.js'
-import type { ValidateSessionUseCase } from '@api/modules/auth/application/use-cases/validate-session.use-case.js'
+import { ValidateSessionUseCase } from '@api/modules/auth/application/use-cases/validate-session.use-case.js'
 import {
   type CanActivate,
   type ExecutionContext,
