@@ -112,13 +112,13 @@
 - [x] 8a.3 Pending-writes-only discipline; history is never stored in the queue
 - [x] 8a.4 Tests against the port contract, shared with the Drizzle implementation
 
-## Slice 8b — Sync orchestration (~240 lines)
+## Slice 8b — Sync orchestration (~240 lines) ✅ awaiting review
 
-- [ ] 8b.1 `SyncPendingSetsUseCase`: drain the IndexedDB repository into the API repository
-- [ ] 8b.2 Dequeue only after server confirmation; retain on failure
-- [ ] 8b.3 Tombstoned deletes; last-write-wins by `(client_revision, logged_at)`
-- [ ] 8b.4 Pending-count indicator; explicit warning when a queue write fails
-- [ ] 8b.5 Tests: offline log survives restart; queue drains on reconnect; replay does not duplicate
+- [x] 8b.1 `SyncPendingSetsUseCase`: drain the IndexedDB repository through a `SetSyncGateway` — a gateway, not a second repository, because sync needs confirmation rather than storage
+- [x] 8b.2 Dequeue only after server confirmation; retain on failure
+- [x] 8b.3 Tombstoned deletes; last-write-wins by `(client_revision, logged_at)` — the tuple now applies in both adapters; the client needs no tombstone of its own
+- [x] 8b.4 Pending-count indicator; explicit warning when a queue write fails
+- [x] 8b.5 Tests: offline log survives restart; queue drains on reconnect; replay does not duplicate
 
 ## Slice 9 — Logging UI and PWA shell (~260 lines)
 

@@ -298,6 +298,12 @@ All arithmetic is integer grams. Display conversion happens at the edge only.
 
 For the rarer edit/delete case, each set carries a `client_revision` counter and last-write-wins by `(client_revision, logged_at)`. Deletes are tombstoned rather than removed, so a delete cannot be resurrected by a replayed create.
 
+**Sync drains through a gateway, not a second repository.** `SetSyncGateway.push` returns the ids the server confirmed, because a repository answers whether something is stored while synchronisation has to know whether the other side took responsibility for it. A partial acceptance then names itself and the queue keeps exactly the rest. This supersedes the earlier framing of sync as draining into an `ApiSetRepository`.
+
+**A failed push is not an error.** Losing connectivity mid-drain is ordinary and the queue is already the record of what still has to go. A failed queue *write* is raised, because a set that was neither stored nor sent is lost.
+
+**The client keeps no tombstones.** The queue holds pending writes only, so deleting an unsynced set is a queue drop and deleting a synced one is an online call. Only the server can be handed a replayed create for a set the user has already deleted, so only the server needs the tombstone.
+
 **Storage discipline** (R1: ~50 MB cap, evictable): the queue holds pending writes only, never history. History is server-read and cached separately with a bounded, disposable cache. A queue write failure surfaces to the user immediately per spec — it is the one case where silence would cost real data.
 
 **Rejected**: a CRDT or sync engine (enormous machinery for a single-user append-only log); server-generated ids (makes idempotency impossible without a second dedupe key); background sync API (R1: unavailable on iOS).
