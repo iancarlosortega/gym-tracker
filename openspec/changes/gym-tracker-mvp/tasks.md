@@ -91,12 +91,12 @@
 - [x] 6.3 Infrastructure and presentation
 - [x] 6.4 Tests: order preserved; routine edits do not alter completed sessions
 
-## Slice 7a — Workout sessions (~220 lines)
+## Slice 7a — Workout sessions (~220 lines) ✅ awaiting review
 
-- [ ] 7a.1 Domain: `WorkoutSession` entity, `SessionRepository` port
-- [ ] 7a.2 Use cases: start from routine, start ad hoc, resume, finish
-- [ ] 7a.3 Infrastructure and presentation
-- [ ] 7a.4 Tests: an unfinished session is resumable
+- [x] 7a.1 Domain: `WorkoutSession` entity, `SessionRepository` port
+- [x] 7a.2 Use cases: start from routine, start ad hoc, resume, finish — start from a routine and start ad hoc are one use case with an optional routine
+- [x] 7a.3 Infrastructure and presentation
+- [x] 7a.4 Tests: an unfinished session is resumable
 
 ## Slice 7b — Logging a set, online path (~260 lines)
 

@@ -223,6 +223,18 @@ The cost is that the application layer imports `Inject` and `Injectable` from `@
 
 **Rejected**: two separate repositories (contract drift with no compiler to catch it); domain logic owned by the backend (breaks offline rendering per §1.1); depth-proportional-to-complexity layering (rejected by the user in favour of uniform predictability).
 
+### 1.10 Workouts
+
+**A session is its own bounded context**, not part of measurement. Measurement is the vocabulary of load and mass; a session is a visit to the gym. They meet at `session_id` on a logged set and nowhere else.
+
+**A session holds no sets.** Sets are their own aggregate, written one at a time from a device that may be offline, and they are read through `SetRepository` by session id. Resuming therefore costs one row rather than everything logged in the session — which matters because resuming happens on a phone that was just unlocked at a rack.
+
+**At most one workout is open per user.** Starting a second is refused with a conflict rather than closing the first or joining it. Two open sessions leave the client with no defensible answer to which one is current. This is not in the spec; it follows from the requirement that an unfinished session is resumable, which only has one meaning if there is only one.
+
+**Nothing in progress answers 404**, not a null body, so the client can ask on every launch and read the absence of a workout from the status.
+
+**Finishing is one-way** and a session cannot finish before it started. Reopening would let a later set land in a workout that had already been summarised.
+
 ## 2. Persistence and the measurement model
 
 **Decision**: Postgres via **Drizzle ORM**.
