@@ -68,13 +68,13 @@
 - [x] 4b.6 **Startup validation: frontend and API origins must share a registrable domain, else exit** (RK7)
 - [x] 4b.7 Tests: expired session refused; 14-day idle session survives
 
-## Slice 5a — Catalog: exercises (~280 lines)
+## Slice 5a — Catalog: exercises (~280 lines) ✅ awaiting review
 
-- [ ] 5a.1 Domain: `Exercise` entity, mandatory default `MeasurementMode`, `ExerciseRepository` port
-- [ ] 5a.2 Use cases: create, rename, archive
-- [ ] 5a.3 Infrastructure: `DrizzleExerciseRepository`, mapper
-- [ ] 5a.4 Presentation: controller and module
-- [ ] 5a.5 Tests: archive preserves history and removes the exercise from routine building
+- [x] 5a.1 Domain: `Exercise` entity, mandatory default `MeasurementMode`, `ExerciseRepository` port
+- [x] 5a.2 Use cases: create, rename, archive
+- [x] 5a.3 Infrastructure: `DrizzleExerciseRepository`, mapper
+- [x] 5a.4 Presentation: controller and module
+- [x] 5a.5 Tests: archive preserves history and removes the exercise from routine building
 
 ## Slice 5b — Catalog: equipment (~280 lines)
 

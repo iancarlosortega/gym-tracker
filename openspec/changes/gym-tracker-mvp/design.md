@@ -35,6 +35,13 @@ apps/api/src/modules/<feature>/
   presentation/
     <feature>.controller.ts, <feature>.module.ts
 
+apps/api/src/modules/<feature>/presentation/
+  <action>/        one folder per endpoint:
+    <action>.controller.ts
+    <action>.dto.ts        (only when the endpoint takes a body or query)
+    <action>.view.ts       (only when its response shape is its own)
+  <feature>.http-errors.ts and anything genuinely shared by the module
+
 apps/web/src/features/<feature>/
   application/     log-set-offline.use-case.ts, start-rest.use-case.ts
   infrastructure/  api-set.repository.ts, indexed-db-set.repository.ts
@@ -118,6 +125,28 @@ The criteria type is what keeps this honest:
 
 `Criteria<TFields>` and `QueryOptions<TSortField>` are generic classes in the shared kernel, so every repository inherits the same behaviour — `with`, `without`, `has`, `keys`, `isEmpty`, `orderedBy`, `limitedTo`, `offsetBy` — while still declaring its own closed field list. A repository writes `type SetCriteria = Criteria<SetCriteriaFields>`; the discipline is per repository, the mechanics are shared.
 
+**Every list read is paginated, and that is structural rather than a convention.** `findMany` takes a required `Pagination`, so an unbounded query cannot be expressed through the port: forgetting to paginate is a compile error, not a slow endpoint discovered when a user has ten thousand rows.
+
+`Pagination` defaults to 50 and clamps to 200 rather than rejecting an oversized request, so a client asking for ten thousand rows gets the maximum page and the database is never asked for the rest. Reads fetch `probeLimit` — one row more than the page needs — and `Page` drops that row while reporting `hasMore`. No total is returned: counting the whole table on every list is the cost pagination exists to avoid.
+
+`Page` carries the total, counted with the same criteria as the items in the same call, so a client rendering page numbers can never see a count that disagrees with the rows it was given.
+
+At the edge, one shared `PaginationDto` serves every list endpoint, so no module redeclares paging and none can quietly ship without it.
+
+**Adapters declare two tables instead of writing the same query code.** `DrizzleRepository` owns `findOne`, `findMany` and `count`; a concrete repository supplies a condition per criteria field and a column per sort field:
+
+```ts
+protected readonly conditions: CriteriaConditions<ExerciseCriteriaFields> = {
+  id: where.equals(exercise.id),
+  name: where.equalsIgnoringCase(exercise.name),
+  archived: where.markedBy(exercise.archivedAt)
+}
+```
+
+`CriteriaConditions<TFields>` maps over the criteria type with `-?`, so every declared field must have a condition. Adding a filter without saying how it is queried is a build error rather than a filter that silently does nothing — and a filter that is ignored is worse than one that fails, because it returns confidently wrong results.
+
+Writing stays in the concrete repository. Every aggregate has its own upsert rules — the set repository guards on revision and tombstones deletes — and a shared `save` would have to guess at them.
+
 The Specification pattern was considered and rejected for this system: composable specifications that translate themselves to SQL are more expressive, but they amount to maintaining a small query compiler, which is disproportionate for a single-user application.
 
 
@@ -153,6 +182,10 @@ const httpErrors: HttpErrorMapping<DomainErrorCode> = {
 ```
 
 Because the result must satisfy `Record<DomainErrorCode, …>`, adding a code without mapping it is a compile error rather than a 500 found in production. An unmapped code reaching the filter at runtime is treated as a server fault and logged, never as a 400 that blames the caller.
+
+**One controller per endpoint, in a folder named after the action.** `create-exercise/` holds its controller and its DTO together, so everything one endpoint needs is in one place and nothing else is. Several controllers may share a route prefix; Nest composes them. The alternative — one controller per resource — grows into a file where four unrelated endpoints share a constructor and every change touches all of them.
+
+Entities are never serialised directly. Each endpoint that returns something owns a view function, so a getter added for the domain's benefit cannot silently become part of the public API — and `User` carrying a password hash is exactly why.
 
 **Requests are validated by DTOs**, not by hand. Controllers take a `class-validator` DTO and a global `ValidationPipe` runs with `whitelist` and `forbidNonWhitelisted`, so an unexpected field is rejected rather than ignored. Controllers state the happy path; failures travel to the filter.
 
