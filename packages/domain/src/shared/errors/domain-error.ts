@@ -77,6 +77,10 @@ export const PUSH_ERROR_CODES = ['PUSH_SCHEDULED_IN_THE_PAST', 'INVALID_PUSH_SUB
 
 export type PushErrorCode = (typeof PUSH_ERROR_CODES)[number]
 
+export const RECOMPUTE_ERROR_CODES = ['STALE_RECOMPUTE_PREVIEW'] as const
+
+export type RecomputeErrorCode = (typeof RECOMPUTE_ERROR_CODES)[number]
+
 export type SharedErrorCode = (typeof SHARED_ERROR_CODES)[number]
 export type AuthErrorCode = (typeof AUTH_ERROR_CODES)[number]
 export type MeasurementErrorCode = (typeof MEASUREMENT_ERROR_CODES)[number]
@@ -88,4 +92,5 @@ export type DomainErrorCode =
   | RoutineErrorCode
   | WorkoutErrorCode
   | PushErrorCode
+  | RecomputeErrorCode
   | MeasurementErrorCode
