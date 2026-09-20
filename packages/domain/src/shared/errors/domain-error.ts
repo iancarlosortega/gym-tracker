@@ -42,8 +42,16 @@ export const MEASUREMENT_ERROR_CODES = [
   'SNAPSHOT_MISMATCH',
 ] as const
 
+export const CATALOG_ERROR_CODES = ['INVALID_EXERCISE_NAME', 'EXERCISE_NOT_FOUND'] as const
+
+export type CatalogErrorCode = (typeof CATALOG_ERROR_CODES)[number]
+
 export type SharedErrorCode = (typeof SHARED_ERROR_CODES)[number]
 export type AuthErrorCode = (typeof AUTH_ERROR_CODES)[number]
 export type MeasurementErrorCode = (typeof MEASUREMENT_ERROR_CODES)[number]
 
-export type DomainErrorCode = SharedErrorCode | AuthErrorCode | MeasurementErrorCode
+export type DomainErrorCode =
+  | SharedErrorCode
+  | AuthErrorCode
+  | CatalogErrorCode
+  | MeasurementErrorCode
