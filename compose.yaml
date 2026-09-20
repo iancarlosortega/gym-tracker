@@ -1,0 +1,117 @@
+# The gym tracker's stack on a shared VPS.
+#
+# Every service declares a memory limit. The box hosts other applications, and
+# an unbounded container is one that can starve them — the limits are the
+# co-tenancy contract, not a tuning exercise.
+name: gymtracker
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    environment:
+      # Caddy issues and renews the certificates itself; there is no cron and
+      # no certbot to maintain.
+      GYM_DOMAIN: ${GYM_DOMAIN:?set GYM_DOMAIN, for example gym.example.com}
+      API_DOMAIN: ${API_DOMAIN:?set API_DOMAIN, for example api.gym.example.com}
+    depends_on:
+      - web
+      - api
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gymtracker}
+      POSTGRES_USER: ${POSTGRES_USER:-gymtracker}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      # The API must not start against a database that is still opening.
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-gymtracker} -d ${POSTGRES_DB:-gymtracker}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    command: ['node', 'dist/commands/migrate.command.js']
+    restart: 'no'
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL}
+      FRONTEND_ORIGIN: https://${GYM_DOMAIN}
+      API_ORIGIN: https://${API_DOMAIN}
+      SESSION_LIFETIME_DAYS: ${SESSION_LIFETIME_DAYS:-90}
+      # Absent, the API still runs and says pocketed alerts are off.
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      # Read at request time, so this image is the same one in every
+      # environment rather than one baked per origin.
+      API_ORIGIN: https://${API_DOMAIN}
+    depends_on:
+      - api
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+volumes:
+  postgres-data:
+  caddy-data:
+  caddy-config:

@@ -1,0 +1,28 @@
+# Two subdomains of one registrable domain, which is what lets the session
+# cookie work at all: the API refuses to start if they ever diverge.
+
+{$GYM_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy web:3000
+
+	# The service worker must never be served from cache, or a device keeps
+	# an old one and the sync queue stops draining after a deploy.
+	@serviceworker path /sw.js
+	header @serviceworker Cache-Control "no-cache"
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+}
+
+{$API_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy api:3001
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+	}
+}
