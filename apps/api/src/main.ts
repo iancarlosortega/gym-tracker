@@ -31,6 +31,10 @@ async function bootstrap(): Promise<void> {
 
   app.enableCors({ origin: config.get('FRONTEND_ORIGIN', { infer: true }), credentials: true })
 
+  // So a container stop closes the database pool and the rest-alert tick
+  // rather than being killed with them still open.
+  app.enableShutdownHooks()
+
   await app.listen(config.get('PORT', { infer: true }))
 }
 
