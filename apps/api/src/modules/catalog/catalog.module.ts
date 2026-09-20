@@ -58,5 +58,6 @@ import { Module } from '@nestjs/common'
     ArchiveEquipmentUseCase,
     ListEquipmentUseCase,
   ],
+  exports: [EXERCISE_REPOSITORY, EQUIPMENT_REPOSITORY],
 })
 export class CatalogModule {}

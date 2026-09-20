@@ -1,8 +1,5 @@
-import {
-  EQUIPMENT_REPOSITORY,
-  EXERCISE_REPOSITORY,
-  ROUTINE_REPOSITORY,
-} from '@api/modules/routines/routines.tokens.js'
+import { EQUIPMENT_REPOSITORY, EXERCISE_REPOSITORY } from '@api/modules/catalog/catalog.tokens.js'
+import { ROUTINE_REPOSITORY } from '@api/modules/routines/routines.tokens.js'
 import {
   EquipmentCannotMeasureThatWayError,
   ExerciseNotFoundError,

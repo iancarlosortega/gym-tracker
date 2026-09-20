@@ -1,6 +1,5 @@
 import { SystemClock } from '@api/modules/auth/infrastructure/adapters/system-clock.adapter.js'
-import { DrizzleEquipmentRepository } from '@api/modules/catalog/infrastructure/persistence/drizzle-equipment.repository.js'
-import { DrizzleExerciseRepository } from '@api/modules/catalog/infrastructure/persistence/drizzle-exercise.repository.js'
+import { CatalogModule } from '@api/modules/catalog/catalog.module.js'
 import { AddRoutineExerciseUseCase } from '@api/modules/routines/application/use-cases/add-routine-exercise.use-case.js'
 import { ArchiveRoutineUseCase } from '@api/modules/routines/application/use-cases/archive-routine.use-case.js'
 import { ChangeRoutineEntryUseCase } from '@api/modules/routines/application/use-cases/change-routine-entry.use-case.js'
@@ -20,15 +19,20 @@ import { ListRoutinesController } from '@api/modules/routines/presentation/list-
 import { RemoveRoutineEntryController } from '@api/modules/routines/presentation/remove-routine-entry/remove-routine-entry.controller.js'
 import { RenameRoutineController } from '@api/modules/routines/presentation/rename-routine/rename-routine.controller.js'
 import { ReorderRoutineController } from '@api/modules/routines/presentation/reorder-routine/reorder-routine.controller.js'
-import {
-  CLOCK,
-  EQUIPMENT_REPOSITORY,
-  EXERCISE_REPOSITORY,
-  ROUTINE_REPOSITORY,
-} from '@api/modules/routines/routines.tokens.js'
+import { CLOCK, ROUTINE_REPOSITORY } from '@api/modules/routines/routines.tokens.js'
 import { Module } from '@nestjs/common'
 
+/**
+ * Composition root for routines.
+ *
+ * Every port is bound to its adapter here and nowhere else; the use cases
+ * declare the token they need and Nest builds them. The exercise and
+ * equipment repositories arrive from CatalogModule: they are the catalog's
+ * to own, and a second binding here would be a second instance of the same
+ * table.
+ */
 @Module({
+  imports: [CatalogModule],
   controllers: [
     CreateRoutineController,
     RenameRoutineController,
@@ -43,8 +47,6 @@ import { Module } from '@nestjs/common'
   providers: [
     { provide: CLOCK, useClass: SystemClock },
     { provide: ROUTINE_REPOSITORY, useClass: DrizzleRoutineRepository },
-    { provide: EXERCISE_REPOSITORY, useClass: DrizzleExerciseRepository },
-    { provide: EQUIPMENT_REPOSITORY, useClass: DrizzleEquipmentRepository },
     CreateRoutineUseCase,
     RenameRoutineUseCase,
     ArchiveRoutineUseCase,
