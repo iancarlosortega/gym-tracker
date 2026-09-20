@@ -1,5 +1,10 @@
-import { DrizzleRepository, type SortColumns } from '@api/common/persistence/drizzle.repository.js'
+import {
+  type Database,
+  DrizzleRepository,
+  type SortColumns,
+} from '@api/common/persistence/drizzle.repository.js'
 import { type CriteriaConditions, where } from '@api/common/persistence/drizzle-criteria.js'
+import { DATABASE } from '@api/database/database.module.js'
 import { equipment } from '@api/database/schema/equipment.table.js'
 import type { Equipment } from '@gym/domain/catalog/entities/equipment.entity'
 import type {
@@ -7,14 +12,20 @@ import type {
   EquipmentRepository,
   EquipmentSortField,
 } from '@gym/domain/catalog/repositories/equipment.repository'
+import { Inject, Injectable } from '@nestjs/common'
 import { equipmentMapper } from './equipment.mapper.js'
 
 type EquipmentRow = typeof equipment.$inferSelect
 
+@Injectable()
 export class DrizzleEquipmentRepository
   extends DrizzleRepository<Equipment, EquipmentRow, EquipmentCriteriaFields, EquipmentSortField>
   implements EquipmentRepository
 {
+  constructor(@Inject(DATABASE) database: Database) {
+    super(database)
+  }
+
   protected readonly table = equipment
 
   protected readonly conditions: CriteriaConditions<EquipmentCriteriaFields> = {

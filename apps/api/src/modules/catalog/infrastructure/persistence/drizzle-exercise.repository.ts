@@ -1,5 +1,10 @@
-import { DrizzleRepository, type SortColumns } from '@api/common/persistence/drizzle.repository.js'
+import {
+  type Database,
+  DrizzleRepository,
+  type SortColumns,
+} from '@api/common/persistence/drizzle.repository.js'
 import { type CriteriaConditions, where } from '@api/common/persistence/drizzle-criteria.js'
+import { DATABASE } from '@api/database/database.module.js'
 import { exercise } from '@api/database/schema/exercise.table.js'
 import type { Exercise } from '@gym/domain/catalog/entities/exercise.entity'
 import type {
@@ -7,14 +12,20 @@ import type {
   ExerciseRepository,
   ExerciseSortField,
 } from '@gym/domain/catalog/repositories/exercise.repository'
+import { Inject, Injectable } from '@nestjs/common'
 import { exerciseMapper } from './exercise.mapper.js'
 
 type ExerciseRow = typeof exercise.$inferSelect
 
+@Injectable()
 export class DrizzleExerciseRepository
   extends DrizzleRepository<Exercise, ExerciseRow, ExerciseCriteriaFields, ExerciseSortField>
   implements ExerciseRepository
 {
+  constructor(@Inject(DATABASE) database: Database) {
+    super(database)
+  }
+
   protected readonly table = exercise
 
   /** One entry per declared criteria field; the mapped type enforces that. */

@@ -53,6 +53,17 @@ export const CATALOG_ERROR_CODES = [
 
 export type CatalogErrorCode = (typeof CATALOG_ERROR_CODES)[number]
 
+export const ROUTINE_ERROR_CODES = [
+  'INVALID_ROUTINE_NAME',
+  'ROUTINE_NOT_FOUND',
+  'ROUTINE_ENTRY_NOT_FOUND',
+  'INVALID_REST_DURATION',
+  'INVALID_TARGET_REPS',
+  'INVALID_ROUTINE_ORDER',
+] as const
+
+export type RoutineErrorCode = (typeof ROUTINE_ERROR_CODES)[number]
+
 export type SharedErrorCode = (typeof SHARED_ERROR_CODES)[number]
 export type AuthErrorCode = (typeof AUTH_ERROR_CODES)[number]
 export type MeasurementErrorCode = (typeof MEASUREMENT_ERROR_CODES)[number]
@@ -61,4 +72,5 @@ export type DomainErrorCode =
   | SharedErrorCode
   | AuthErrorCode
   | CatalogErrorCode
+  | RoutineErrorCode
   | MeasurementErrorCode

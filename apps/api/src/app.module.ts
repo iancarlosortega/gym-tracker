@@ -2,6 +2,7 @@ import { environmentSchema } from '@api/config/environment.schema.js'
 import { DatabaseModule } from '@api/database/database.module.js'
 import { AuthModule } from '@api/modules/auth/auth.module.js'
 import { CatalogModule } from '@api/modules/catalog/catalog.module.js'
+import { RoutinesModule } from '@api/modules/routines/routines.module.js'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 
@@ -11,6 +12,7 @@ import { ConfigModule } from '@nestjs/config'
     DatabaseModule,
     AuthModule,
     CatalogModule,
+    RoutinesModule,
   ],
 })
 export class AppModule {}
