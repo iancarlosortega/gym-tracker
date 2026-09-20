@@ -6,6 +6,7 @@ import type { SetRepository } from '@gym/domain/measurement/repositories/set.rep
 import type { LoadEntry } from '@gym/domain/measurement/value-objects/load-entry.vo'
 import { reps } from '@gym/domain/measurement/value-objects/reps.vo'
 import { Id } from '@gym/domain/shared/value-objects/id.vo'
+import { QueueWriteFailedError } from './queue-write-failed.error.js'
 
 export interface LogSetOfflineInput {
   readonly sessionId: string
@@ -29,6 +30,11 @@ export interface LogSetOfflineInput {
  * The mass is resolved on the device too. The user sees the number they
  * lifted whether or not there is a signal in the building — that is the
  * whole reason the domain is a shared package.
+ *
+ * A storage failure is raised, never swallowed. Everything else here is
+ * built to survive a lost network, but a set that could not even be written
+ * to the device is gone, and the user has to be told while they still
+ * remember what they lifted.
  */
 export class LogSetOfflineUseCase {
   constructor(private readonly sets: SetRepository) {}
@@ -45,7 +51,12 @@ export class LogSetOfflineUseCase {
       snapshot: input.snapshot,
     })
 
-    await this.sets.save(set)
+    try {
+      await this.sets.save(set)
+    } catch (failure) {
+      throw new QueueWriteFailedError(failure)
+    }
+
     return set
   }
 }
