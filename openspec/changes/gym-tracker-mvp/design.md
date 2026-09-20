@@ -366,6 +366,12 @@ postgres:17  ── db: gymtracker   role: gymtracker  (no access to other DBs)
 
 **Same-registrable-domain enforcement** (RK7): the API validates at startup that the configured frontend origin and its own origin share a registrable domain, and exits with a configuration error otherwise. Subdomains of the user's existing domain satisfy this by construction. The session cookie is `HttpOnly; Secure; SameSite=Lax`.
 
+**Migrations run as their own step**, gated before the API starts. Two containers coming up together would otherwise race to apply the same migration, and a failed migration should stop a deployment rather than leave a process serving a schema it does not have.
+
+**The service worker is served with `no-cache`.** A device holding yesterday's worker after a deploy stops draining its sync queue, and the sets waiting in that queue are the ones no other copy has.
+
+**Optional configuration must tolerate being empty, not merely absent.** Compose writes an unset variable as an empty string; the push keys are optional, and a deployment without them has to start rather than refuse.
+
 **Resource ceiling**: each app's compose stack declares memory limits so a future app cannot starve the gym tracker.
 
 **Not designed** (AR2): backup automation, deferred by user decision. Noted here so its absence is visible rather than forgotten.

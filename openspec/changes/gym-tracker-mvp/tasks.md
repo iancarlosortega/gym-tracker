@@ -159,6 +159,7 @@ names the slice it belongs to and what has to be true before it can be run.
 - [ ] DV.1 (11b.4) **Rest alert arrives with the app backgrounded and the iPhone locked.** Needs: VAPID keys generated (`npx web-push generate-vapid-keys`), `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` set on an API served over HTTPS, the app added to the home screen, then a real rest started and the phone locked. Record the result here.
 - [ ] DV.2 (9.2) **Home-screen install shows the app icon and opens standalone.** The SVG icons are placeholders; a designed PNG set and an `apple-touch-icon` are still outstanding.
 - [ ] DV.3 (10.3) **The screen stays awake for a full rest on the device**, and dims again once the countdown ends.
+- [ ] DV.5 (14.6) **End-to-end from the iPhone against the deployed subdomains.** Needs the stack running on the box with real DNS and certificates. Locally the whole chain is already proven in containers — migrations, sign-in, an authorised read, a 401 without a session, every web route, and the account seed — so this is confirming the deployment rather than the code.
 - [ ] DV.4 (8a/8b) **Offline capture on the real device**: log sets in airplane mode, close the app, reopen it still offline, then restore connectivity and confirm the queue drains exactly once.
 
 ## Slice 12 — Statistics (~380 lines) ✅ awaiting review
@@ -182,14 +183,14 @@ names the slice it belongs to and what has to be true before it can be run.
 - [x] 13.5 Presentation: preview and confirm UI — designed from options; leads with the record that changes
 - [x] 13.6 Tests: declining changes nothing; a stale token is refused
 
-## Slice 14 — VPS deployment (~260 lines)
+## Slice 14 — VPS deployment (~260 lines) ✅ awaiting review, except the device test
 
-- [ ] 14.1 Dockerfiles for both apps
-- [ ] 14.2 Compose stack with declared memory limits
-- [ ] 14.3 Caddy reverse proxy: `gym.<domain>` and `api.gym.<domain>`, automatic TLS
-- [ ] 14.4 Shared Postgres with a dedicated database and role for this app
-- [ ] 14.5 Production configuration and the one-time account seed
-- [ ] 14.6 End-to-end smoke test against the deployed subdomains from the iPhone
+- [x] 14.1 Dockerfiles for both apps — built and run locally, not only written
+- [x] 14.2 Compose stack with declared memory limits
+- [x] 14.3 Caddy reverse proxy: `gym.<domain>` and `api.gym.<domain>`, automatic TLS
+- [x] 14.4 Shared Postgres with a dedicated database and role for this app
+- [x] 14.5 Production configuration and the one-time account seed — seed proven to create the account and exit
+- [ ] 14.6 End-to-end smoke test against the deployed subdomains from the iPhone → deferred to **Device verification** as DV.5
 
 ---
 
