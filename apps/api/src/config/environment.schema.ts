@@ -17,6 +17,20 @@ export const environmentSchema = z
     FRONTEND_ORIGIN: z.url(),
     API_ORIGIN: z.url(),
     SESSION_LIFETIME_DAYS: z.coerce.number().int().positive().default(90),
+    /**
+     * VAPID identifies this application to Apple's and Google's push
+     * services; without the pair they refuse the request outright.
+     *
+     * Optional, because pocketed alerts are an enhancement and the
+     * foreground rest timer is the guaranteed path. A deployment without
+     * these keys runs, logs that alerts are off, and delivers nothing.
+     */
+    VAPID_PUBLIC_KEY: z.string().min(1).optional(),
+    VAPID_PRIVATE_KEY: z.string().min(1).optional(),
+    /** A mailto: or https: contact the push service can reach. */
+    VAPID_SUBJECT: z
+      .union([z.email().transform((address) => `mailto:${address}`), z.url()])
+      .optional(),
   })
   .superRefine((environment, context) => {
     if (!shareRegistrableDomain(environment.FRONTEND_ORIGIN, environment.API_ORIGIN)) {
