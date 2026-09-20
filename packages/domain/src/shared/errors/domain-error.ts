@@ -73,6 +73,10 @@ export const WORKOUT_ERROR_CODES = [
 
 export type WorkoutErrorCode = (typeof WORKOUT_ERROR_CODES)[number]
 
+export const PUSH_ERROR_CODES = ['PUSH_SCHEDULED_IN_THE_PAST', 'INVALID_PUSH_SUBSCRIPTION'] as const
+
+export type PushErrorCode = (typeof PUSH_ERROR_CODES)[number]
+
 export type SharedErrorCode = (typeof SHARED_ERROR_CODES)[number]
 export type AuthErrorCode = (typeof AUTH_ERROR_CODES)[number]
 export type MeasurementErrorCode = (typeof MEASUREMENT_ERROR_CODES)[number]
@@ -83,4 +87,5 @@ export type DomainErrorCode =
   | CatalogErrorCode
   | RoutineErrorCode
   | WorkoutErrorCode
+  | PushErrorCode
   | MeasurementErrorCode
