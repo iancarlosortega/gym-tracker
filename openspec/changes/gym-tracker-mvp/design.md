@@ -185,6 +185,10 @@ Because the result must satisfy `Record<DomainErrorCode, …>`, adding a code wi
 
 **One controller per endpoint, in a folder named after the action.** `create-exercise/` holds its controller and its DTO together, so everything one endpoint needs is in one place and nothing else is. Several controllers may share a route prefix; Nest composes them. The alternative — one controller per resource — grows into a file where four unrelated endpoints share a constructor and every change touches all of them.
 
+**The caller reaches a handler through a parameter decorator**, not by taking the request. `@GetUserId()`, `@GetSessionId()` and `@GetCaller()` live in `common/http/decorators/`, so no controller imports another module's request type and no controller sees more of the request than it needs. Their extractors are exported and tested directly, because a `createParamDecorator` result is awkward to exercise without a Nest context and the logic inside it is the part worth testing.
+
+`readUserId` throws when no caller was resolved rather than returning an empty string. An empty id would scope a query to nobody and return an empty list as though that were the truth — a wrong answer is worse than an error.
+
 Entities are never serialised directly. Each endpoint that returns something owns a view function, so a getter added for the domain's benefit cannot silently become part of the public API — and `User` carrying a password hash is exactly why.
 
 **Requests are validated by DTOs**, not by hand. Controllers take a `class-validator` DTO and a global `ValidationPipe` runs with `whitelist` and `forbidNonWhitelisted`, so an unexpected field is rejected rather than ignored. Controllers state the happy path; failures travel to the filter.

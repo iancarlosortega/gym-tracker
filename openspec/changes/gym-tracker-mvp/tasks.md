@@ -76,13 +76,13 @@
 - [x] 5a.4 Presentation: controller and module
 - [x] 5a.5 Tests: archive preserves history and removes the exercise from routine building
 
-## Slice 5b — Catalog: equipment (~280 lines)
+## Slice 5b — Catalog: equipment (~280 lines) ✅ awaiting review
 
-- [ ] 5b.1 Domain: `Equipment` entity, `BarWeight` and `StackSize` value objects, repository port
-- [ ] 5b.2 Invariants: bar weight required for `PER_SIDE`; stack size required for `STACK_POSITION`
-- [ ] 5b.3 Use cases: create, update, archive — edits apply forward only
-- [ ] 5b.4 Infrastructure and presentation
-- [ ] 5b.5 Tests: entries above the declared stack size are rejected; existing snapshots untouched by edits
+- [x] 5b.1 Domain: `Equipment` entity, `BarWeight` and `StackSize` value objects, repository port
+- [x] 5b.2 Invariants: bar weight required for `PER_SIDE`; stack size required for `STACK_POSITION`
+- [x] 5b.3 Use cases: create, update, archive — edits apply forward only
+- [x] 5b.4 Infrastructure and presentation
+- [x] 5b.5 Tests: entries above the declared stack size are rejected; existing snapshots untouched by edits
 
 ## Slice 6 — Routines (~380 lines)
 
