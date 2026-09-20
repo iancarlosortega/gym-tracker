@@ -1,6 +1,7 @@
 import type { HttpErrorMapping } from '@api/common/http/http-error-mapping.js'
 import { sharedHttpErrors } from '@api/common/http/shared.http-errors.js'
 import { authHttpErrors } from '@api/modules/auth/presentation/auth.http-errors.js'
+import { catalogHttpErrors } from '@api/modules/catalog/presentation/catalog.http-errors.js'
 import { measurementHttpErrors } from '@api/modules/measurement/presentation/measurement.http-errors.js'
 import { DomainError, type DomainErrorCode } from '@gym/domain/shared/errors/domain-error'
 import {
@@ -30,6 +31,7 @@ import type { Response } from 'express'
 const httpErrors: HttpErrorMapping<DomainErrorCode> = {
   ...sharedHttpErrors,
   ...authHttpErrors,
+  ...catalogHttpErrors,
   ...measurementHttpErrors,
 }
 
