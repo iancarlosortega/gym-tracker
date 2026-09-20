@@ -127,13 +127,13 @@
 - [x] 9.3 Service worker: precache the shell, network-first for API reads, never intercept the sync queue
 - [x] 9.4 First-run hint teaching Share → Add to Home Screen (iOS offers no install prompt)
 
-## Slice 10 — Foreground rest timer (~240 lines)
+## Slice 10 — Foreground rest timer (~240 lines) ✅ awaiting review
 
-- [ ] 10.1 Domain: `RestInterval` value object; `StartRestUseCase`, `DismissRestUseCase`
-- [ ] 10.2 Countdown defaulting to the exercise's rest duration; adjust and skip
-- [ ] 10.3 `navigator.wakeLock` acquired during countdown; released on completion, dismissal, or visibility change
-- [ ] 10.4 Acquisition failure degrades silently; countdown still runs
-- [ ] 10.5 Audible and visual completion cue
+- [x] 10.1 Domain: `RestInterval` value object; `StartRestUseCase`, `DismissRestUseCase`
+- [x] 10.2 Countdown defaulting to the exercise's rest duration; adjust and skip — **outstanding**: rest is configured on a routine entry, not on an exercise, and the client has no routine read yet, so every rest is the three-minute default. `LogWorkoutContainer` takes a `restSecondsFor` lookup for whoever closes this.
+- [x] 10.3 `navigator.wakeLock` acquired during countdown; released on completion, dismissal, or visibility change
+- [x] 10.4 Acquisition failure degrades silently; countdown still runs
+- [x] 10.5 Audible and visual completion cue
 
 ## Slice 11a — Push scheduling (~260 lines)
 

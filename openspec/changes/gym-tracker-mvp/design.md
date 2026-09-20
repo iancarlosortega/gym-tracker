@@ -386,6 +386,8 @@ postgres:17  ── db: gymtracker   role: gymtracker  (no access to other DBs)
 - React components are arrow functions and modules export by name. `page.tsx` and `layout.tsx` are the exception, because Next resolves a route by its default export.
 - Forms use **react-hook-form** with a **zod** resolver. Never `z.coerce.number()` on a field: `Number('')` is `0`, so an empty input would be reported as "more than zero" rather than as missing, and any rule weaker than `positive` would log an empty bar.
 - **Runtime configuration is read at request time**, not inlined. `NEXT_PUBLIC_*` is baked in by `next build`, which would mean one image per environment; the workout route calls `connection()`, reads `process.env.API_ORIGIN`, and passes it to the client island as a prop.
+- **The rest countdown takes the whole screen** (chosen from three explored options). It is read at arm's length from a bench, which is the only moment it is looked at, and a timer that owned a corner would not be worth keeping the screen lit for.
+- **`RestInterval` does not tick.** It holds a duration and a start; the remaining time is asked for at an instant the caller supplies, and the countdown recomputes from it every tick rather than decrementing — so a tab throttled while the phone was pocketed returns showing the truth.
 - `navigator.wakeLock` acquired for foreground countdowns, released on completion, dismissal, or visibility change; acquisition failure is swallowed per spec.
 - Logging UI is one-handed and large-target: the user is holding a phone with chalky hands between sets.
 
