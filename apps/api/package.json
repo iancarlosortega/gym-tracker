@@ -8,7 +8,8 @@
     "start": "node dist/main.js",
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "seed-account": "node dist/commands/seed-account.command.js"
+    "seed-account": "node dist/commands/seed-account.command.js",
+    "migrate": "node dist/commands/migrate.command.js"
   },
   "dependencies": {
     "@gym/contracts": "workspace:*",
