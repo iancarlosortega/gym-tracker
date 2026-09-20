@@ -1,7 +1,9 @@
 import { grams, toKilograms } from '@gym/domain/measurement/value-objects/grams.vo'
-import type {
-  ExerciseProgression,
-  ProgressionSeries,
+import {
+  type ExerciseProgression,
+  type ProgressionSeries,
+  type WeekOverWeek,
+  weekOverWeek,
 } from '@gym/domain/statistics/services/progression.service'
 import type { MassAggregate } from '@gym/domain/statistics/value-objects/mass-aggregate.vo'
 
@@ -42,7 +44,11 @@ export interface ProgressionPointView {
   readonly periodStart: string
   /** Kilograms for a mass series, the pin position for an ordinal one. */
   readonly value: number
+  /** The repetitions of the set that value came from. */
+  readonly reps: number
   readonly sets: number
+  /** How this week compares to the one before it, in either dimension. */
+  readonly change: 'improved-load' | 'improved-reps' | 'held' | 'declined'
 }
 
 export interface ProgressionSeriesView {
@@ -75,11 +81,25 @@ export const toExerciseProgressionView = (model: ExerciseProgression): ExerciseP
 const toSeriesView = (series: ProgressionSeries): ProgressionSeriesView => ({
   mode: series.mode,
   unit: series.unit === 'grams' ? 'kilograms' : 'position',
-  points: series.points.map((point) => ({
+  points: series.points.map((point, index) => ({
     periodStart: point.periodStart.toISOString(),
     // A point in a mass series is already whole grams; an ordinal one is a
     // pin position and is never converted.
     value: series.unit === 'grams' ? toKilograms(grams(point.best)) : point.best,
+    reps: point.reps,
     sets: point.sets,
+    // Compared only within this series, so the two points are on one scale.
+    change: toChange(weekOverWeek(series.points[index - 1], point)),
   })),
 })
+
+const toChange = (comparison: WeekOverWeek): ProgressionPointView['change'] => {
+  switch (comparison.kind) {
+    case 'improved':
+      return comparison.by === 'load' ? 'improved-load' : 'improved-reps'
+    case 'declined':
+      return 'declined'
+    default:
+      return 'held'
+  }
+}

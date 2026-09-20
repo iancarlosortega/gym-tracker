@@ -3,7 +3,11 @@ import { fromKilograms } from '@domain/measurement/value-objects/grams.vo.js'
 import { LoadEntry } from '@domain/measurement/value-objects/load-entry.vo.js'
 import { reps } from '@domain/measurement/value-objects/reps.vo.js'
 import { stackPosition } from '@domain/measurement/value-objects/stack-position.vo.js'
-import { progression, startOfWeek } from '@domain/statistics/services/progression.service.js'
+import {
+  progression,
+  startOfWeek,
+  weekOverWeek,
+} from '@domain/statistics/services/progression.service.js'
 import { describe, expect, it } from 'vitest'
 
 let counter = 0
@@ -13,23 +17,28 @@ const week1 = new Date('2026-09-07T10:00:00.000Z')
 const week2 = new Date('2026-09-14T10:00:00.000Z')
 const week3 = new Date('2026-09-21T10:00:00.000Z')
 
-const setOf = (entry: LoadEntry, loggedAt: Date, exerciseId = 'pulldown'): LoggedSet =>
+const setOf = (
+  entry: LoadEntry,
+  loggedAt: Date,
+  exerciseId = 'pulldown',
+  repetitions = 10,
+): LoggedSet =>
   LoggedSet.create({
     id: nextId(),
     sessionId: 'session',
     exerciseId,
     equipmentId: 'equipment',
     entry,
-    reps: reps(10),
+    reps: reps(repetitions),
     loggedAt,
     snapshot: { barGrams: null, displayUnit: 'KG', equipmentId: 'equipment' },
   })
 
-const plateAt = (position: number, loggedAt: Date) =>
-  setOf(LoadEntry.stack(stackPosition(position)), loggedAt)
+const plateAt = (position: number, loggedAt: Date, repetitions = 10) =>
+  setOf(LoadEntry.stack(stackPosition(position)), loggedAt, 'pulldown', repetitions)
 
-const barAt = (kilograms: number, loggedAt: Date) =>
-  setOf(LoadEntry.total(fromKilograms(kilograms)), loggedAt)
+const barAt = (kilograms: number, loggedAt: Date, repetitions = 10) =>
+  setOf(LoadEntry.total(fromKilograms(kilograms)), loggedAt, 'pulldown', repetitions)
 
 describe('startOfWeek', () => {
   it('starts on Monday, the week a lifter thinks in', () => {
@@ -111,5 +120,62 @@ describe('scoping', () => {
 
     expect(result.series).toHaveLength(1)
     expect(result.series[0]?.unit).toBe('position')
+  })
+})
+
+describe('progress measured in repetitions', () => {
+  it('carries the repetitions of the set that represents the week', () => {
+    const [series] = progression('pulldown', [barAt(60, week1, 8), barAt(60, week1, 5)]).series
+
+    // The heavier set wins; between equal loads, the one with more reps does.
+    expect(series?.points[0]).toMatchObject({ best: fromKilograms(60), reps: 8 })
+  })
+
+  it('prefers the heavier set even when a lighter one had more reps', () => {
+    const [series] = progression('pulldown', [barAt(80, week1, 3), barAt(60, week1, 12)]).series
+
+    expect(series?.points[0]).toMatchObject({ best: fromKilograms(80), reps: 3 })
+  })
+
+  it('sees the same weight for more reps as progress', () => {
+    const [series] = progression('pulldown', [barAt(60, week1, 8), barAt(60, week2, 10)]).series
+    const [first, second] = series?.points ?? []
+
+    expect(weekOverWeek(first, second!)).toEqual({ kind: 'improved', by: 'reps' })
+  })
+
+  it('sees more weight as progress whatever the reps did', () => {
+    const [series] = progression('pulldown', [barAt(60, week1, 10), barAt(65, week2, 6)]).series
+    const [first, second] = series?.points ?? []
+
+    expect(weekOverWeek(first, second!)).toEqual({ kind: 'improved', by: 'load' })
+  })
+
+  it('sees fewer reps at the same weight as a decline', () => {
+    const [series] = progression('pulldown', [barAt(60, week1, 10), barAt(60, week2, 8)]).series
+    const [first, second] = series?.points ?? []
+
+    expect(weekOverWeek(first, second!)).toEqual({ kind: 'declined' })
+  })
+
+  it('sees an identical week as held', () => {
+    const [series] = progression('pulldown', [barAt(60, week1, 10), barAt(60, week2, 10)]).series
+    const [first, second] = series?.points ?? []
+
+    expect(weekOverWeek(first, second!)).toEqual({ kind: 'held' })
+  })
+
+  it('measures an ordinal exercise the same way, on its own scale', () => {
+    // A machine at the same pin for more reps is a stronger week too.
+    const [series] = progression('pulldown', [plateAt(7, week1, 10), plateAt(7, week2, 12)]).series
+    const [first, second] = series?.points ?? []
+
+    expect(weekOverWeek(first, second!)).toEqual({ kind: 'improved', by: 'reps' })
+  })
+
+  it('holds when there is nothing before it to compare against', () => {
+    const [series] = progression('pulldown', [barAt(60, week1, 10)]).series
+
+    expect(weekOverWeek(undefined, series!.points[0]!)).toEqual({ kind: 'held' })
   })
 })
