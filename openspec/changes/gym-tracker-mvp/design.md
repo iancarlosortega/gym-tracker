@@ -379,6 +379,10 @@ postgres:17  ── db: gymtracker   role: gymtracker  (no access to other DBs)
 1. `POST /equipment/:id/recompute/preview` → recomputes affected sets **in memory**, returns per-set before/after values, an affected count, and any personal records whose value or holder-set would change. Writes nothing.
 2. `POST /equipment/:id/recompute/apply` with the preview's `preview_token` → re-derives the diff, compares it against the token's snapshot hash, and applies only if unchanged. Applies inside one transaction and writes a `recompute_audit` row recording what changed.
 
+**Only sets logged against the equipment being corrected are in scope**, and only per-side ones. A total records the whole weight and owes the bar nothing; an ordinal set holds no mass at all. Correcting one bar must never touch a set performed on another.
+
+**The preview leads with the record, not the count.** "Forty-two sets will change" is not a decision anyone can make; "your bench record was never a hundred" is. The page also states that nothing is deleted, because the correction rewrites a derived number and leaves the reps, dates and typed weight untouched.
+
 **Why the token**: without it, a preview shown and confirmed minutes later could apply a diff the user never saw. The token binds the confirmation to exactly the diff that was displayed; a mismatch forces a fresh preview.
 
 `STACK_POSITION` sets are never in scope — they hold no mass to recompute.

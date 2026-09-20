@@ -173,14 +173,14 @@ names the slice it belongs to and what has to be true before it can be run.
 - [x] 12.8 Progress counts weight **or** repetitions, ordinal exercises included (added after review: a load-only series drew 60 kg × 8 → 60 kg × 10 as a flat line)
 - [x] 12.9 Week summary: sets, workouts, plan completion, lifts moved — each against the week before
 
-## Slice 13 — Recompute history (~320 lines)
+## Slice 13 — Recompute history (~320 lines) ✅ awaiting review
 
-- [ ] 13.1 `PreviewRecomputeUseCase`: in-memory recomputation, per-set before/after, affected count, personal-record impact, zero writes
-- [ ] 13.2 `preview_token` binding a confirmation to the exact diff displayed
-- [ ] 13.3 `ApplyRecomputeUseCase`: re-derive, compare against the token, apply in one transaction, write `recompute_audit`
-- [ ] 13.4 `STACK_POSITION` sets excluded from scope
-- [ ] 13.5 Presentation: preview and confirm UI
-- [ ] 13.6 Tests: declining changes nothing; a stale token is refused
+- [x] 13.1 `PreviewRecomputeUseCase`: in-memory recomputation, per-set before/after, affected count, personal-record impact, zero writes
+- [x] 13.2 `preview_token` binding a confirmation to the exact diff displayed — a hash of the diff, not a stored row
+- [x] 13.3 `ApplyRecomputeUseCase`: re-derive, compare against the token, apply in one transaction, write `recompute_audit`
+- [x] 13.4 `STACK_POSITION` sets excluded from scope — and `TOTAL` sets too: neither owes anything to the bar
+- [x] 13.5 Presentation: preview and confirm UI — designed from options; leads with the record that changes
+- [x] 13.6 Tests: declining changes nothing; a stale token is refused
 
 ## Slice 14 — VPS deployment (~260 lines)
 
