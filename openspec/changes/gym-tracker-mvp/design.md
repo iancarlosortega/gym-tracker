@@ -320,6 +320,10 @@ For the rarer edit/delete case, each set carries a `client_revision` counter and
 
 **Why a 1-second tick and not a job queue**: the scheduling horizon is minutes and the volume is one user. BullMQ would add Redis — another resident process on a shared VPS — to schedule roughly twenty rows a day. `SKIP LOCKED` polling is correct, boring, and costs nothing.
 
+**The claim ends before the send begins.** `SKIP LOCKED` takes the row and the transaction closes; the push service is then called outside any lock, because holding a row lock across a request to Apple would mean holding a database lock for as long as Apple takes. A claimed alert is marked sent whatever the answer was — retrying buzzes someone about a rest that ended minutes ago, which is worse than silence.
+
+**VAPID configuration is optional.** Requiring it would mean an API that refuses to start without push configured, taking the guaranteed foreground timer down along with the enhancement. Unconfigured, the sender says so once at startup and reports every delivery as failed.
+
 **Subscription invalidation** (AR3): a `410 Gone` or `404` from the push service marks the subscription invalid. The next foreground load sees the invalid flag and prompts re-enablement, satisfying the spec's disclosure requirement. **The foreground Wake Lock timer never depends on any of this** — it is the guaranteed path, and push is the enhancement.
 
 **Install detection**: pocketed alerts are only offered when the app is running in standalone display mode with notification permission granted. Otherwise the UI states the home-screen install requirement (R1: push requires installation).

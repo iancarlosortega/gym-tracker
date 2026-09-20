@@ -135,13 +135,13 @@
 - [x] 10.4 Acquisition failure degrades silently; countdown still runs
 - [x] 10.5 Audible and visual completion cue
 
-## Slice 11a — Push scheduling (~260 lines)
+## Slice 11a — Push scheduling (~260 lines) ✅ awaiting review
 
-- [ ] 11a.1 Domain: `ScheduledPush` entity, `PushScheduler` and `PushSender` ports
-- [ ] 11a.2 `SchedulePushUseCase` / `CancelPushUseCase` — dismissal cancels the scheduled row
-- [ ] 11a.3 Infrastructure: one-second tick claiming due rows with `SELECT ... FOR UPDATE SKIP LOCKED`
-- [ ] 11a.4 `WebPushSender` adapter with VAPID configuration
-- [ ] 11a.5 Tests: dismissal cancels; a restart does not drop a pending push
+- [x] 11a.1 Domain: `ScheduledPush` entity, `PushScheduler` and `PushSender` ports
+- [x] 11a.2 `SchedulePushUseCase` / `CancelPushUseCase` — dismissal cancels the scheduled row
+- [x] 11a.3 Infrastructure: one-second tick claiming due rows with `SELECT ... FOR UPDATE SKIP LOCKED`
+- [x] 11a.4 `WebPushSender` adapter with VAPID configuration — the keys are optional, so a deployment without them still runs the foreground timer
+- [x] 11a.5 Tests: dismissal cancels; a restart does not drop a pending push
 
 ## Slice 11b — Subscriptions and disclosure (~200 lines) ⚠️ carries AR3
 
