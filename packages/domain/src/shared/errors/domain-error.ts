@@ -64,6 +64,15 @@ export const ROUTINE_ERROR_CODES = [
 
 export type RoutineErrorCode = (typeof ROUTINE_ERROR_CODES)[number]
 
+export const WORKOUT_ERROR_CODES = [
+  'WORKOUT_SESSION_NOT_FOUND',
+  'WORKOUT_ALREADY_FINISHED',
+  'WORKOUT_ALREADY_OPEN',
+  'INVALID_WORKOUT_TIMES',
+] as const
+
+export type WorkoutErrorCode = (typeof WORKOUT_ERROR_CODES)[number]
+
 export type SharedErrorCode = (typeof SHARED_ERROR_CODES)[number]
 export type AuthErrorCode = (typeof AUTH_ERROR_CODES)[number]
 export type MeasurementErrorCode = (typeof MEASUREMENT_ERROR_CODES)[number]
@@ -73,4 +82,5 @@ export type DomainErrorCode =
   | AuthErrorCode
   | CatalogErrorCode
   | RoutineErrorCode
+  | WorkoutErrorCode
   | MeasurementErrorCode
