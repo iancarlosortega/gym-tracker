@@ -23,5 +23,6 @@ import { Module } from '@nestjs/common'
     ReadProgressionUseCase,
     ReadWeekUseCase,
   ],
+  exports: [STATISTICS_REPOSITORY],
 })
 export class StatisticsModule {}

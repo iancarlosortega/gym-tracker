@@ -4,6 +4,7 @@ import { authHttpErrors } from '@api/modules/auth/presentation/auth.http-errors.
 import { catalogHttpErrors } from '@api/modules/catalog/presentation/catalog.http-errors.js'
 import { measurementHttpErrors } from '@api/modules/measurement/presentation/measurement.http-errors.js'
 import { pushHttpErrors } from '@api/modules/push/presentation/push.http-errors.js'
+import { recomputeHttpErrors } from '@api/modules/recompute/presentation/recompute.http-errors.js'
 import { routinesHttpErrors } from '@api/modules/routines/presentation/routines.http-errors.js'
 import { workoutsHttpErrors } from '@api/modules/workouts/presentation/workouts.http-errors.js'
 import { DomainError, type DomainErrorCode } from '@gym/domain/shared/errors/domain-error'
@@ -37,6 +38,7 @@ const httpErrors: HttpErrorMapping<DomainErrorCode> = {
   ...catalogHttpErrors,
   ...measurementHttpErrors,
   ...pushHttpErrors,
+  ...recomputeHttpErrors,
   ...routinesHttpErrors,
   ...workoutsHttpErrors,
 }
