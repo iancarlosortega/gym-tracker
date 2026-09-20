@@ -6,12 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": [
-      "**/*.ts",
-      "**/*.tsx",
-      "**/*.json",
-      "**/*.jsonc"
-    ]
+    "includes": ["**/*.ts", "**/*.tsx", "**/*.json", "**/*.jsonc"]
   },
   "formatter": {
     "enabled": true,
@@ -29,9 +24,7 @@
           "options": {
             "strictCase": true,
             "requireAscii": true,
-            "filenameCases": [
-              "kebab-case"
-            ]
+            "filenameCases": ["kebab-case"]
           }
         },
         "useNamingConvention": {
@@ -54,9 +47,7 @@
   },
   "overrides": [
     {
-      "includes": [
-        "packages/domain/**"
-      ],
+      "includes": ["packages/domain/**"],
       "linter": {
         "rules": {
           "style": {
@@ -90,9 +81,7 @@
       }
     },
     {
-      "includes": [
-        "apps/api/src/database/**"
-      ],
+      "includes": ["apps/api/src/database/**"],
       "linter": {
         "rules": {
           "style": {
@@ -102,11 +91,7 @@
       }
     },
     {
-      "includes": [
-        "apps/api/src/config/**",
-        "apps/api/src/common/**",
-        "**/*.http-errors.ts"
-      ],
+      "includes": ["apps/api/src/config/**", "apps/api/src/common/**", "**/*.http-errors.ts"],
       "linter": {
         "rules": {
           "style": {
@@ -116,9 +101,7 @@
       }
     },
     {
-      "includes": [
-        "apps/api/**"
-      ],
+      "includes": ["apps/api/**"],
       "linter": {
         "rules": {
           "style": {
@@ -128,9 +111,7 @@
       }
     },
     {
-      "includes": [
-        "apps/web/src/components/ui/**"
-      ],
+      "includes": ["apps/web/src/components/ui/**"],
       "linter": {
         "rules": {
           "a11y": {

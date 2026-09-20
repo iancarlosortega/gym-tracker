@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import type { ExerciseResponse } from '../../../workouts/infrastructure/http-workout.gateway'
 import {
   HttpStatisticsGateway,

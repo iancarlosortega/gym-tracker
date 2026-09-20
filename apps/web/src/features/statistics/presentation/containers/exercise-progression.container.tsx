@@ -52,7 +52,8 @@ export const ExerciseProgressionContainer = ({
     <div className="grid gap-5">
       <h1 className="font-bold text-2xl">{exerciseName}</h1>
 
-      <div className="flex gap-2" role="group" aria-label="What to measure progress by">
+      <fieldset className="flex gap-2 border-0 p-0">
+        <legend className="sr-only">What to measure progress by</legend>
         <Button
           aria-pressed={metric === 'load'}
           onClick={() => setMetric('load')}
@@ -67,7 +68,7 @@ export const ExerciseProgressionContainer = ({
         >
           Reps
         </Button>
-      </div>
+      </fieldset>
 
       <ModeChangeNotice changes={progression.modeChanges} />
 

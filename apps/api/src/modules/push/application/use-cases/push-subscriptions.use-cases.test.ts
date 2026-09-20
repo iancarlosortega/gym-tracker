@@ -67,7 +67,10 @@ describe('reading what the client should disclose', () => {
 
     await register.execute({ userId, endpoint, p256dh: 'a-key', auth: 'a-secret' })
     const registered = await subscriptions.findByEndpoint(endpoint)
-    await subscriptions.save(registered!.invalidatedAt(new Date()))
+    if (registered === null) {
+      throw new Error('The subscription just registered is not there.')
+    }
+    await subscriptions.save(registered.invalidatedAt(new Date()))
 
     const retired = await configuredWith('a-public-key').execute(userId)
     expect(retired).toMatchObject({ subscribed: false, invalidated: true })

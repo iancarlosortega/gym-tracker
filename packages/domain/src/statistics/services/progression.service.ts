@@ -139,7 +139,7 @@ const toSeries = (
 
       return {
         periodStart: new Date(week),
-        best: valueOf(best),
+        best: scaleValueOf(best),
         reps: best.reps,
         sets: weekSets.length,
       }
@@ -157,7 +157,7 @@ const toSeries = (
  */
 const bestSetOf = (sets: readonly LoggedSet[]): LoggedSet =>
   sets.reduce((best, candidate) => {
-    const load = valueOf(candidate) - valueOf(best)
+    const load = scaleValueOf(candidate) - scaleValueOf(best)
 
     if (load !== 0) {
       return load > 0 ? candidate : best
@@ -196,7 +196,7 @@ export const weekOverWeek = (
 }
 
 /** A set's number, in whatever scale its mode uses. */
-const valueOf = (set: LoggedSet): number => {
+const scaleValueOf = (set: LoggedSet): number => {
   const mass = set.mass()
 
   if (isResolved(mass)) {

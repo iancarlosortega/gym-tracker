@@ -116,10 +116,10 @@ const currentGramsOf = (set: LoggedSet): Grams => {
 
 const bestOf = (
   sets: readonly LoggedSet[],
-  valueOf: (set: LoggedSet) => Grams,
+  scaleValueOf: (set: LoggedSet) => Grams,
 ): { readonly setId: string; readonly value: Grams } | undefined =>
   sets
-    .map((set) => ({ setId: set.id, value: valueOf(set) }))
+    .map((set) => ({ setId: set.id, value: scaleValueOf(set) }))
     .reduce<{ readonly setId: string; readonly value: Grams } | undefined>(
       (best, candidate) => (best === undefined || candidate.value > best.value ? candidate : best),
       undefined,

@@ -4,11 +4,20 @@ import { LoadEntry } from '@domain/measurement/value-objects/load-entry.vo.js'
 import { reps } from '@domain/measurement/value-objects/reps.vo.js'
 import { stackPosition } from '@domain/measurement/value-objects/stack-position.vo.js'
 import {
+  type ProgressionPoint,
   progression,
   startOfWeek,
   weekOverWeek,
 } from '@domain/statistics/services/progression.service.js'
 import { describe, expect, it } from 'vitest'
+
+/** Narrows a point the test has just arranged to exist. */
+const asPoint = (point: ProgressionPoint | undefined): ProgressionPoint => {
+  if (point === undefined) {
+    throw new Error('The test arranged a point that is not there.')
+  }
+  return point
+}
 
 let counter = 0
 const nextId = () => `0199a1f0-0000-7000-8000-${String(++counter).padStart(12, '0')}`
@@ -141,28 +150,28 @@ describe('progress measured in repetitions', () => {
     const [series] = progression('pulldown', [barAt(60, week1, 8), barAt(60, week2, 10)]).series
     const [first, second] = series?.points ?? []
 
-    expect(weekOverWeek(first, second!)).toEqual({ kind: 'improved', by: 'reps' })
+    expect(weekOverWeek(first, asPoint(second))).toEqual({ kind: 'improved', by: 'reps' })
   })
 
   it('sees more weight as progress whatever the reps did', () => {
     const [series] = progression('pulldown', [barAt(60, week1, 10), barAt(65, week2, 6)]).series
     const [first, second] = series?.points ?? []
 
-    expect(weekOverWeek(first, second!)).toEqual({ kind: 'improved', by: 'load' })
+    expect(weekOverWeek(first, asPoint(second))).toEqual({ kind: 'improved', by: 'load' })
   })
 
   it('sees fewer reps at the same weight as a decline', () => {
     const [series] = progression('pulldown', [barAt(60, week1, 10), barAt(60, week2, 8)]).series
     const [first, second] = series?.points ?? []
 
-    expect(weekOverWeek(first, second!)).toEqual({ kind: 'declined' })
+    expect(weekOverWeek(first, asPoint(second))).toEqual({ kind: 'declined' })
   })
 
   it('sees an identical week as held', () => {
     const [series] = progression('pulldown', [barAt(60, week1, 10), barAt(60, week2, 10)]).series
     const [first, second] = series?.points ?? []
 
-    expect(weekOverWeek(first, second!)).toEqual({ kind: 'held' })
+    expect(weekOverWeek(first, asPoint(second))).toEqual({ kind: 'held' })
   })
 
   it('measures an ordinal exercise the same way, on its own scale', () => {
@@ -170,12 +179,12 @@ describe('progress measured in repetitions', () => {
     const [series] = progression('pulldown', [plateAt(7, week1, 10), plateAt(7, week2, 12)]).series
     const [first, second] = series?.points ?? []
 
-    expect(weekOverWeek(first, second!)).toEqual({ kind: 'improved', by: 'reps' })
+    expect(weekOverWeek(first, asPoint(second))).toEqual({ kind: 'improved', by: 'reps' })
   })
 
   it('holds when there is nothing before it to compare against', () => {
     const [series] = progression('pulldown', [barAt(60, week1, 10)]).series
 
-    expect(weekOverWeek(undefined, series!.points[0]!)).toEqual({ kind: 'held' })
+    expect(weekOverWeek(undefined, asPoint(series?.points[0]))).toEqual({ kind: 'held' })
   })
 })
