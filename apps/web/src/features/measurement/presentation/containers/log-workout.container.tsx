@@ -1,5 +1,6 @@
 'use client'
 
+import type { Clock } from '@gym/domain/auth/ports/clock.port'
 import type { LoggedSet } from '@gym/domain/measurement/entities/logged-set.entity'
 import { fromKilograms } from '@gym/domain/measurement/value-objects/grams.vo'
 import {
@@ -7,7 +8,12 @@ import {
   type MeasurementMode,
 } from '@gym/domain/measurement/value-objects/load-entry.vo'
 import { stackPosition } from '@gym/domain/measurement/value-objects/stack-position.vo'
+import type { CompletionCue } from '@gym/domain/rest-timer/ports/completion-cue.port'
+import type { ScreenWakeLock } from '@gym/domain/rest-timer/ports/screen-wake-lock.port'
+import type { RestInterval } from '@gym/domain/rest-timer/value-objects/rest-interval.vo'
 import { useCallback, useEffect, useState } from 'react'
+import type { StartRestUseCase } from '../../../rest-timer/application/start-rest.use-case'
+import { RestTimerContainer } from '../../../rest-timer/presentation/containers/rest-timer.container'
 import type {
   EquipmentResponse,
   ExerciseResponse,
@@ -32,7 +38,24 @@ export interface LogWorkoutContainerProps {
   readonly logSet: LogSetOfflineUseCase
   readonly syncSets: SyncPendingSetsUseCase
   readonly countPending: CountPendingSetsUseCase
+  readonly startRest: StartRestUseCase
+  readonly clock: Clock
+  readonly wakeLock: ScreenWakeLock
+  readonly cue: CompletionCue
+  /**
+   * The rest the plan asks for after this exercise.
+   *
+   * Rest belongs to a routine's entry rather than to the exercise, so an ad
+   * hoc workout has none to look up and falls back to the default.
+   */
+  readonly restSecondsFor?: (exerciseId: string) => number | undefined
   readonly displayUnit?: 'KG' | 'LB'
+}
+
+interface RestingState {
+  readonly interval: RestInterval
+  readonly exerciseName: string
+  readonly lastSet: string
 }
 
 /**
@@ -50,12 +73,18 @@ export const LogWorkoutContainer = ({
   logSet,
   syncSets,
   countPending,
+  startRest,
+  clock,
+  wakeLock,
+  cue,
+  restSecondsFor,
   displayUnit = 'KG',
 }: LogWorkoutContainerProps) => {
   const [rows, setRows] = useState<readonly LoggedSetRow[]>([])
   const [pending, setPending] = useState(0)
   const [storageFailure, setStorageFailure] = useState<string | undefined>(undefined)
   const [busy, setBusy] = useState(false)
+  const [resting, setResting] = useState<RestingState | null>(null)
 
   const drain = useCallback(async () => {
     const result = await syncSets.execute()
@@ -102,9 +131,17 @@ export const LogWorkoutContainer = ({
         },
       })
 
-      setRows((current) => [toRow(set, exercise.name), ...current])
+      const row = toRow(set, exercise.name)
+      setRows((current) => [row, ...current])
       setPending(await countPending.execute())
       void drain()
+
+      // Rest begins the moment the set is down, not when the user asks.
+      setResting({
+        interval: await startRest.execute({ seconds: restSecondsFor?.(exercise.id) }),
+        exerciseName: exercise.name,
+        lastSet: `${row.load} for ${row.reps} reps`,
+      })
     } catch (failure) {
       if (failure instanceof QueueWriteFailedError) {
         setStorageFailure(failure.message)
@@ -116,8 +153,38 @@ export const LogWorkoutContainer = ({
     }
   }
 
+  /** Out of range is the button doing nothing, not an error mid-workout. */
+  const adjustRest = (seconds: number): void => {
+    setResting((current) => {
+      if (current === null) {
+        return current
+      }
+
+      try {
+        return { ...current, interval: current.interval.adjustedBy(seconds) }
+      } catch {
+        return current
+      }
+    })
+  }
+
+  if (resting !== null) {
+    return (
+      <RestTimerContainer
+        interval={resting.interval}
+        exerciseName={resting.exerciseName}
+        lastSet={resting.lastSet}
+        clock={clock}
+        wakeLock={wakeLock}
+        cue={cue}
+        onFinished={() => setResting(null)}
+        onAdjust={adjustRest}
+      />
+    )
+  }
+
   return (
-    <section>
+    <section className="grid gap-6">
       <SyncStatus pending={pending} storageFailure={storageFailure} />
       <SetEntryForm
         exercises={exercises.map(toExerciseOption)}

@@ -1,6 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { StartRestUseCase } from '../../../rest-timer/application/start-rest.use-case'
+import { NavigatorScreenWakeLock } from '../../../rest-timer/infrastructure/navigator-screen-wake-lock.adapter'
+import { WebAudioCompletionCue } from '../../../rest-timer/infrastructure/web-audio-completion-cue'
+import { SystemClock } from '../../../shared/infrastructure/system-clock.adapter'
 import {
   type EquipmentResponse,
   type ExerciseResponse,
@@ -34,12 +38,18 @@ interface WorkoutContext {
 export const WorkoutPageContainer = ({ apiBaseUrl }: WorkoutPageContainerProps) => {
   const wiring = useMemo(() => {
     const queue = new IndexedDbSetRepository()
+    const clock = new SystemClock()
+    const wakeLock = new NavigatorScreenWakeLock()
 
     return {
       workouts: new HttpWorkoutGateway(apiBaseUrl),
       logSet: new LogSetOfflineUseCase(queue),
       syncSets: new SyncPendingSetsUseCase(queue, new HttpSetSyncGateway(apiBaseUrl)),
       countPending: new CountPendingSetsUseCase(queue),
+      startRest: new StartRestUseCase(clock, wakeLock),
+      cue: new WebAudioCompletionCue(),
+      clock,
+      wakeLock,
     }
   }, [apiBaseUrl])
 
@@ -94,6 +104,10 @@ export const WorkoutPageContainer = ({ apiBaseUrl }: WorkoutPageContainerProps) 
       logSet={wiring.logSet}
       syncSets={wiring.syncSets}
       countPending={wiring.countPending}
+      startRest={wiring.startRest}
+      clock={wiring.clock}
+      wakeLock={wiring.wakeLock}
+      cue={wiring.cue}
     />
   )
 }
