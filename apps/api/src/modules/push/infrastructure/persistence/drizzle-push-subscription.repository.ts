@@ -5,7 +5,7 @@ import { PushSubscription } from '@gym/domain/push/entities/push-subscription.en
 import type { PushSubscriptionRepository } from '@gym/domain/push/ports/push-subscription.repository'
 import { Id } from '@gym/domain/shared/value-objects/id.vo'
 import { Inject, Injectable } from '@nestjs/common'
-import { and, eq, isNull } from 'drizzle-orm'
+import { and, count, eq, isNull } from 'drizzle-orm'
 
 type PushSubscriptionRow = typeof pushSubscription.$inferSelect
 
@@ -42,6 +42,15 @@ export class DrizzlePushSubscriptionRepository implements PushSubscriptionReposi
       .where(and(eq(pushSubscription.userId, userId), isNull(pushSubscription.invalidatedAt)))
 
     return (rows as PushSubscriptionRow[]).map(toDomain)
+  }
+
+  async countForUser(userId: string): Promise<number> {
+    const rows = await this.database
+      .select({ total: count() })
+      .from(pushSubscription)
+      .where(eq(pushSubscription.userId, userId))
+
+    return rows[0]?.total ?? 0
   }
 
   async findByEndpoint(endpoint: string): Promise<PushSubscription | null> {

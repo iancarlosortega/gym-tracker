@@ -11,4 +11,13 @@ export interface PushSubscriptionRepository {
   save(subscription: PushSubscription): Promise<void>
   findValidForUser(userId: string): Promise<readonly PushSubscription[]>
   findByEndpoint(endpoint: string): Promise<PushSubscription | null>
+
+  /**
+   * Every subscription on file, valid or not.
+   *
+   * Only the disclosure needs this: a user with subscriptions and none of
+   * them working is the case the spec says must be reported, and it is
+   * indistinguishable from never having subscribed without this count.
+   */
+  countForUser(userId: string): Promise<number>
 }

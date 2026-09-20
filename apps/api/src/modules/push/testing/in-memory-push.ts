@@ -45,6 +45,12 @@ export class InMemorySubscriptions implements PushSubscriptionRepository {
   async findByEndpoint(endpoint: string): Promise<PushSubscription | null> {
     return this.subscriptions.get(endpoint) ?? null
   }
+
+  async countForUser(userId: string): Promise<number> {
+    return [...this.subscriptions.values()].filter(
+      (subscription) => subscription.userId.value === userId,
+    ).length
+  }
 }
 
 /** Answers whatever it was told to, and remembers what it was asked to send. */
