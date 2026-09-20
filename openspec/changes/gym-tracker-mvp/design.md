@@ -213,6 +213,12 @@ Four rules, all enforced rather than remembered.
 
 `presentation → application → domain`, and `infrastructure → domain`. Nothing in `domain` imports from any other layer or from any framework. Nest decorators, Drizzle types, zod schemas, and React never appear in `packages/domain`. Use cases depend on ports; the Nest module binds each port to its concrete adapter at composition time.
 
+**Wiring is the container's job, not the module's.** Every use case is `@Injectable()` and names the port it needs with `@Inject(TOKEN)`; the module lists the use case by its class and binds each port with `useClass`. The tokens live in `<feature>.tokens.ts` at the module root, so a use case can name a port without importing the composition root that binds it. Drizzle repositories take `DATABASE` through their own `@Inject`ed constructor for the same reason.
+
+**Rejected**: `useFactory` with `ConstructorParameters<typeof UseCase>[0]` per provider. It restated every constructor by hand, so the module grew faster than the feature and a reordered parameter became a silent mis-wiring instead of a compile error.
+
+The cost is that the application layer imports `Inject` and `Injectable` from `@nestjs/common` — a port is an interface and erases at runtime, so a token has to come from somewhere. The decorator is the smallest surface that carries it, and the ports themselves stay `import type`. A class Nest resolves by its own class token must never arrive through `import type`: the emitted paramtypes hold `undefined` and the container refuses to boot.
+
 **Tooling**: **Biome** for formatting and linting across the workspace, replacing ESLint and Prettier. One binary, one config, no plugin conflicts to reconcile between two apps, and it carries the naming rules in §1.5.
 
 **Rejected**: two separate repositories (contract drift with no compiler to catch it); domain logic owned by the backend (breaks offline rendering per §1.1); depth-proportional-to-complexity layering (rejected by the user in favour of uniform predictability).

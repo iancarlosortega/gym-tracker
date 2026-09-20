@@ -84,12 +84,12 @@
 - [x] 5b.4 Infrastructure and presentation
 - [x] 5b.5 Tests: entries above the declared stack size are rejected; existing snapshots untouched by edits
 
-## Slice 6 — Routines (~380 lines)
+## Slice 6 — Routines (~380 lines) ✅ awaiting review
 
-- [ ] 6.1 Domain: `Routine`, `RoutineExercise`, `RestDuration`, `TargetReps`, repository port
-- [ ] 6.2 Use cases: create, reorder, update targets, archive
-- [ ] 6.3 Infrastructure and presentation
-- [ ] 6.4 Tests: order preserved; routine edits do not alter completed sessions
+- [x] 6.1 Domain: `Routine`, `RoutineExercise`, `RestDuration`, `TargetReps`, repository port
+- [x] 6.2 Use cases: create, reorder, update targets, archive
+- [x] 6.3 Infrastructure and presentation
+- [x] 6.4 Tests: order preserved; routine edits do not alter completed sessions
 
 ## Slice 7a — Workout sessions (~220 lines)
 
