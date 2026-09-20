@@ -31,9 +31,11 @@ export class WebPushSender implements PushSender {
   private readonly configured: boolean
 
   constructor(@Inject(ConfigService) config: ConfigService<EnvironmentVariables, true>) {
-    const subject = config.get('VAPID_SUBJECT', { infer: true })
-    const publicKey = config.get('VAPID_PUBLIC_KEY', { infer: true })
-    const privateKey = config.get('VAPID_PRIVATE_KEY', { infer: true })
+    // Read through `configured`: ConfigService still sees the raw process
+    // environment, where Compose writes an unset variable as an empty string.
+    const subject = configured(config.get('VAPID_SUBJECT', { infer: true }))
+    const publicKey = configured(config.get('VAPID_PUBLIC_KEY', { infer: true }))
+    const privateKey = configured(config.get('VAPID_PRIVATE_KEY', { infer: true }))
 
     if (subject === undefined || publicKey === undefined || privateKey === undefined) {
       this.configured = false
@@ -68,6 +70,10 @@ export class WebPushSender implements PushSender {
     }
   }
 }
+
+/** Absent, blank, or whitespace all mean the same thing: not configured. */
+const configured = (value: string | undefined): string | undefined =>
+  value === undefined || value.trim() === '' ? undefined : value
 
 const isGone = (failure: unknown): boolean => {
   const status = (failure as { statusCode?: number } | null)?.statusCode

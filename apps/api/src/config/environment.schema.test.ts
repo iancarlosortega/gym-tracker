@@ -38,3 +38,35 @@ describe('the environment schema', () => {
     expect(() => environmentSchema.parse({ ...valid, API_ORIGIN: 'not-a-url' })).toThrow()
   })
 })
+
+describe('optional push configuration', () => {
+  it('accepts a deployment with no VAPID keys at all', () => {
+    const parsed = environmentSchema.parse(valid)
+
+    expect(parsed.VAPID_PUBLIC_KEY).toBeUndefined()
+  })
+
+  it('treats an empty variable as absent, which is how Compose passes an unset one', () => {
+    const parsed = environmentSchema.parse({
+      ...valid,
+      VAPID_PUBLIC_KEY: '',
+      VAPID_PRIVATE_KEY: '',
+      VAPID_SUBJECT: '',
+    })
+
+    expect(parsed.VAPID_PUBLIC_KEY).toBeUndefined()
+    expect(parsed.VAPID_SUBJECT).toBeUndefined()
+  })
+
+  it('keeps keys that were actually provided', () => {
+    const parsed = environmentSchema.parse({
+      ...valid,
+      VAPID_PUBLIC_KEY: 'a-public-key',
+      VAPID_PRIVATE_KEY: 'a-private-key',
+      VAPID_SUBJECT: 'you@example.com',
+    })
+
+    expect(parsed.VAPID_PUBLIC_KEY).toBe('a-public-key')
+    expect(parsed.VAPID_SUBJECT).toBe('mailto:you@example.com')
+  })
+})

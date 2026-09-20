@@ -9,6 +9,16 @@ import { z } from 'zod'
  * most for the origin pair: an application that starts cleanly and cannot keep
  * anyone signed in is a far worse failure than one that refuses to start.
  */
+/**
+ * Absent and empty mean the same thing here.
+ *
+ * Compose substitutes an unset variable as an empty string rather than
+ * leaving it out, so `.optional()` alone would refuse to start a deployment
+ * that simply has no push keys — exactly the case these are optional for.
+ */
+const optionalSetting = <TSchema extends z.ZodType>(schema: TSchema) =>
+  z.preprocess((value) => (value === '' ? undefined : value), schema.optional())
+
 export const environmentSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -25,12 +35,12 @@ export const environmentSchema = z
      * foreground rest timer is the guaranteed path. A deployment without
      * these keys runs, logs that alerts are off, and delivers nothing.
      */
-    VAPID_PUBLIC_KEY: z.string().min(1).optional(),
-    VAPID_PRIVATE_KEY: z.string().min(1).optional(),
+    VAPID_PUBLIC_KEY: optionalSetting(z.string().min(1)),
+    VAPID_PRIVATE_KEY: optionalSetting(z.string().min(1)),
     /** A mailto: or https: contact the push service can reach. */
-    VAPID_SUBJECT: z
-      .union([z.email().transform((address) => `mailto:${address}`), z.url()])
-      .optional(),
+    VAPID_SUBJECT: optionalSetting(
+      z.union([z.email().transform((address) => `mailto:${address}`), z.url()]),
+    ),
   })
   .superRefine((environment, context) => {
     if (!shareRegistrableDomain(environment.FRONTEND_ORIGIN, environment.API_ORIGIN)) {
