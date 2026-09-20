@@ -10,6 +10,17 @@
  * Narrowing returns a new instance, so a criteria object can be passed around
  * and refined without any caller being surprised by a change made elsewhere.
  */
+/**
+ * What a caller may pass when building criteria.
+ *
+ * Values may be explicitly `undefined` so a caller can write
+ * `{ kind: maybeKind }` without branching; `create` strips them, so an
+ * undefined filter and an absent one mean the same thing.
+ */
+export type CriteriaInput<TFields extends object> = {
+  [TKey in keyof TFields]?: TFields[TKey] | undefined
+}
+
 export class Criteria<TFields extends object> {
   private constructor(private readonly fields: Readonly<Partial<TFields>>) {
     Object.freeze(this.fields)
@@ -20,7 +31,7 @@ export class Criteria<TFields extends object> {
     return new Criteria<TFields>({} as Partial<TFields>)
   }
 
-  static create<TFields extends object>(fields: Partial<TFields>): Criteria<TFields> {
+  static create<TFields extends object>(fields: CriteriaInput<TFields>): Criteria<TFields> {
     return new Criteria<TFields>(Criteria.compact(fields))
   }
 
@@ -31,7 +42,7 @@ export class Criteria<TFields extends object> {
    * it wrong in opposite directions.
    */
   private static compact<TFields extends object>(
-    fields: Partial<TFields>,
+    fields: CriteriaInput<TFields>,
   ): Readonly<Partial<TFields>> {
     const compacted: Record<string, unknown> = {}
     for (const [key, value] of Object.entries(fields)) {
@@ -64,7 +75,7 @@ export class Criteria<TFields extends object> {
   }
 
   /** Add or replace filters, returning a new criteria. */
-  with(fields: Partial<TFields>): Criteria<TFields> {
+  with(fields: CriteriaInput<TFields>): Criteria<TFields> {
     return Criteria.create<TFields>({ ...this.fields, ...fields } as Partial<TFields>)
   }
 
