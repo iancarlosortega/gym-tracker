@@ -380,6 +380,12 @@ postgres:17  ── db: gymtracker   role: gymtracker  (no access to other DBs)
 - Next.js 16.3.5, App Router. Server Components for history and statistics; the logging surface is a client island because it must work offline.
 - Hand-rolled service worker (precache the app shell, network-first for API reads, never intercept the sync queue — the queue is application state, not a cache concern).
 - Web app manifest with `display: standalone`; a first-run hint teaches Share → Add to Home Screen, since R1 confirms iOS offers no install prompt.
+- **shadcn/ui** for components and **lucide-react** for icons. Components are vendored into `src/components/ui`, so they are ours to edit rather than a dependency to fight; Biome's `noLabelWithoutControl` is disabled for that directory alone, because a generic `Label` primitive cannot see its consumer's `htmlFor`.
+- Colour is owned by shadcn's semantic tokens. The only bespoke theme values are touch sizes — `--spacing-touch` at 3.5rem clears the 44px minimum with room for a chalky thumb. The app renders dark by default: it is read in a gym, under bad light, at arm's length.
+- **The exercise and equipment pickers stay native `<select>`.** On a phone that opens the system picker, which is reachable one-handed and already accessible; a popover listbox is the better desktop control and the worse one at a rack.
+- React components are arrow functions and modules export by name. `page.tsx` and `layout.tsx` are the exception, because Next resolves a route by its default export.
+- Forms use **react-hook-form** with a **zod** resolver. Never `z.coerce.number()` on a field: `Number('')` is `0`, so an empty input would be reported as "more than zero" rather than as missing, and any rule weaker than `positive` would log an empty bar.
+- **Runtime configuration is read at request time**, not inlined. `NEXT_PUBLIC_*` is baked in by `next build`, which would mean one image per environment; the workout route calls `connection()`, reads `process.env.API_ORIGIN`, and passes it to the client island as a prop.
 - `navigator.wakeLock` acquired for foreground countdowns, released on completion, dismissal, or visibility change; acquisition failure is swallowed per spec.
 - Logging UI is one-handed and large-target: the user is holding a phone with chalky hands between sets.
 

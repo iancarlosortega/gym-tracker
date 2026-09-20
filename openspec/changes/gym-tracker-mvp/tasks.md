@@ -120,12 +120,12 @@
 - [x] 8b.4 Pending-count indicator; explicit warning when a queue write fails
 - [x] 8b.5 Tests: offline log survives restart; queue drains on reconnect; replay does not duplicate
 
-## Slice 9 — Logging UI and PWA shell (~260 lines)
+## Slice 9 — Logging UI and PWA shell (~260 lines) ✅ awaiting review
 
-- [ ] 9.1 Logging containers and pure presentational components, one-handed and large-target
-- [ ] 9.2 Web app manifest, `display: standalone`, icons
-- [ ] 9.3 Service worker: precache the shell, network-first for API reads, never intercept the sync queue
-- [ ] 9.4 First-run hint teaching Share → Add to Home Screen (iOS offers no install prompt)
+- [x] 9.1 Logging containers and pure presentational components, one-handed and large-target
+- [x] 9.2 Web app manifest, `display: standalone`, icons — SVG; a designed PNG/apple-touch set is still outstanding
+- [x] 9.3 Service worker: precache the shell, network-first for API reads, never intercept the sync queue
+- [x] 9.4 First-run hint teaching Share → Add to Home Screen (iOS offers no install prompt)
 
 ## Slice 10 — Foreground rest timer (~240 lines)
 
