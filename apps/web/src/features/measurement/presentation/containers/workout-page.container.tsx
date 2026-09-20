@@ -1,6 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { EnablePocketedAlertsUseCase } from '../../../push/application/enable-pocketed-alerts.use-case'
+import { PushSubscriber } from '../../../push/infrastructure/browser-push.subscriber'
+import { HttpPushGateway } from '../../../push/infrastructure/http-push.gateway'
+import { PocketedAlertsContainer } from '../../../push/presentation/containers/pocketed-alerts.container'
 import { StartRestUseCase } from '../../../rest-timer/application/start-rest.use-case'
 import { NavigatorScreenWakeLock } from '../../../rest-timer/infrastructure/navigator-screen-wake-lock.adapter'
 import { WebAudioCompletionCue } from '../../../rest-timer/infrastructure/web-audio-completion-cue'
@@ -40,8 +44,11 @@ export const WorkoutPageContainer = ({ apiBaseUrl }: WorkoutPageContainerProps) 
     const queue = new IndexedDbSetRepository()
     const clock = new SystemClock()
     const wakeLock = new NavigatorScreenWakeLock()
+    const push = new HttpPushGateway(apiBaseUrl)
 
     return {
+      push,
+      enableAlerts: new EnablePocketedAlertsUseCase(new PushSubscriber(), push),
       workouts: new HttpWorkoutGateway(apiBaseUrl),
       logSet: new LogSetOfflineUseCase(queue),
       syncSets: new SyncPendingSetsUseCase(queue, new HttpSetSyncGateway(apiBaseUrl)),
@@ -97,17 +104,21 @@ export const WorkoutPageContainer = ({ apiBaseUrl }: WorkoutPageContainerProps) 
   }
 
   return (
-    <LogWorkoutContainer
-      sessionId={context.session.id}
-      exercises={context.exercises.filter((exercise) => !exercise.archived)}
-      equipment={context.equipment.filter((item) => !item.archived)}
-      logSet={wiring.logSet}
-      syncSets={wiring.syncSets}
-      countPending={wiring.countPending}
-      startRest={wiring.startRest}
-      clock={wiring.clock}
-      wakeLock={wiring.wakeLock}
-      cue={wiring.cue}
-    />
+    <div className="grid gap-6">
+      <PocketedAlertsContainer gateway={wiring.push} enableAlerts={wiring.enableAlerts} />
+      <LogWorkoutContainer
+        sessionId={context.session.id}
+        exercises={context.exercises.filter((exercise) => !exercise.archived)}
+        equipment={context.equipment.filter((item) => !item.archived)}
+        logSet={wiring.logSet}
+        syncSets={wiring.syncSets}
+        countPending={wiring.countPending}
+        startRest={wiring.startRest}
+        clock={wiring.clock}
+        wakeLock={wiring.wakeLock}
+        cue={wiring.cue}
+        push={wiring.push}
+      />
+    </div>
   )
 }

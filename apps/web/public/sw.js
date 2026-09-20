@@ -11,7 +11,7 @@
  *    would be inventing sets nobody performed.
  */
 
-const SHELL_CACHE = 'gym-shell-v1'
+const SHELL_CACHE = 'gym-shell-v2'
 const SHELL = ['/', '/workout', '/manifest.webmanifest', '/icon.svg']
 
 self.addEventListener('install', (event) => {
@@ -72,5 +72,49 @@ async function networkFirst(request) {
       return cached
     }
     throw failure
+  }
+}
+
+/**
+ * A rest alert arriving with the app closed.
+ *
+ * Every push carries a notification: the browsers that deliver push all
+ * require `userVisibleOnly`, and a push that showed nothing would eventually
+ * cost us the permission entirely.
+ */
+self.addEventListener('push', (event) => {
+  const payload = readPayload(event)
+
+  event.waitUntil(
+    self.registration.showNotification(payload.title, {
+      body: payload.body,
+      icon: '/icon.svg',
+      badge: '/icon.svg',
+      // The phone is in a pocket; the buzz is the whole point.
+      vibrate: [120, 80, 120],
+      tag: 'rest-over',
+      renotify: true,
+    }),
+  )
+})
+
+/** Tapping the alert returns to the workout rather than opening a new copy. */
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      const open = clients.find((client) => client.url.includes('/workout'))
+
+      return open === undefined ? self.clients.openWindow('/workout') : open.focus()
+    }),
+  )
+})
+
+function readPayload(event) {
+  try {
+    return event.data?.json() ?? { title: 'Rest is over', body: 'Time for your next set.' }
+  } catch {
+    return { title: 'Rest is over', body: 'Time for your next set.' }
   }
 }

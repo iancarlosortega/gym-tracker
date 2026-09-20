@@ -12,6 +12,7 @@ import type { CompletionCue } from '@gym/domain/rest-timer/ports/completion-cue.
 import type { ScreenWakeLock } from '@gym/domain/rest-timer/ports/screen-wake-lock.port'
 import type { RestInterval } from '@gym/domain/rest-timer/value-objects/rest-interval.vo'
 import { useCallback, useEffect, useState } from 'react'
+import type { HttpPushGateway } from '../../../push/infrastructure/http-push.gateway'
 import type { StartRestUseCase } from '../../../rest-timer/application/start-rest.use-case'
 import { RestTimerContainer } from '../../../rest-timer/presentation/containers/rest-timer.container'
 import type {
@@ -49,6 +50,13 @@ export interface LogWorkoutContainerProps {
    * hoc workout has none to look up and falls back to the default.
    */
   readonly restSecondsFor?: (exerciseId: string) => number | undefined
+  /**
+   * Books the buzz that survives the app being closed.
+   *
+   * Optional: without it the foreground countdown still runs, which is the
+   * guaranteed path either way.
+   */
+  readonly push?: HttpPushGateway
   readonly displayUnit?: 'KG' | 'LB'
 }
 
@@ -56,6 +64,8 @@ interface RestingState {
   readonly interval: RestInterval
   readonly exerciseName: string
   readonly lastSet: string
+  /** The set this rest follows; the server cancels the alert by it. */
+  readonly setId: string
 }
 
 /**
@@ -78,6 +88,7 @@ export const LogWorkoutContainer = ({
   wakeLock,
   cue,
   restSecondsFor,
+  push,
   displayUnit = 'KG',
 }: LogWorkoutContainerProps) => {
   const [rows, setRows] = useState<readonly LoggedSetRow[]>([])
@@ -137,11 +148,18 @@ export const LogWorkoutContainer = ({
       void drain()
 
       // Rest begins the moment the set is down, not when the user asks.
+      const interval = await startRest.execute({ seconds: restSecondsFor?.(exercise.id) })
+
       setResting({
-        interval: await startRest.execute({ seconds: restSecondsFor?.(exercise.id) }),
+        interval,
         exerciseName: exercise.name,
         lastSet: `${row.load} for ${row.reps} reps`,
+        setId: set.id,
       })
+
+      // A failed booking is not worth interrupting a workout for: the
+      // countdown on screen is unaffected and is the guaranteed path.
+      void push?.scheduleRestAlert(set.id, interval.endsAt).catch(() => undefined)
     } catch (failure) {
       if (failure instanceof QueueWriteFailedError) {
         setStorageFailure(failure.message)
@@ -177,7 +195,10 @@ export const LogWorkoutContainer = ({
         clock={clock}
         wakeLock={wakeLock}
         cue={cue}
-        onFinished={() => setResting(null)}
+        onFinished={() => {
+          void push?.cancelRestAlert(resting.setId).catch(() => undefined)
+          setResting(null)
+        }}
         onAdjust={adjustRest}
       />
     )
