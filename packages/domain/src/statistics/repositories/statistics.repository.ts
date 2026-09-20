@@ -1,5 +1,6 @@
 import type { LoggedSet } from '@domain/measurement/entities/logged-set.entity.js'
 import type { DateRange } from '@domain/shared/value-objects/date-range.vo.js'
+import type { WorkoutSession } from '@domain/workouts/entities/workout-session.entity.js'
 
 /**
  * The sets a statistic is computed from.
@@ -18,4 +19,16 @@ export interface StatisticsRepository {
     exerciseId: string,
     period: DateRange,
   ): Promise<readonly LoggedSet[]>
+
+  /** The workouts started in the period, for counting and for their routines. */
+  sessionsInPeriod(userId: string, period: DateRange): Promise<readonly WorkoutSession[]>
+
+  /**
+   * How many sets each named routine plans, by routine id.
+   *
+   * A count rather than the routines themselves: completion is the only
+   * question asked of a plan here, and loading whole aggregates to count
+   * their entries would be reading a great deal to answer very little.
+   */
+  plannedSetsByRoutine(routineIds: readonly string[]): Promise<ReadonlyMap<string, number>>
 }

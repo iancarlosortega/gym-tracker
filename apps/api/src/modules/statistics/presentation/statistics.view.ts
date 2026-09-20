@@ -5,6 +5,7 @@ import {
   type WeekOverWeek,
   weekOverWeek,
 } from '@gym/domain/statistics/services/progression.service'
+import type { WeekSummary } from '@gym/domain/statistics/services/week-summary.service'
 import type { MassAggregate } from '@gym/domain/statistics/value-objects/mass-aggregate.vo'
 
 /**
@@ -39,6 +40,38 @@ export const toMassAggregateView = (aggregate: MassAggregate): MassAggregateView
         includedSets: 0,
         excludedSets: aggregate.excludedSets,
       }
+
+export interface WeekSummaryView {
+  readonly sets: number
+  readonly workouts: number
+  /** Null when no session that week followed a routine; there was no plan. */
+  readonly plan: { readonly plannedSets: number; readonly completedSets: number } | null
+  readonly liftsUp: number
+  readonly liftsHeld: number
+  readonly liftsDown: number
+}
+
+export interface WeekComparisonView {
+  readonly current: WeekSummaryView
+  readonly previous: WeekSummaryView
+}
+
+export const toWeekComparisonView = (comparison: {
+  readonly current: WeekSummary
+  readonly previous: WeekSummary
+}): WeekComparisonView => ({
+  current: toWeekSummaryView(comparison.current),
+  previous: toWeekSummaryView(comparison.previous),
+})
+
+const toWeekSummaryView = (summary: WeekSummary): WeekSummaryView => ({
+  sets: summary.sets,
+  workouts: summary.workouts,
+  plan: summary.plan,
+  liftsUp: summary.movements.filter((movement) => movement.direction === 'up').length,
+  liftsHeld: summary.movements.filter((movement) => movement.direction === 'held').length,
+  liftsDown: summary.movements.filter((movement) => movement.direction === 'down').length,
+})
 
 export interface ProgressionPointView {
   readonly periodStart: string
