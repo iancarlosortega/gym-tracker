@@ -16,6 +16,7 @@ import type {
 } from '@gym/domain/auth/repositories/user.repository'
 import { Email } from '@gym/domain/auth/value-objects/email.vo'
 import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
+import { Inject, Injectable } from '@nestjs/common'
 
 export interface SignInInput {
   readonly email: string
@@ -89,5 +90,3 @@ export class SignInUseCase {
     return new AuthenticationFailedError('That email and password do not match an account.')
   }
 }
-
-import { Inject, Injectable } from '@nestjs/common'

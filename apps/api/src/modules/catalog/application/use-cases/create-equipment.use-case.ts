@@ -7,6 +7,7 @@ import type {
 import { fromKilograms } from '@gym/domain/measurement/value-objects/grams.vo'
 import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
 import { Id } from '@gym/domain/shared/value-objects/id.vo'
+import { Inject, Injectable } from '@nestjs/common'
 
 export interface CreateEquipmentInput {
   readonly userId: string
@@ -49,5 +50,3 @@ export class CreateEquipmentUseCase {
     return active
   }
 }
-
-import { Inject, Injectable } from '@nestjs/common'

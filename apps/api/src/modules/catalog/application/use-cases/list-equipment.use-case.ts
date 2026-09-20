@@ -9,6 +9,7 @@ import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
 import type { Page } from '@gym/domain/shared/value-objects/page.vo'
 import { Pagination } from '@gym/domain/shared/value-objects/pagination.vo'
 import { QueryOptions } from '@gym/domain/shared/value-objects/query-options.vo'
+import { Inject, Injectable } from '@nestjs/common'
 
 export interface ListEquipmentInput {
   readonly userId: string
@@ -36,5 +37,3 @@ export class ListEquipmentUseCase {
     )
   }
 }
-
-import { Inject, Injectable } from '@nestjs/common'

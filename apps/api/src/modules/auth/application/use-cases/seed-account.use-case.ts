@@ -7,6 +7,7 @@ import type {
   UserRepository,
 } from '@gym/domain/auth/repositories/user.repository'
 import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
+import { Inject, Injectable } from '@nestjs/common'
 
 export interface SeedAccountInput {
   readonly email: string
@@ -41,5 +42,3 @@ export class SeedAccountUseCase {
     await this.users.save(user)
   }
 }
-
-import { Inject, Injectable } from '@nestjs/common'

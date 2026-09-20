@@ -6,6 +6,7 @@ import type {
   ExerciseRepository,
 } from '@gym/domain/catalog/repositories/exercise.repository'
 import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
+import { Inject, Injectable } from '@nestjs/common'
 
 export interface RenameExerciseInput {
   readonly userId: string
@@ -33,5 +34,3 @@ export class RenameExerciseUseCase {
     return renamed
   }
 }
-
-import { Inject, Injectable } from '@nestjs/common'

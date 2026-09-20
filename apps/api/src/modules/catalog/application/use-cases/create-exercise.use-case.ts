@@ -7,6 +7,7 @@ import type {
 import type { MeasurementMode } from '@gym/domain/measurement/value-objects/load-entry.vo'
 import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
 import { Id } from '@gym/domain/shared/value-objects/id.vo'
+import { Inject, Injectable } from '@nestjs/common'
 
 export interface CreateExerciseInput {
   readonly userId: string
@@ -47,5 +48,3 @@ export class CreateExerciseUseCase {
     return active
   }
 }
-
-import { Inject, Injectable } from '@nestjs/common'

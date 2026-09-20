@@ -7,6 +7,7 @@ import type {
   ExerciseRepository,
 } from '@gym/domain/catalog/repositories/exercise.repository'
 import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
+import { Inject, Injectable } from '@nestjs/common'
 
 export interface ArchiveExerciseInput {
   readonly userId: string
@@ -38,5 +39,3 @@ export class ArchiveExerciseUseCase {
     return archived
   }
 }
-
-import { Inject, Injectable } from '@nestjs/common'
