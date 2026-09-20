@@ -105,12 +105,12 @@
 - [x] 7b.3 Presentation endpoint accepting batches
 - [x] 7b.4 Test: the same set delivered twice produces exactly one row
 
-## Slice 8a — Offline repository adapter (~220 lines)
+## Slice 8a — Offline repository adapter (~220 lines) ✅ awaiting review
 
-- [ ] 8a.1 `IndexedDbSetRepository` implementing the **same `SetRepository` port** as Drizzle
-- [ ] 8a.2 Client-side UUIDv7 generation at log time
-- [ ] 8a.3 Pending-writes-only discipline; history is never stored in the queue
-- [ ] 8a.4 Tests against the port contract, shared with the Drizzle implementation
+- [x] 8a.1 `IndexedDbSetRepository` implementing the **same `SetRepository` port** as Drizzle
+- [x] 8a.2 Client-side UUIDv7 generation at log time — in `LogSetOfflineUseCase`, via `Id.createAt`
+- [x] 8a.3 Pending-writes-only discipline; history is never stored in the queue
+- [x] 8a.4 Tests against the port contract, shared with the Drizzle implementation
 
 ## Slice 8b — Sync orchestration (~240 lines)
 

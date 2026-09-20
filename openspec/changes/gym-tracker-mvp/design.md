@@ -292,6 +292,8 @@ All arithmetic is integer grams. Display conversion happens at the edge only.
 
 **Flow**: log → write to IndexedDB and render immediately → enqueue → on connectivity, `POST` batches → server upserts by primary key → on confirmation, mark synced and drop from the queue.
 
+**The port owns its contract.** `describeSetRepositoryContract` lives in `packages/domain` beside `SetRepository` and is run by both adapters' test suites. A behaviour only one of them has is a behaviour synchronisation cannot rely on, so the suite pins what both promise and nothing else: delete is in it because both hide the set from every read, while the tombstone that stops a replayed create resurrecting it is Postgres-only and tested there.
+
 **Conflict strategy**: **there is effectively no conflict to resolve.** Sets are append-only facts authored by one user on one device at a time. The realistic failure is not divergent edits but *duplicate delivery* — a set that arrived while its acknowledgement was lost. Client-generated ids make the server write idempotent: the second delivery is an upsert onto the same row, satisfying the spec's "exactly one set" scenario.
 
 For the rarer edit/delete case, each set carries a `client_revision` counter and last-write-wins by `(client_revision, logged_at)`. Deletes are tombstoned rather than removed, so a delete cannot be resurrected by a replayed create.
