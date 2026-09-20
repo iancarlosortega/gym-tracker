@@ -336,6 +336,12 @@ For the rarer edit/delete case, each set carries a `client_revision` counter and
 
 **The repository returns sets, never sums.** Which sets count towards a mass is a domain rule; a SQL `SUM` that included a stack position would be a second implementation of RK1, living where nobody would look for it. The database narrows by owner and period, the domain decides what counts.
 
+**Progress is weight or repetitions.** The set representing a week is the heaviest, ties broken by the most repetitions, and each point carries both. More load at any repetitions is progress; the same load for more of them is progress. Ordinal exercises are covered by the same rule, which matters most there — a machine at the same pin for more repetitions is one of only two ways that exercise can improve at all.
+
+**Sets, not tonnage, lead the week.** A set counts the same whatever scale measured it, so the headline figure needs no exclusion notice. Plan completion is null rather than zero for a week nobody followed a routine in: there was nothing to fall short of.
+
+**A mass series is a line; an ordinal series is bars.** Kilograms are continuous and the slope between two weeks is a real quantity. Pin positions step between stacks, and a line between them would claim a position of six and a half exists.
+
 **One series per mode, never one line.** A progression splits by measurement mode and reports the changes between them separately. A chart whose axis turns from kilograms into pin positions is two questions drawn as one trend. The best set of a week represents the week; an average is dragged down by warm-ups.
 
 ---
