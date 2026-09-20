@@ -1,5 +1,10 @@
-import { DrizzleRepository, type SortColumns } from '@api/common/persistence/drizzle.repository.js'
+import {
+  type Database,
+  DrizzleRepository,
+  type SortColumns,
+} from '@api/common/persistence/drizzle.repository.js'
 import { type CriteriaConditions, where } from '@api/common/persistence/drizzle-criteria.js'
+import { DATABASE } from '@api/database/database.module.js'
 import { loggedSet } from '@api/database/schema/logged-set.table.js'
 import type { LoggedSet } from '@gym/domain/measurement/entities/logged-set.entity'
 import type {
@@ -8,15 +13,21 @@ import type {
   SetSortField,
 } from '@gym/domain/measurement/repositories/set.repository'
 import type { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
+import { Inject, Injectable } from '@nestjs/common'
 import { eq, isNull, type SQL, sql } from 'drizzle-orm'
 import { setMapper } from './set.mapper.js'
 
 type LoggedSetRow = typeof loggedSet.$inferSelect
 
+@Injectable()
 export class DrizzleSetRepository
   extends DrizzleRepository<LoggedSet, LoggedSetRow, SetCriteriaFields, SetSortField>
   implements SetRepository
 {
+  constructor(@Inject(DATABASE) database: Database) {
+    super(database)
+  }
+
   protected readonly table = loggedSet
 
   protected readonly conditions: CriteriaConditions<SetCriteriaFields> = {
