@@ -57,5 +57,6 @@ import { Module } from '@nestjs/common'
     ReorderRoutineUseCase,
     ChangeRoutineEntryUseCase,
   ],
+  exports: [ROUTINE_REPOSITORY],
 })
 export class RoutinesModule {}
