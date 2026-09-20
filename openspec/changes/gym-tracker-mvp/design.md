@@ -330,6 +330,16 @@ For the rarer edit/delete case, each set carries a `client_revision` counter and
 
 ---
 
+## 4.5 Statistics
+
+**The exclusion count is part of the figure's type.** `MassAggregate` carries `excludedSets` on both branches, so a caller cannot obtain a total volume without also being handed the number of ordinal sets it could not include. The spec's disclosure requirement is enforced by the compiler rather than by whoever writes the next view.
+
+**The repository returns sets, never sums.** Which sets count towards a mass is a domain rule; a SQL `SUM` that included a stack position would be a second implementation of RK1, living where nobody would look for it. The database narrows by owner and period, the domain decides what counts.
+
+**One series per mode, never one line.** A progression splits by measurement mode and reports the changes between them separately. A chart whose axis turns from kilograms into pin positions is two questions drawn as one trend. The best set of a week represents the week; an average is dragged down by warm-ups.
+
+---
+
 ## 5. VPS topology and co-tenancy
 
 **Decision**: one Hetzner CX22-class box (2 vCPU / 4 GB), Docker Compose per application, **Caddy** as the shared reverse proxy, one shared Postgres server with a database and role per application.

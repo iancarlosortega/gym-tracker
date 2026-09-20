@@ -161,15 +161,15 @@ names the slice it belongs to and what has to be true before it can be run.
 - [ ] DV.3 (10.3) **The screen stays awake for a full rest on the device**, and dims again once the countdown ends.
 - [ ] DV.4 (8a/8b) **Offline capture on the real device**: log sets in airplane mode, close the app, reopen it still offline, then restore connectivity and confirm the queue drains exactly once.
 
-## Slice 12 — Statistics (~380 lines)
+## Slice 12 — Statistics (~380 lines) ✅ awaiting review, except the web page
 
-- [ ] 12.1 Domain: `progression()` and aggregate services; `StatisticsRepository` port
-- [ ] 12.2 Mass aggregates exclude every `STACK_POSITION` set
-- [ ] 12.3 All-ordinal period returns "not applicable" rather than zero
-- [ ] 12.4 Excluded-set count disclosed alongside every mass aggregate
-- [ ] 12.5 Week-over-week within one exercise and one mode; mode changes reported, not drawn as a continuous trend
-- [ ] 12.6 Presentation: per-exercise progression views, ordinal series labelled as plate positions
-- [ ] 12.7 Tests for 12.2–12.5
+- [x] 12.1 Domain: `progression()` and aggregate services; `StatisticsRepository` port
+- [x] 12.2 Mass aggregates exclude every `STACK_POSITION` set
+- [x] 12.3 All-ordinal period returns "not applicable" rather than zero
+- [x] 12.4 Excluded-set count disclosed alongside every mass aggregate — carried in the type, so the figure cannot be read without it
+- [x] 12.5 Week-over-week within one exercise and one mode; mode changes reported, not drawn as a continuous trend
+- [x] 12.6 Presentation: per-exercise progression views, ordinal series labelled as plate positions — **API views done**; the web statistics page is page-level work and goes through design options first
+- [x] 12.7 Tests for 12.2–12.5
 
 ## Slice 13 — Recompute history (~320 lines)
 
