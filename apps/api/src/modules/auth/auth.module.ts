@@ -49,6 +49,6 @@ import { APP_GUARD } from '@nestjs/core'
     ValidateSessionUseCase,
     { provide: APP_GUARD, useClass: SessionGuard },
   ],
-  exports: [SeedAccountUseCase],
+  exports: [SeedAccountUseCase, USER_REPOSITORY],
 })
 export class AuthModule {}
