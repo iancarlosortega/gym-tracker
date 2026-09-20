@@ -1,3 +1,4 @@
+import { EQUIPMENT_REPOSITORY } from '@api/modules/catalog/catalog.tokens.js'
 import type { Equipment, EquipmentKind } from '@gym/domain/catalog/entities/equipment.entity'
 import type {
   EquipmentCriteriaFields,
@@ -17,8 +18,9 @@ export interface ListEquipmentInput {
   readonly offset?: number | undefined
 }
 
+@Injectable()
 export class ListEquipmentUseCase {
-  constructor(private readonly equipment: EquipmentRepository) {}
+  constructor(@Inject(EQUIPMENT_REPOSITORY) private readonly equipment: EquipmentRepository) {}
 
   async execute(input: ListEquipmentInput): Promise<Page<Equipment>> {
     const criteria = Criteria.create<EquipmentCriteriaFields>({
@@ -34,3 +36,5 @@ export class ListEquipmentUseCase {
     )
   }
 }
+
+import { Inject, Injectable } from '@nestjs/common'

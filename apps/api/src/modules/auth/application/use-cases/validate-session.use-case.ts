@@ -1,3 +1,9 @@
+import {
+  CLOCK,
+  SESSION_POLICY,
+  SESSION_REPOSITORY,
+  USER_REPOSITORY,
+} from '@api/modules/auth/auth.tokens.js'
 import type { AuthSession } from '@gym/domain/auth/entities/auth-session.entity'
 import type { User } from '@gym/domain/auth/entities/user.entity'
 import type { Clock } from '@gym/domain/auth/ports/clock.port'
@@ -10,6 +16,7 @@ import type {
   UserRepository,
 } from '@gym/domain/auth/repositories/user.repository'
 import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
+import { Inject, Injectable } from '@nestjs/common'
 import type { SessionPolicy } from './sign-in.use-case.js'
 
 export interface AuthenticatedCaller {
@@ -19,12 +26,13 @@ export interface AuthenticatedCaller {
   readonly renewed: boolean
 }
 
+@Injectable()
 export class ValidateSessionUseCase {
   constructor(
-    private readonly users: UserRepository,
-    private readonly sessions: AuthSessionRepository,
-    private readonly clock: Clock,
-    private readonly policy: SessionPolicy,
+    @Inject(USER_REPOSITORY) private readonly users: UserRepository,
+    @Inject(SESSION_REPOSITORY) private readonly sessions: AuthSessionRepository,
+    @Inject(CLOCK) private readonly clock: Clock,
+    @Inject(SESSION_POLICY) private readonly policy: SessionPolicy,
   ) {}
 
   /**

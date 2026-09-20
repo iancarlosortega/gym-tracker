@@ -1,3 +1,4 @@
+import { EXERCISE_REPOSITORY } from '@api/modules/catalog/catalog.tokens.js'
 import { Exercise } from '@gym/domain/catalog/entities/exercise.entity'
 import type {
   ExerciseCriteriaFields,
@@ -13,8 +14,9 @@ export interface CreateExerciseInput {
   readonly defaultMode: MeasurementMode
 }
 
+@Injectable()
 export class CreateExerciseUseCase {
-  constructor(private readonly exercises: ExerciseRepository) {}
+  constructor(@Inject(EXERCISE_REPOSITORY) private readonly exercises: ExerciseRepository) {}
 
   async execute(input: CreateExerciseInput): Promise<Exercise> {
     const exercise = Exercise.create({
@@ -45,3 +47,5 @@ export class CreateExerciseUseCase {
     return active
   }
 }
+
+import { Inject, Injectable } from '@nestjs/common'

@@ -1,3 +1,4 @@
+import { CLOCK, EXERCISE_REPOSITORY } from '@api/modules/catalog/catalog.tokens.js'
 import type { Clock } from '@gym/domain/auth/ports/clock.port'
 import type { Exercise } from '@gym/domain/catalog/entities/exercise.entity'
 import { ExerciseNotFoundError } from '@gym/domain/catalog/errors'
@@ -12,10 +13,11 @@ export interface ArchiveExerciseInput {
   readonly exerciseId: string
 }
 
+@Injectable()
 export class ArchiveExerciseUseCase {
   constructor(
-    private readonly exercises: ExerciseRepository,
-    private readonly clock: Clock,
+    @Inject(EXERCISE_REPOSITORY) private readonly exercises: ExerciseRepository,
+    @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
   /**
@@ -36,3 +38,5 @@ export class ArchiveExerciseUseCase {
     return archived
   }
 }
+
+import { Inject, Injectable } from '@nestjs/common'

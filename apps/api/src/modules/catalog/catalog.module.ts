@@ -1,5 +1,3 @@
-import type { Database } from '@api/common/persistence/drizzle.repository.js'
-import { DATABASE } from '@api/database/database.module.js'
 import { SystemClock } from '@api/modules/auth/infrastructure/adapters/system-clock.adapter.js'
 import { ArchiveEquipmentUseCase } from '@api/modules/catalog/application/use-cases/archive-equipment.use-case.js'
 import { ArchiveExerciseUseCase } from '@api/modules/catalog/application/use-cases/archive-exercise.use-case.js'
@@ -10,6 +8,11 @@ import { ListEquipmentUseCase } from '@api/modules/catalog/application/use-cases
 import { ListExercisesUseCase } from '@api/modules/catalog/application/use-cases/list-exercises.use-case.js'
 import { RenameEquipmentUseCase } from '@api/modules/catalog/application/use-cases/rename-equipment.use-case.js'
 import { RenameExerciseUseCase } from '@api/modules/catalog/application/use-cases/rename-exercise.use-case.js'
+import {
+  CLOCK,
+  EQUIPMENT_REPOSITORY,
+  EXERCISE_REPOSITORY,
+} from '@api/modules/catalog/catalog.tokens.js'
 import { DrizzleEquipmentRepository } from '@api/modules/catalog/infrastructure/persistence/drizzle-equipment.repository.js'
 import { DrizzleExerciseRepository } from '@api/modules/catalog/infrastructure/persistence/drizzle-exercise.repository.js'
 import { ArchiveEquipmentController } from '@api/modules/catalog/presentation/archive-equipment/archive-equipment.controller.js'
@@ -23,10 +26,12 @@ import { RenameEquipmentController } from '@api/modules/catalog/presentation/ren
 import { RenameExerciseController } from '@api/modules/catalog/presentation/rename-exercise/rename-exercise.controller.js'
 import { Module } from '@nestjs/common'
 
-const EXERCISE_REPOSITORY = Symbol('EXERCISE_REPOSITORY')
-const EQUIPMENT_REPOSITORY = Symbol('EQUIPMENT_REPOSITORY')
-const CLOCK = Symbol('CATALOG_CLOCK')
-
+/**
+ * Composition root for the catalog.
+ *
+ * Every port is bound to its adapter here and nowhere else; the use cases
+ * declare the token they need and Nest builds them.
+ */
 @Module({
   controllers: [
     CreateExerciseController,
@@ -41,74 +46,17 @@ const CLOCK = Symbol('CATALOG_CLOCK')
   ],
   providers: [
     { provide: CLOCK, useClass: SystemClock },
-    {
-      provide: EXERCISE_REPOSITORY,
-      inject: [DATABASE],
-      useFactory: (database: Database) => new DrizzleExerciseRepository(database),
-    },
-    {
-      provide: CreateExerciseUseCase,
-      inject: [EXERCISE_REPOSITORY],
-      useFactory: (repository: ConstructorParameters<typeof CreateExerciseUseCase>[0]) =>
-        new CreateExerciseUseCase(repository),
-    },
-    {
-      provide: RenameExerciseUseCase,
-      inject: [EXERCISE_REPOSITORY],
-      useFactory: (repository: ConstructorParameters<typeof RenameExerciseUseCase>[0]) =>
-        new RenameExerciseUseCase(repository),
-    },
-    {
-      provide: ArchiveExerciseUseCase,
-      inject: [EXERCISE_REPOSITORY, CLOCK],
-      useFactory: (
-        repository: ConstructorParameters<typeof ArchiveExerciseUseCase>[0],
-        clock: ConstructorParameters<typeof ArchiveExerciseUseCase>[1],
-      ) => new ArchiveExerciseUseCase(repository, clock),
-    },
-    {
-      provide: EQUIPMENT_REPOSITORY,
-      inject: [DATABASE],
-      useFactory: (database: Database) => new DrizzleEquipmentRepository(database),
-    },
-    {
-      provide: CreateEquipmentUseCase,
-      inject: [EQUIPMENT_REPOSITORY],
-      useFactory: (repository: ConstructorParameters<typeof CreateEquipmentUseCase>[0]) =>
-        new CreateEquipmentUseCase(repository),
-    },
-    {
-      provide: RenameEquipmentUseCase,
-      inject: [EQUIPMENT_REPOSITORY],
-      useFactory: (repository: ConstructorParameters<typeof RenameEquipmentUseCase>[0]) =>
-        new RenameEquipmentUseCase(repository),
-    },
-    {
-      provide: CorrectBarWeightUseCase,
-      inject: [EQUIPMENT_REPOSITORY],
-      useFactory: (repository: ConstructorParameters<typeof CorrectBarWeightUseCase>[0]) =>
-        new CorrectBarWeightUseCase(repository),
-    },
-    {
-      provide: ArchiveEquipmentUseCase,
-      inject: [EQUIPMENT_REPOSITORY, CLOCK],
-      useFactory: (
-        repository: ConstructorParameters<typeof ArchiveEquipmentUseCase>[0],
-        clock: ConstructorParameters<typeof ArchiveEquipmentUseCase>[1],
-      ) => new ArchiveEquipmentUseCase(repository, clock),
-    },
-    {
-      provide: ListEquipmentUseCase,
-      inject: [EQUIPMENT_REPOSITORY],
-      useFactory: (repository: ConstructorParameters<typeof ListEquipmentUseCase>[0]) =>
-        new ListEquipmentUseCase(repository),
-    },
-    {
-      provide: ListExercisesUseCase,
-      inject: [EXERCISE_REPOSITORY],
-      useFactory: (repository: ConstructorParameters<typeof ListExercisesUseCase>[0]) =>
-        new ListExercisesUseCase(repository),
-    },
+    { provide: EXERCISE_REPOSITORY, useClass: DrizzleExerciseRepository },
+    { provide: EQUIPMENT_REPOSITORY, useClass: DrizzleEquipmentRepository },
+    CreateExerciseUseCase,
+    RenameExerciseUseCase,
+    ArchiveExerciseUseCase,
+    ListExercisesUseCase,
+    CreateEquipmentUseCase,
+    RenameEquipmentUseCase,
+    CorrectBarWeightUseCase,
+    ArchiveEquipmentUseCase,
+    ListEquipmentUseCase,
   ],
 })
 export class CatalogModule {}

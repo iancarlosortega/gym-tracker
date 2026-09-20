@@ -1,3 +1,4 @@
+import { EXERCISE_REPOSITORY } from '@api/modules/catalog/catalog.tokens.js'
 import type { Exercise } from '@gym/domain/catalog/entities/exercise.entity'
 import { ExerciseNotFoundError } from '@gym/domain/catalog/errors'
 import type {
@@ -12,8 +13,9 @@ export interface RenameExerciseInput {
   readonly name: string
 }
 
+@Injectable()
 export class RenameExerciseUseCase {
-  constructor(private readonly exercises: ExerciseRepository) {}
+  constructor(@Inject(EXERCISE_REPOSITORY) private readonly exercises: ExerciseRepository) {}
 
   async execute(input: RenameExerciseInput): Promise<Exercise> {
     const exercise = await this.exercises.findOne(
@@ -31,3 +33,5 @@ export class RenameExerciseUseCase {
     return renamed
   }
 }
+
+import { Inject, Injectable } from '@nestjs/common'

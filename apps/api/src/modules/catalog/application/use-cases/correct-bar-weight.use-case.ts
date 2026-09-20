@@ -1,6 +1,8 @@
+import { EQUIPMENT_REPOSITORY } from '@api/modules/catalog/catalog.tokens.js'
 import type { Equipment } from '@gym/domain/catalog/entities/equipment.entity'
 import type { EquipmentRepository } from '@gym/domain/catalog/repositories/equipment.repository'
 import { fromKilograms } from '@gym/domain/measurement/value-objects/grams.vo'
+import { Inject, Injectable } from '@nestjs/common'
 import { findOwnedEquipment } from './find-equipment.js'
 
 export interface CorrectBarWeightInput {
@@ -9,8 +11,9 @@ export interface CorrectBarWeightInput {
   readonly barKilograms: number
 }
 
+@Injectable()
 export class CorrectBarWeightUseCase {
-  constructor(private readonly equipment: EquipmentRepository) {}
+  constructor(@Inject(EQUIPMENT_REPOSITORY) private readonly equipment: EquipmentRepository) {}
 
   /**
    * Correcting the bar weight applies to sets logged from now on.

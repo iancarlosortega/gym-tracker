@@ -1,3 +1,4 @@
+import { PASSWORD_HASHER, USER_REPOSITORY } from '@api/modules/auth/auth.tokens.js'
 import { User } from '@gym/domain/auth/entities/user.entity'
 import { AccountAlreadyExistsError } from '@gym/domain/auth/errors'
 import type { PasswordHasher } from '@gym/domain/auth/ports/password-hasher.port'
@@ -19,10 +20,11 @@ export interface SeedAccountInput {
  * account is seeded once by an operator command rather than exposed as an
  * endpoint anyone can reach.
  */
+@Injectable()
 export class SeedAccountUseCase {
   constructor(
-    private readonly users: UserRepository,
-    private readonly hasher: PasswordHasher,
+    @Inject(USER_REPOSITORY) private readonly users: UserRepository,
+    @Inject(PASSWORD_HASHER) private readonly hasher: PasswordHasher,
   ) {}
 
   async execute(input: SeedAccountInput): Promise<void> {
@@ -39,3 +41,5 @@ export class SeedAccountUseCase {
     await this.users.save(user)
   }
 }
+
+import { Inject, Injectable } from '@nestjs/common'

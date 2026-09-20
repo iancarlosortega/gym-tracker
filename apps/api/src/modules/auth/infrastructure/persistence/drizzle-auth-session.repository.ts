@@ -1,15 +1,18 @@
+import { DATABASE } from '@api/database/database.module.js'
 import { authSession } from '@api/database/schema/session.table.js'
 import type { AuthSession } from '@gym/domain/auth/entities/auth-session.entity'
 import type {
   AuthSessionCriteria,
   AuthSessionRepository,
 } from '@gym/domain/auth/repositories/auth-session.repository'
+import { Inject, Injectable } from '@nestjs/common'
 import { and, eq, type SQL } from 'drizzle-orm'
 import { authSessionMapper } from './auth-session.mapper.js'
 import type { AuthDatabase } from './drizzle-user.repository.js'
 
+@Injectable()
 export class DrizzleAuthSessionRepository implements AuthSessionRepository {
-  constructor(private readonly database: AuthDatabase) {}
+  constructor(@Inject(DATABASE) private readonly database: AuthDatabase) {}
 
   async save(session: AuthSession): Promise<void> {
     const row = authSessionMapper.toRow(session)

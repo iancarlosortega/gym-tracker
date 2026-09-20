@@ -1,3 +1,10 @@
+import {
+  CLOCK,
+  PASSWORD_HASHER,
+  SESSION_POLICY,
+  SESSION_REPOSITORY,
+  USER_REPOSITORY,
+} from '@api/modules/auth/auth.tokens.js'
 import { AuthSession } from '@gym/domain/auth/entities/auth-session.entity'
 import { AuthenticationFailedError } from '@gym/domain/auth/errors'
 import type { Clock } from '@gym/domain/auth/ports/clock.port'
@@ -24,13 +31,14 @@ export interface SessionPolicy {
   readonly sessionLifetimeDays: number
 }
 
+@Injectable()
 export class SignInUseCase {
   constructor(
-    private readonly users: UserRepository,
-    private readonly sessions: AuthSessionRepository,
-    private readonly hasher: PasswordHasher,
-    private readonly clock: Clock,
-    private readonly policy: SessionPolicy,
+    @Inject(USER_REPOSITORY) private readonly users: UserRepository,
+    @Inject(SESSION_REPOSITORY) private readonly sessions: AuthSessionRepository,
+    @Inject(PASSWORD_HASHER) private readonly hasher: PasswordHasher,
+    @Inject(CLOCK) private readonly clock: Clock,
+    @Inject(SESSION_POLICY) private readonly policy: SessionPolicy,
   ) {}
 
   /**
@@ -81,3 +89,5 @@ export class SignInUseCase {
     return new AuthenticationFailedError('That email and password do not match an account.')
   }
 }
+
+import { Inject, Injectable } from '@nestjs/common'

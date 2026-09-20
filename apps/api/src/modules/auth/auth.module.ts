@@ -1,16 +1,20 @@
 import type { EnvironmentVariables } from '@api/config/environment.schema.js'
-import { DATABASE } from '@api/database/database.module.js'
 import { SeedAccountUseCase } from '@api/modules/auth/application/use-cases/seed-account.use-case.js'
+import type { SessionPolicy } from '@api/modules/auth/application/use-cases/sign-in.use-case.js'
 import { SignInUseCase } from '@api/modules/auth/application/use-cases/sign-in.use-case.js'
 import { SignOutUseCase } from '@api/modules/auth/application/use-cases/sign-out.use-case.js'
 import { ValidateSessionUseCase } from '@api/modules/auth/application/use-cases/validate-session.use-case.js'
+import {
+  CLOCK,
+  PASSWORD_HASHER,
+  SESSION_POLICY,
+  SESSION_REPOSITORY,
+  USER_REPOSITORY,
+} from '@api/modules/auth/auth.tokens.js'
 import { Argon2Hasher } from '@api/modules/auth/infrastructure/adapters/argon2-hasher.adapter.js'
 import { SystemClock } from '@api/modules/auth/infrastructure/adapters/system-clock.adapter.js'
 import { DrizzleAuthSessionRepository } from '@api/modules/auth/infrastructure/persistence/drizzle-auth-session.repository.js'
-import {
-  type AuthDatabase,
-  DrizzleUserRepository,
-} from '@api/modules/auth/infrastructure/persistence/drizzle-user.repository.js'
+import { DrizzleUserRepository } from '@api/modules/auth/infrastructure/persistence/drizzle-user.repository.js'
 import { MeController } from '@api/modules/auth/presentation/me/me.controller.js'
 import { SessionGuard } from '@api/modules/auth/presentation/session.guard.js'
 import { SignInController } from '@api/modules/auth/presentation/sign-in/sign-in.controller.js'
@@ -18,11 +22,6 @@ import { SignOutController } from '@api/modules/auth/presentation/sign-out/sign-
 import { Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
-
-const USER_REPOSITORY = Symbol('USER_REPOSITORY')
-const SESSION_REPOSITORY = Symbol('SESSION_REPOSITORY')
-const PASSWORD_HASHER = Symbol('PASSWORD_HASHER')
-const CLOCK = Symbol('CLOCK')
 
 /**
  * Composition root for authentication.
@@ -35,57 +34,19 @@ const CLOCK = Symbol('CLOCK')
   providers: [
     { provide: PASSWORD_HASHER, useClass: Argon2Hasher },
     { provide: CLOCK, useClass: SystemClock },
+    { provide: USER_REPOSITORY, useClass: DrizzleUserRepository },
+    { provide: SESSION_REPOSITORY, useClass: DrizzleAuthSessionRepository },
     {
-      provide: USER_REPOSITORY,
-      inject: [DATABASE],
-      useFactory: (database: AuthDatabase) => new DrizzleUserRepository(database),
+      provide: SESSION_POLICY,
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<EnvironmentVariables, true>): SessionPolicy => ({
+        sessionLifetimeDays: config.get('SESSION_LIFETIME_DAYS', { infer: true }),
+      }),
     },
-    {
-      provide: SESSION_REPOSITORY,
-      inject: [DATABASE],
-      useFactory: (database: AuthDatabase) => new DrizzleAuthSessionRepository(database),
-    },
-    {
-      provide: SignInUseCase,
-      inject: [USER_REPOSITORY, SESSION_REPOSITORY, PASSWORD_HASHER, CLOCK, ConfigService],
-      useFactory: (
-        users: ConstructorParameters<typeof SignInUseCase>[0],
-        sessions: ConstructorParameters<typeof SignInUseCase>[1],
-        hasher: ConstructorParameters<typeof SignInUseCase>[2],
-        clock: ConstructorParameters<typeof SignInUseCase>[3],
-        config: ConfigService<EnvironmentVariables, true>,
-      ) =>
-        new SignInUseCase(users, sessions, hasher, clock, {
-          sessionLifetimeDays: config.get('SESSION_LIFETIME_DAYS', { infer: true }),
-        }),
-    },
-    {
-      provide: SignOutUseCase,
-      inject: [SESSION_REPOSITORY],
-      useFactory: (sessions: ConstructorParameters<typeof SignOutUseCase>[0]) =>
-        new SignOutUseCase(sessions),
-    },
-    {
-      provide: SeedAccountUseCase,
-      inject: [USER_REPOSITORY, PASSWORD_HASHER],
-      useFactory: (
-        users: ConstructorParameters<typeof SeedAccountUseCase>[0],
-        hasher: ConstructorParameters<typeof SeedAccountUseCase>[1],
-      ) => new SeedAccountUseCase(users, hasher),
-    },
-    {
-      provide: ValidateSessionUseCase,
-      inject: [USER_REPOSITORY, SESSION_REPOSITORY, CLOCK, ConfigService],
-      useFactory: (
-        users: ConstructorParameters<typeof ValidateSessionUseCase>[0],
-        sessions: ConstructorParameters<typeof ValidateSessionUseCase>[1],
-        clock: ConstructorParameters<typeof ValidateSessionUseCase>[2],
-        config: ConfigService<EnvironmentVariables, true>,
-      ) =>
-        new ValidateSessionUseCase(users, sessions, clock, {
-          sessionLifetimeDays: config.get('SESSION_LIFETIME_DAYS', { infer: true }),
-        }),
-    },
+    SignInUseCase,
+    SignOutUseCase,
+    SeedAccountUseCase,
+    ValidateSessionUseCase,
     { provide: APP_GUARD, useClass: SessionGuard },
   ],
   exports: [SeedAccountUseCase],
