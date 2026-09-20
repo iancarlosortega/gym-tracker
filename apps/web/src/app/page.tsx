@@ -1,3 +1,3 @@
-export default function HomePage() {
-  return <main>Gym Tracker</main>
-}
+const HomePage = () => <main className="p-4">Gym Tracker</main>
+
+export default HomePage
