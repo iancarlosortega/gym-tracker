@@ -143,12 +143,23 @@
 - [x] 11a.4 `WebPushSender` adapter with VAPID configuration — the keys are optional, so a deployment without them still runs the foreground timer
 - [x] 11a.5 Tests: dismissal cancels; a restart does not drop a pending push
 
-## Slice 11b — Subscriptions and disclosure (~200 lines) ⚠️ carries AR3
+## Slice 11b — Subscriptions and disclosure (~200 lines) ⚠️ carries AR3 ✅ awaiting review, except the device test
 
-- [ ] 11b.1 Push subscription registration stored per user
-- [ ] 11b.2 `410`/`404` from the push service marks the subscription invalid
-- [ ] 11b.3 Disclosure UI: not installed, permission denied, or subscription invalid
-- [ ] 11b.4 **Physical iPhone test: rest alert arrives with the app backgrounded and the phone locked.** Record the result; this slice does not close on unit tests alone.
+- [x] 11b.1 Push subscription registration stored per user
+- [x] 11b.2 `410`/`404` from the push service marks the subscription invalid
+- [x] 11b.3 Disclosure UI: not installed, permission denied, or subscription invalid
+- [ ] 11b.4 **Physical iPhone test: rest alert arrives with the app backgrounded and the phone locked.** → deferred to **Device verification**, below. This slice does not close until it is recorded.
+
+## Device verification — deferred to the end ⚠️ nothing here closes on unit tests
+
+Everything that can only be proven on real hardware, collected here by the
+user's decision rather than blocking the slice that produced it. Each item
+names the slice it belongs to and what has to be true before it can be run.
+
+- [ ] DV.1 (11b.4) **Rest alert arrives with the app backgrounded and the iPhone locked.** Needs: VAPID keys generated (`npx web-push generate-vapid-keys`), `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` set on an API served over HTTPS, the app added to the home screen, then a real rest started and the phone locked. Record the result here.
+- [ ] DV.2 (9.2) **Home-screen install shows the app icon and opens standalone.** The SVG icons are placeholders; a designed PNG set and an `apple-touch-icon` are still outstanding.
+- [ ] DV.3 (10.3) **The screen stays awake for a full rest on the device**, and dims again once the countdown ends.
+- [ ] DV.4 (8a/8b) **Offline capture on the real device**: log sets in airplane mode, close the app, reopen it still offline, then restore connectivity and confirm the queue drains exactly once.
 
 ## Slice 12 — Statistics (~380 lines)
 
