@@ -1,6 +1,5 @@
 import { DomainExceptionFilter } from '@api/common/filters/domain-exception.filter.js'
 import { SignInUseCase } from '@api/modules/auth/application/use-cases/sign-in.use-case.js'
-import { SignOutUseCase } from '@api/modules/auth/application/use-cases/sign-out.use-case.js'
 import { AuthenticationFailedError } from '@gym/domain/auth/errors'
 import { ConfigService } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
@@ -8,14 +7,12 @@ import type { NestExpressApplication } from '@nestjs/platform-express'
 import { Test } from '@nestjs/testing'
 import request from 'supertest'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { AuthController } from './auth.controller.ts'
+import { SignInController } from './sign-in.controller.ts'
 
 let app: NestExpressApplication
 let signInBehaviour: () => Promise<{ sessionId: string; expiresAt: Date }>
 
-const config = {
-  get: (key: string) => (key === 'SESSION_LIFETIME_DAYS' ? 90 : 'test'),
-}
+const config = { get: (key: string) => (key === 'SESSION_LIFETIME_DAYS' ? 90 : 'test') }
 
 beforeEach(async () => {
   signInBehaviour = async () => ({
@@ -24,13 +21,10 @@ beforeEach(async () => {
   })
 
   const moduleRef = await Test.createTestingModule({
-    controllers: [AuthController],
+    controllers: [SignInController],
     providers: [
       { provide: SignInUseCase, useValue: { execute: () => signInBehaviour() } },
-      { provide: SignOutUseCase, useValue: { execute: async () => undefined } },
       { provide: ConfigService, useValue: config },
-      // The real guard is global; here every route is reachable so the pipe and
-      // filter are what is under test.
       { provide: APP_GUARD, useValue: { canActivate: () => true } },
     ],
   }).compile()
@@ -39,7 +33,7 @@ beforeEach(async () => {
   // No ValidationPipe here: Vitest's transform does not emit the decorator
   // metadata Nest needs to associate @Body() with its DTO class, so the pipe
   // would silently do nothing. The request contract is covered directly in
-  // dto/sign-in.dto.test.ts instead.
+  // sign-in.dto.test.ts instead.
   app.useGlobalFilters(new DomainExceptionFilter())
 
   await app.init()

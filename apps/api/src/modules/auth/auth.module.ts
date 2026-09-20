@@ -11,8 +11,10 @@ import {
   type AuthDatabase,
   DrizzleUserRepository,
 } from '@api/modules/auth/infrastructure/persistence/drizzle-user.repository.js'
-import { AuthController } from '@api/modules/auth/presentation/auth.controller.js'
+import { MeController } from '@api/modules/auth/presentation/me/me.controller.js'
 import { SessionGuard } from '@api/modules/auth/presentation/session.guard.js'
+import { SignInController } from '@api/modules/auth/presentation/sign-in/sign-in.controller.js'
+import { SignOutController } from '@api/modules/auth/presentation/sign-out/sign-out.controller.js'
 import { Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
@@ -29,7 +31,7 @@ const CLOCK = Symbol('CLOCK')
  * layer stays unaware of argon2, Drizzle and the system clock.
  */
 @Module({
-  controllers: [AuthController],
+  controllers: [SignInController, SignOutController, MeController],
   providers: [
     { provide: PASSWORD_HASHER, useClass: Argon2Hasher },
     { provide: CLOCK, useClass: SystemClock },

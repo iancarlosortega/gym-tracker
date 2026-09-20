@@ -18,6 +18,7 @@ import { reps } from '@gym/domain/measurement/value-objects/reps.vo'
 import { stackPosition } from '@gym/domain/measurement/value-objects/stack-position.vo'
 import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
 import { DateRange } from '@gym/domain/shared/value-objects/date-range.vo'
+import { Pagination } from '@gym/domain/shared/value-objects/pagination.vo'
 import { QueryOptions } from '@gym/domain/shared/value-objects/query-options.vo'
 import { drizzle } from 'drizzle-orm/pglite'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -142,16 +143,18 @@ describe('querying by criteria', () => {
   it('filters by session', async () => {
     const found = await repository.findMany(
       Criteria.create<SetCriteriaFields>({ sessionId: references.sessionId }),
+      Pagination.create(),
     )
-    expect(found).toHaveLength(3)
+    expect(found.items).toHaveLength(3)
   })
 
   it('filters by measurement mode', async () => {
     const ordinal = await repository.findMany(
       Criteria.create<SetCriteriaFields>({ mode: 'STACK_POSITION' }),
+      Pagination.create(),
     )
-    expect(ordinal).toHaveLength(1)
-    expect(ordinal[0]?.id).toBe(ids.second)
+    expect(ordinal.items).toHaveLength(1)
+    expect(ordinal.items[0]?.id).toBe(ids.second)
   })
 
   it('filters by a date range, inclusive of its bounds', async () => {
@@ -162,24 +165,28 @@ describe('querying by criteria', () => {
 
     const found = await repository.findMany(
       Criteria.create<SetCriteriaFields>({ loggedBetween: week }),
+      Pagination.create(),
     )
 
-    expect(found.map((set) => set.id)).toEqual([ids.first, ids.second])
+    expect(found.items.map((set) => set.id)).toEqual([ids.first, ids.second])
   })
 
   it('filters by a list of ids', async () => {
     const found = await repository.findMany(
       Criteria.create<SetCriteriaFields>({ ids: [ids.first, ids.third] }),
+      Pagination.create(),
     )
-    expect(found).toHaveLength(2)
+    expect(found.items).toHaveLength(2)
   })
 
   it('orders and limits', async () => {
     const newest = await repository.findMany(
       noCriteria,
-      QueryOptions.none<SetSortField>().orderedBy('loggedAt', 'desc').limitedTo(1),
+      Pagination.create({ limit: 1 }),
+      QueryOptions.none<SetSortField>().orderedBy('loggedAt', 'desc'),
     )
-    expect(newest[0]?.id).toBe(ids.third)
+    expect(newest.items[0]?.id).toBe(ids.third)
+    expect(newest.hasMore).toBe(true)
   })
 
   it('counts with the same criteria it queries with', async () => {

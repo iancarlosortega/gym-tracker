@@ -1,18 +1,51 @@
+import { DrizzleRepository, type SortColumns } from '@api/common/persistence/drizzle.repository.js'
+import { type CriteriaConditions, where } from '@api/common/persistence/drizzle-criteria.js'
 import { loggedSet } from '@api/database/schema/logged-set.table.js'
-import { setMapper } from '@api/modules/measurement/infrastructure/persistence/set.mapper.js'
 import type { LoggedSet } from '@gym/domain/measurement/entities/logged-set.entity'
 import type {
-  SetCriteria,
-  SetQueryOptions,
+  SetCriteriaFields,
   SetRepository,
+  SetSortField,
 } from '@gym/domain/measurement/repositories/set.repository'
-import { and, asc, count, desc, eq, gte, inArray, isNull, lte, type SQL, sql } from 'drizzle-orm'
-import type { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core'
+import type { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
+import { eq, isNull, type SQL, sql } from 'drizzle-orm'
+import { setMapper } from './set.mapper.js'
 
-export type MeasurementDatabase = PgDatabase<PgQueryResultHKT>
+type LoggedSetRow = typeof loggedSet.$inferSelect
 
-export class DrizzleSetRepository implements SetRepository {
-  constructor(private readonly database: MeasurementDatabase) {}
+export class DrizzleSetRepository
+  extends DrizzleRepository<LoggedSet, LoggedSetRow, SetCriteriaFields, SetSortField>
+  implements SetRepository
+{
+  protected readonly table = loggedSet
+
+  protected readonly conditions: CriteriaConditions<SetCriteriaFields> = {
+    id: where.equals(loggedSet.id),
+    ids: where.oneOf(loggedSet.id),
+    sessionId: where.equals(loggedSet.sessionId),
+    exerciseId: where.equals(loggedSet.exerciseId),
+    mode: where.equals(loggedSet.mode),
+    loggedBetween: where.within(loggedSet.loggedAt),
+  }
+
+  protected readonly sortColumns: SortColumns<SetSortField> = {
+    loggedAt: loggedSet.loggedAt,
+  }
+
+  protected toDomain(row: LoggedSetRow): LoggedSet {
+    return setMapper.toDomain(row)
+  }
+
+  /**
+   * A deleted set is tombstoned rather than removed, so every read excludes
+   * tombstones on top of whatever the caller asked for.
+   */
+  protected override where(criteria: Criteria<SetCriteriaFields>): SQL | undefined {
+    const declared = super.where(criteria)
+    const alive = isNull(loggedSet.deletedAt)
+
+    return declared === undefined ? alive : (sql`${alive} AND ${declared}` as SQL)
+  }
 
   async save(set: LoggedSet): Promise<void> {
     await this.saveMany([set])
@@ -31,11 +64,9 @@ export class DrizzleSetRepository implements SetRepository {
       return
     }
 
-    const rows = sets.map((set) => setMapper.toRow(set))
-
     await this.database
       .insert(loggedSet)
-      .values(rows)
+      .values(sets.map((set) => setMapper.toRow(set)))
       .onConflictDoUpdate({
         target: loggedSet.id,
         set: {
@@ -50,92 +81,8 @@ export class DrizzleSetRepository implements SetRepository {
       })
   }
 
-  async findOne(criteria: SetCriteria): Promise<LoggedSet | null> {
-    const rows = await this.database
-      .select()
-      .from(loggedSet)
-      .where(this.toCondition(criteria))
-      .limit(1)
-
-    const row = rows[0]
-    return row === undefined ? null : setMapper.toDomain(row)
-  }
-
-  async findMany(criteria: SetCriteria, options?: SetQueryOptions): Promise<readonly LoggedSet[]> {
-    const query = this.database
-      .select()
-      .from(loggedSet)
-      .where(this.toCondition(criteria))
-      .$dynamic()
-
-    if (options?.orderBy === 'loggedAt') {
-      query.orderBy(
-        options.direction === 'desc' ? desc(loggedSet.loggedAt) : asc(loggedSet.loggedAt),
-      )
-    }
-    if (options?.limit !== null && options?.limit !== undefined) {
-      query.limit(options.limit)
-    }
-    if (options !== undefined && options.offset > 0) {
-      query.offset(options.offset)
-    }
-
-    return (await query).map((row) => setMapper.toDomain(row))
-  }
-
-  async count(criteria: SetCriteria): Promise<number> {
-    const rows = await this.database
-      .select({ total: count() })
-      .from(loggedSet)
-      .where(this.toCondition(criteria))
-
-    return rows[0]?.total ?? 0
-  }
-
   /** Soft delete: a tombstone stops a replayed create from resurrecting the set. */
   async delete(id: string): Promise<void> {
     await this.database.update(loggedSet).set({ deletedAt: new Date() }).where(eq(loggedSet.id, id))
-  }
-
-  /**
-   * Translate the closed criteria into SQL.
-   *
-   * Every branch here corresponds to one declared field, so a filter the
-   * domain never sanctioned cannot reach the database.
-   */
-  private toCondition(criteria: SetCriteria): SQL | undefined {
-    const conditions: SQL[] = [isNull(loggedSet.deletedAt)]
-
-    const id = criteria.get('id')
-    if (id !== undefined) {
-      conditions.push(eq(loggedSet.id, id))
-    }
-
-    const ids = criteria.get('ids')
-    if (ids !== undefined && ids.length > 0) {
-      conditions.push(inArray(loggedSet.id, [...ids]))
-    }
-
-    const sessionId = criteria.get('sessionId')
-    if (sessionId !== undefined) {
-      conditions.push(eq(loggedSet.sessionId, sessionId))
-    }
-
-    const exerciseId = criteria.get('exerciseId')
-    if (exerciseId !== undefined) {
-      conditions.push(eq(loggedSet.exerciseId, exerciseId))
-    }
-
-    const mode = criteria.get('mode')
-    if (mode !== undefined) {
-      conditions.push(eq(loggedSet.mode, mode))
-    }
-
-    const range = criteria.get('loggedBetween')
-    if (range !== undefined) {
-      conditions.push(gte(loggedSet.loggedAt, range.start), lte(loggedSet.loggedAt, range.end))
-    }
-
-    return and(...conditions)
   }
 }
