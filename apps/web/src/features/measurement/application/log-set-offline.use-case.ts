@@ -6,7 +6,7 @@ import type { SetRepository } from '@gym/domain/measurement/repositories/set.rep
 import type { LoadEntry } from '@gym/domain/measurement/value-objects/load-entry.vo'
 import { reps } from '@gym/domain/measurement/value-objects/reps.vo'
 import { Id } from '@gym/domain/shared/value-objects/id.vo'
-import { QueueWriteFailedError } from './queue-write-failed.error.js'
+import { QueueWriteFailedError } from './queue-write-failed.error'
 
 export interface LogSetOfflineInput {
   readonly sessionId: string
