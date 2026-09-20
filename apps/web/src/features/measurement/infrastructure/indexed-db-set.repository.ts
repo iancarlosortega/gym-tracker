@@ -58,7 +58,9 @@ export class IndexedDbSetRepository implements SetRepository {
    *
    * A queue that let a replayed older edit overwrite a newer one would send
    * the stale value on the next drain, and the correction the user made would
-   * be lost on their own device before it ever reached the network.
+   * be lost on their own device before it ever reached the network. Ties are
+   * broken by the moment the set was logged, so the queue and the server
+   * settle a replay identically.
    */
   async saveMany(sets: readonly LoggedSet[]): Promise<void> {
     if (sets.length === 0) {
@@ -69,7 +71,7 @@ export class IndexedDbSetRepository implements SetRepository {
       for (const set of sets) {
         const existing = await request<PendingSetRecord | undefined>(store.get(set.id))
 
-        if (existing === undefined || set.revision >= existing.revision) {
+        if (existing === undefined || wins(set, existing)) {
           store.put(toRecord(set))
         }
       }
@@ -180,6 +182,19 @@ export class IndexedDbSetRepository implements SetRepository {
 
     return await request<IDBDatabase>(opening)
   }
+}
+
+/**
+ * Last write wins by (revision, loggedAt), matching the server's upsert.
+ *
+ * The tuple rather than the revision alone so that two deliveries of the same
+ * set settle the same way whichever order they arrive in.
+ */
+function wins(candidate: LoggedSet, existing: PendingSetRecord): boolean {
+  if (candidate.revision !== existing.revision) {
+    return candidate.revision > existing.revision
+  }
+  return candidate.loggedAt.getTime() >= new Date(existing.loggedAt).getTime()
 }
 
 function request<TResult>(pending: IDBRequest): Promise<TResult> {

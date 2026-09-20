@@ -85,10 +85,13 @@ export class DrizzleSetRepository
           rawValue: sql`excluded.raw_value`,
           resolvedGrams: sql`excluded.resolved_grams`,
           stackPosition: sql`excluded.stack_position`,
+          loggedAt: sql`excluded.logged_at`,
           revision: sql`excluded.revision`,
           syncedAt: new Date(),
         },
-        setWhere: sql`${loggedSet.revision} <= excluded.revision`,
+        // Last write wins by (revision, logged_at): the tuple keeps the
+        // outcome the same whichever order two deliveries arrive in.
+        setWhere: sql`${loggedSet.revision} < excluded.revision OR (${loggedSet.revision} = excluded.revision AND ${loggedSet.loggedAt} <= excluded.logged_at)`,
       })
   }
 

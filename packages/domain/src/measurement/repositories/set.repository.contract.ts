@@ -68,14 +68,18 @@ export function describeSetRepositoryContract(harness: SetRepositoryHarness): vo
       references = created.references
     })
 
-    function benchPress(id: string, loggedAt = new Date('2026-09-19T18:00:00.000Z')): LoggedSet {
+    function benchPress(
+      id: string,
+      loggedAt = new Date('2026-09-19T18:00:00.000Z'),
+      repetitions = 8,
+    ): LoggedSet {
       return LoggedSet.create({
         id,
         sessionId: references.sessionId,
         exerciseId: references.exerciseId,
         equipmentId: references.barbellId,
         entry: LoadEntry.perSide(fromKilograms(20), fromKilograms(20)),
-        reps: reps(8),
+        reps: reps(repetitions),
         loggedAt,
         snapshot: {
           barGrams: fromKilograms(20),
@@ -167,6 +171,20 @@ export function describeSetRepositoryContract(harness: SetRepositoryHarness): vo
 
         expect(found?.reps).toBe(12)
         expect(found?.revision).toBe(1)
+      })
+
+      it('breaks a revision tie by the moment the set was logged', async () => {
+        const later = benchPress(ids.first, new Date('2026-09-19T18:30:00.000Z'))
+        const earlier = benchPress(ids.first, new Date('2026-09-19T18:00:00.000Z'))
+
+        await repository.save(later)
+        await repository.save(earlier)
+
+        const found = await repository.findOne(
+          Criteria.create<SetCriteriaFields>({ id: ids.first }),
+        )
+
+        expect(found?.loggedAt).toEqual(later.loggedAt)
       })
 
       it('does not let a replayed older edit overwrite a newer one', async () => {
