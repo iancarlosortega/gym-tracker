@@ -243,6 +243,14 @@ The cost is that the application layer imports `Inject` and `Injectable` from `@
 
 **Rejected**: Prisma (engine footprint, DSL duplication of the mode union); TypeORM (decorator-heavy, weaker inference for discriminated unions); raw SQL (no migration story worth the savings).
 
+### 2.0 Logging a set
+
+**The client never names the measurement mode or the bar weight.** The mode is read from the exercise, the bar weight from the equipment, and the display unit from the account. A request that could declare its own mode could turn a plate position into kilograms, and the snapshot written onto the set would then record that lie permanently.
+
+**Sets are posted as a batch**, between one and a hundred, to `POST /workouts/:id/sets`. A device returning from offline has a queue to drain, and a batch of one is simply the online path — one code path rather than two. The bound keeps a long drain retryable.
+
+**A batch is validated whole before anything is written.** One bad set writes nothing, so a client never has to work out which half of its queue landed.
+
 ### 2.1 The `logged_set` shape
 
 The spec requires that the raw entry, the mode, and the resolution snapshot all survive. That drives these columns:

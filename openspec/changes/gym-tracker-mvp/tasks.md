@@ -98,12 +98,12 @@
 - [x] 7a.3 Infrastructure and presentation
 - [x] 7a.4 Tests: an unfinished session is resumable
 
-## Slice 7b — Logging a set, online path (~260 lines)
+## Slice 7b — Logging a set, online path (~260 lines) ✅ awaiting review
 
-- [ ] 7b.1 `LogSetUseCase` composing `resolveMass` and `SetRepository`
-- [ ] 7b.2 Idempotent upsert keyed on the client-generated UUIDv7
-- [ ] 7b.3 Presentation endpoint accepting batches
-- [ ] 7b.4 Test: the same set delivered twice produces exactly one row
+- [x] 7b.1 `LogSetUseCase` composing `resolveMass` and `SetRepository` — delivered as `LogSetsUseCase`, which takes a batch
+- [x] 7b.2 Idempotent upsert keyed on the client-generated UUIDv7 — already in the persistence slice; covered again at the use case
+- [x] 7b.3 Presentation endpoint accepting batches
+- [x] 7b.4 Test: the same set delivered twice produces exactly one row
 
 ## Slice 8a — Offline repository adapter (~220 lines)
 
