@@ -196,7 +196,8 @@ names the slice it belongs to and what has to be true before it can be run.
 
 ## Backlog — agreed, not yet scheduled
 
-- [ ] B1 Introduce a generic `DomainError` base class carrying an `errorCode` and a message, and re-parent every domain error onto it. Requested 2026-09-19. Rationale: error codes survive translation and message edits, so the presentation layer can map a code to user-facing copy and to an HTTP status without string-matching prose. Slice 2's errors are plain `Error` subclasses today; converting them is mechanical and belongs with the first slice that needs to surface errors over the wire (slice 4b or 7b).
+- [x] B1 Introduce a generic `DomainError` base class carrying an `errorCode` and a message, and re-parent every domain error onto it. Requested 2026-09-19. Rationale: error codes survive translation and message edits, so the presentation layer can map a code to user-facing copy and to an HTTP status without string-matching prose. Slice 2's errors are plain `Error` subclasses today; converting them is mechanical and belongs with the first slice that needs to surface errors over the wire (slice 4b or 7b).
+  Done in `1cee9d6`; the field, first shipped as `code`, was renamed to `errorCode` on 2026-09-21. `DomainExceptionFilter` maps codes to HTTP statuses. The web app's `StalePreviewError` and `QueueWriteFailedError` stay plain `Error` subclasses on purpose: they are client-side infrastructure failures, not domain rules.
 
 ## Naming — type suffixes
 
