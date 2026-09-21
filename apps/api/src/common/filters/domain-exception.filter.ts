@@ -48,13 +48,15 @@ export class DomainExceptionFilter implements ExceptionFilter<DomainError> {
   private readonly logger = new Logger(DomainExceptionFilter.name)
 
   catch(error: DomainError, host: ArgumentsHost): void {
-    const build = httpErrors[error.code]
+    const build = httpErrors[error.errorCode]
 
     if (build === undefined) {
       // Only reachable if a code arrives that the type system did not know
       // about. That is a gap in ours, not a mistake by the caller, so it is a
       // server fault rather than a 400 that blames them.
-      this.logger.error(`No HTTP mapping for domain error code ${error.code}: ${error.message}`)
+      this.logger.error(
+        `No HTTP mapping for domain error code ${error.errorCode}: ${error.message}`,
+      )
       this.respond(host, new InternalServerErrorException())
       return
     }

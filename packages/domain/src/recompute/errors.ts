@@ -7,5 +7,5 @@ import { DomainError, type RecomputeErrorCode } from '@domain/shared/errors/doma
  * would change sets the user never reviewed.
  */
 export class StaleRecomputePreviewError extends DomainError {
-  readonly code: RecomputeErrorCode = 'STALE_RECOMPUTE_PREVIEW'
+  readonly errorCode: RecomputeErrorCode = 'STALE_RECOMPUTE_PREVIEW'
 }

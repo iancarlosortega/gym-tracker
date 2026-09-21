@@ -10,7 +10,7 @@
  * living beside the module it describes rather than in one growing table.
  */
 export abstract class DomainError extends Error {
-  abstract readonly code: DomainErrorCode
+  abstract readonly errorCode: DomainErrorCode
 
   constructor(message: string) {
     super(message)

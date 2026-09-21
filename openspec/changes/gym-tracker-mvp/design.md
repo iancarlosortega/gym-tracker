@@ -165,7 +165,7 @@ Validation runs while the application is created, so a contradictory configurati
 
 ### 1.8c Errors and their HTTP mapping
 
-Every domain error extends `DomainError` and carries a `code`. The presentation layer maps that code to an HTTP status, so the domain never learns what a status is and the mapping never becomes an `instanceof` chain.
+Every domain error extends `DomainError` and carries an `errorCode`. The presentation layer maps that code to an HTTP status, so the domain never learns what a status is and the mapping never becomes an `instanceof` chain.
 
 **Codes are grouped per feature**, and so are their mappings: `auth.http-errors.ts` lives beside the auth module, `measurement.http-errors.ts` beside measurement. A single table would grow with the whole system and belong to nobody.
 

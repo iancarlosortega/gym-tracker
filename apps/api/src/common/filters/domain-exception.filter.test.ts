@@ -9,8 +9,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { DomainExceptionFilter } from './domain-exception.filter.ts'
 
 class StubError extends DomainError {
-  constructor(readonly code: DomainErrorCode) {
-    super(`stub ${code}`)
+  constructor(readonly errorCode: DomainErrorCode) {
+    super(`stub `)
   }
 }
 

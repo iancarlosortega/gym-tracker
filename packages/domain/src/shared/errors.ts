@@ -2,15 +2,15 @@ import { DomainError, type DomainErrorCode } from '@domain/shared/errors/domain-
 
 /** Raised when a date range would end before it starts. */
 export class InvalidDateRangeError extends DomainError {
-  readonly code: DomainErrorCode = 'INVALID_DATE_RANGE'
+  readonly errorCode: DomainErrorCode = 'INVALID_DATE_RANGE'
 }
 
 /** Raised when a query limit or offset is not a usable whole number. */
 export class InvalidQueryOptionError extends DomainError {
-  readonly code: DomainErrorCode = 'INVALID_QUERY_OPTION'
+  readonly errorCode: DomainErrorCode = 'INVALID_QUERY_OPTION'
 }
 
 /** Raised when a string cannot be a usable identity. */
 export class InvalidIdError extends DomainError {
-  readonly code: DomainErrorCode = 'INVALID_ID'
+  readonly errorCode: DomainErrorCode = 'INVALID_ID'
 }
