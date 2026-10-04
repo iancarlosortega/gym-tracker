@@ -14,5 +14,9 @@ export default defineConfig({
     // component test asks for jsdom with a docblock, so the environment is
     // declared in the file that needs it rather than by a path convention.
     environment: 'node',
+    // The API client refuses to load without an address; tests answer through
+    // a stub adapter, so this one is never dialled.
+    // biome-ignore lint/style/useNamingConvention: environment variables are SCREAMING_SNAKE_CASE
+    env: { NEXT_PUBLIC_API_URL: 'https://api.test' },
   },
 })

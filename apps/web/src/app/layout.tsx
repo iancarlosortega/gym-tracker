@@ -2,6 +2,7 @@ import './globals.css'
 import { Geist } from 'next/font/google'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { Providers } from './providers'
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' })
 
@@ -23,7 +24,9 @@ export const viewport = {
 
 const RootLayout = ({ children }: { children: ReactNode }) => (
   <html lang="en" className={cn('dark font-sans', geist.variable)}>
-    <body className="bg-background text-foreground">{children}</body>
+    <body className="bg-background text-foreground">
+      <Providers>{children}</Providers>
+    </body>
   </html>
 )
 

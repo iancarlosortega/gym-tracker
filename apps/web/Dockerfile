@@ -17,6 +17,10 @@ FROM dependencies AS build
 COPY tsconfig.base.json ./
 COPY packages/ packages/
 COPY apps/web/ apps/web/
+# Inlined into the client bundle by `next build`, so it must exist here rather
+# than in the runtime stage; the client refuses to load without it.
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 # The domain is compiled first: the web app imports it through its exports map,
 # which resolves to dist.
 RUN pnpm --filter "./packages/**" build && pnpm --filter @gym/web build
