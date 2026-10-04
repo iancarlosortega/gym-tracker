@@ -17,6 +17,8 @@ import { Plus } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
+import { NewEquipmentForm } from '../../../catalog/presentation/components/new-equipment-form'
+import { useCreateEquipment } from '../../../catalog/presentation/queries'
 import type { PushApi } from '../../../push/infrastructure/push.api'
 import type { StartRestUseCase } from '../../../rest-timer/application/start-rest.use-case'
 import { RestTimerContainer } from '../../../rest-timer/presentation/containers/rest-timer.container'
@@ -41,7 +43,9 @@ import { LastTimeCard, lastSetLabel } from '../workout/last-time-card'
 import {
   compatibleEquipment,
   defaultEquipmentId,
+  kindsFor,
   lastTimeState,
+  logBlocker,
   workoutOrder,
 } from '../workout/workout-plan'
 import { DoneSets, ExerciseFocus, LogRow, WorkoutHeader } from '../workout/workout-views'
@@ -151,6 +155,14 @@ export const WorkoutScreenContainer = ({
   const [storageFailure, setStorageFailure] = useState<string | undefined>(undefined)
   const [busy, setBusy] = useState(false)
   const [resting, setResting] = useState<Resting | null>(null)
+  /** Each exercise keeps what was typed for it while the workout moves between them. */
+  const [typed, setTyped] = useState<ReadonlyMap<string, { weight: string; reps: string }>>(
+    new Map(),
+  )
+  const [created, setCreated] = useState<readonly EquipmentResponse[]>([])
+  const [addingEquipment, setAddingEquipment] = useState(false)
+  const createEquipment = useCreateEquipment()
+  const allEquipment = useMemo(() => [...equipment, ...created], [equipment, created])
 
   /** The done list, from the server and whatever the phone still holds. */
   const refresh = useCallback(async () => {
@@ -185,8 +197,8 @@ export const WorkoutScreenContainer = ({
   const setNumber = rows.length + 1
 
   const compatible = useMemo(
-    () => (exercise === null ? [] : compatibleEquipment(exercise.defaultMode, equipment)),
-    [exercise, equipment],
+    () => (exercise === null ? [] : compatibleEquipment(exercise.defaultMode, allEquipment)),
+    [exercise, allEquipment],
   )
   const usedEarlier = [...done].reverse().find((set) => set.exerciseId === exerciseId)
   const equipmentId =
@@ -209,23 +221,30 @@ export const WorkoutScreenContainer = ({
   const lastForSet = lastTime.kind === 'value' ? lastTime.set : null
 
   const values = keypadValues(entry)
-  const canLog =
-    exercise !== null &&
-    chosen !== null &&
-    values.weight !== null &&
-    values.reps !== null &&
-    Number.isInteger(values.reps) &&
-    values.reps >= 1 &&
-    !busy
+  const blocker =
+    exercise === null
+      ? null
+      : logBlocker({ equipment: chosen !== null, weight: values.weight, reps: values.reps })
+  const canLog = exercise !== null && blocker === null && !busy
 
   const goTo = (next: number) => {
+    const nextId = order[next]
+    const remembered = new Map(typed)
+    if (exerciseId !== null) remembered.set(exerciseId, { weight: entry.weight, reps: entry.reps })
+    setTyped(remembered)
     setIndex(next)
     setKeypadOpen(false)
-    dispatch({ type: 'switchField', field: 'weight' })
+    dispatch({
+      type: 'load',
+      values: (nextId === undefined ? undefined : remembered.get(nextId)) ?? {
+        weight: '',
+        reps: '',
+      },
+    })
   }
 
   const log = async () => {
-    if (!canLog || exercise === null || chosen === null) return
+    if (!canLog || exercise === null || chosen === null || values.weight === null) return
     setBusy(true)
     setStorageFailure(undefined)
     try {
@@ -233,7 +252,7 @@ export const WorkoutScreenContainer = ({
         sessionId,
         exerciseId: exercise.id,
         equipmentId: chosen.id,
-        entry: entryFor(exercise.defaultMode, values.weight ?? 0, chosen.barKilograms),
+        entry: entryFor(exercise.defaultMode, values.weight, chosen.barKilograms),
         reps: values.reps ?? 0,
         loggedAt: new Date(),
         snapshot: {
@@ -387,6 +406,9 @@ export const WorkoutScreenContainer = ({
                 onPrevious={() => goTo(index - 1)}
                 onNext={() => goTo(index + 1)}
               />
+              {blocker !== null && (
+                <p className="text-center text-muted-foreground text-sm">{blocker}</p>
+              )}
               <Button variant="ghost" className="min-h-touch" onClick={() => setSheet('exercise')}>
                 <Plus className="size-4" />
                 Add an exercise
@@ -396,34 +418,91 @@ export const WorkoutScreenContainer = ({
         </>
       )}
 
-      <Drawer open={sheet !== null} onOpenChange={(open) => !open && setSheet(null)}>
+      <Drawer
+        open={sheet !== null}
+        onOpenChange={(open) => {
+          if (open) return
+          setSheet(null)
+          setAddingEquipment(false)
+          createEquipment.reset()
+        }}
+      >
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>
               {sheet === 'equipment' ? 'Which equipment?' : 'Add an exercise'}
             </DrawerTitle>
           </DrawerHeader>
-          <ul className="grid gap-2 px-4 pb-6">
-            {(sheet === 'equipment' ? compatible : offered).map((option) => (
-              <li key={option.id}>
-                <Button
-                  variant="outline"
-                  className="min-h-touch w-full justify-start text-base"
-                  onClick={() => {
-                    if (sheet === 'equipment' && exerciseId !== null) {
-                      setChosenEquipment((current) => new Map(current).set(exerciseId, option.id))
-                    } else {
-                      setAdded((current) => [...current, option.id])
-                      goTo(order.length)
+          <div className="grid gap-3 px-4 pb-6">
+            {sheet === 'equipment' && exercise !== null && tile !== null && (
+              <>
+                {compatible.length === 0 && (
+                  <p className="text-muted-foreground text-sm">
+                    Nothing you have can measure {tile.label.toLowerCase()} yet. Add it here.
+                  </p>
+                )}
+                {(compatible.length === 0 || addingEquipment) && (
+                  <NewEquipmentForm
+                    kinds={kindsFor(exercise.defaultMode)}
+                    pending={createEquipment.isPending}
+                    failed={createEquipment.isError}
+                    onSubmit={(fresh) =>
+                      createEquipment.mutate(fresh, {
+                        onSuccess: (item) => {
+                          setCreated((current) => [...current, item])
+                          setChosenEquipment((current) =>
+                            new Map(current).set(exercise.id, item.id),
+                          )
+                          setAddingEquipment(false)
+                          setSheet(null)
+                        },
+                      })
                     }
-                    setSheet(null)
-                  }}
-                >
-                  {option.name}
-                </Button>
-              </li>
-            ))}
-          </ul>
+                  />
+                )}
+              </>
+            )}
+            {(sheet === 'equipment' ? compatible : offered).length > 0 && !addingEquipment && (
+              <ul className="grid gap-2">
+                {(sheet === 'equipment' ? compatible : offered).map((option) => (
+                  <li key={option.id}>
+                    <Button
+                      variant="outline"
+                      className="min-h-touch w-full justify-start text-base"
+                      onClick={() => {
+                        if (sheet === 'equipment' && exerciseId !== null) {
+                          setChosenEquipment((current) =>
+                            new Map(current).set(exerciseId, option.id),
+                          )
+                        } else {
+                          setAdded((current) => [...current, option.id])
+                          goTo(order.length)
+                        }
+                        setSheet(null)
+                      }}
+                    >
+                      {option.name}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {sheet === 'equipment' && compatible.length > 0 && !addingEquipment && (
+              <Button
+                variant="ghost"
+                className="min-h-touch"
+                onClick={() => setAddingEquipment(true)}
+              >
+                <Plus className="size-4" />
+                New equipment
+              </Button>
+            )}
+            {sheet === 'exercise' && offered.length === 0 && (
+              <p className="text-muted-foreground text-sm">
+                Every exercise is already in this workout. Add more under Exercises.
+              </p>
+            )}
+          </div>
         </DrawerContent>
       </Drawer>
     </div>

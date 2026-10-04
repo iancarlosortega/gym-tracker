@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   compatibleEquipment,
   defaultEquipmentId,
+  kindsFor,
   lastTimeState,
+  logBlocker,
   workoutOrder,
 } from './workout-plan.ts'
 
@@ -124,5 +126,34 @@ describe('lastTimeState', () => {
 
   it('is loading while the first read is on its way', () => {
     expect(lastTimeState({ data: undefined, offline: false }, 1)).toEqual({ kind: 'loading' })
+  })
+})
+
+describe('kindsFor', () => {
+  it('names the kinds of equipment that can measure each mode', () => {
+    expect(kindsFor('PER_SIDE')).toEqual(['BARBELL'])
+    expect(kindsFor('STACK_POSITION')).toEqual(['STACK'])
+    expect(kindsFor('TOTAL')).toEqual(['BARBELL', 'FREE_WEIGHT'])
+  })
+})
+
+describe('logBlocker', () => {
+  it('names the first thing missing before a set can be logged', () => {
+    expect(logBlocker({ equipment: false, weight: 30, reps: 8 })).toBe(
+      'Pick the equipment to log this set.',
+    )
+    expect(logBlocker({ equipment: true, weight: null, reps: 8 })).toBe(
+      'Enter the weight to log this set.',
+    )
+    expect(logBlocker({ equipment: true, weight: 30, reps: null })).toBe(
+      'Enter the reps to log this set.',
+    )
+    expect(logBlocker({ equipment: true, weight: 30, reps: 0 })).toBe(
+      'Enter the reps to log this set.',
+    )
+  })
+
+  it('is nothing once the set is complete', () => {
+    expect(logBlocker({ equipment: true, weight: 30, reps: 8 })).toBeNull()
   })
 })

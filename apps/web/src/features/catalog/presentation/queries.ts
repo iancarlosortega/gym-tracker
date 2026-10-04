@@ -30,8 +30,8 @@ export const catalogExercisesQuery = () =>
 export const useCatalogExercises = () => useQuery(catalogExercisesQuery())
 
 /** A change to one catalog item is a change to every list that names it. */
-const useCatalogMutation = <TVariables>(
-  write: (variables: TVariables) => Promise<unknown>,
+const useCatalogMutation = <TVariables, TResult>(
+  write: (variables: TVariables) => Promise<TResult>,
   affected: readonly (readonly string[])[],
 ) => {
   const client = useQueryClient()

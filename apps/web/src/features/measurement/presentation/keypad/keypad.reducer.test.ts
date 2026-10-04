@@ -82,3 +82,14 @@ describe('the keypad', () => {
     })
   })
 })
+
+describe('loading another exercise', () => {
+  it('replaces both values and goes back to the weight', () => {
+    const state = press(openKeypad({ weight: '30', reps: '8' }, 'reps'), {
+      type: 'load',
+      values: { weight: '', reps: '' },
+    })
+
+    expect(state).toMatchObject({ field: 'weight', weight: '', reps: '' })
+  })
+})

@@ -18,6 +18,8 @@ export type KeypadAction =
       readonly last: { readonly weight: number; readonly reps: number }
     }
   | { readonly type: 'switchField'; readonly field?: KeypadField }
+  /** Another exercise's values, when the workout moves to it. */
+  | { readonly type: 'load'; readonly values: { readonly weight: string; readonly reps: string } }
 
 const WEIGHT_STEP = 2.5
 const REPS_STEP = 1
@@ -65,6 +67,8 @@ export const keypadReducer = (state: KeypadState, action: KeypadAction): KeypadS
         reps: String(action.last.reps),
         replaceNext: true,
       }
+    case 'load':
+      return openKeypad(action.values, 'weight')
     case 'switchField':
       return {
         ...state,

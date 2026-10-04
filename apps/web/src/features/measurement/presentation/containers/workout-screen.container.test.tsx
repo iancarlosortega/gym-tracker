@@ -16,6 +16,16 @@ import type { SyncPendingSetsUseCase } from '../../application/sync-pending-sets
 import { WorkoutScreenContainer } from './workout-screen.container.tsx'
 
 vi.mock('../../infrastructure/session-sets.api', () => ({ getSessionSets: async () => [] }))
+vi.mock('../../../catalog/infrastructure/equipment.api', () => ({
+  createEquipment: async (equipment: { name: string }) => ({
+    id: 'q-new',
+    name: equipment.name,
+    kind: 'BARBELL',
+    barKilograms: 20,
+    stackPositions: null,
+    archived: false,
+  }),
+}))
 vi.mock('../../infrastructure/last-sets.api', () => ({
   getLastSets: async () => ({
     sessionStartedAt: '2026-09-28T09:00:00.000Z',
@@ -38,7 +48,13 @@ const bar = {
   archived: false,
 }
 
-const renderScreen = () => {
+const incline = { id: 'e-2', name: 'Incline press', defaultMode: 'TOTAL' as const, archived: false }
+const dumbbells = { ...bar, id: 'q-2', name: 'Dumbbells', kind: 'FREE_WEIGHT', barKilograms: null }
+
+const renderScreen = ({
+  equipment = [bar] as (typeof bar | typeof dumbbells)[],
+  extraExercise = false,
+} = {}) => {
   const logged: LogSetOfflineInput[] = []
   const logSet = {
     execute: vi.fn(async (input: LogSetOfflineInput) => {
@@ -56,6 +72,19 @@ const renderScreen = () => {
         routine={{
           name: 'Push day',
           entries: [
+            ...(extraExercise
+              ? [
+                  {
+                    id: 'n-2',
+                    exerciseId: 'e-2',
+                    equipmentId: null,
+                    position: 2,
+                    targetSets: 3,
+                    targetReps: '8-10',
+                    restSeconds: 90,
+                  },
+                ]
+              : []),
             {
               id: 'n-1',
               exerciseId: 'e-1',
@@ -67,8 +96,8 @@ const renderScreen = () => {
             },
           ],
         }}
-        exercises={[bench]}
-        equipment={[bar]}
+        exercises={extraExercise ? [bench, incline] : [bench]}
+        equipment={equipment}
         queue={queue}
         logSet={logSet}
         syncSets={{ execute: async () => ({ pending: 0 }) } as unknown as SyncPendingSetsUseCase}
@@ -121,5 +150,40 @@ describe('the workout screen, wired', () => {
 
     expect(screen.getByRole('button', { name: 'Weight per side, 20 kilograms' })).toBeDefined()
     expect(screen.getByRole('button', { name: 'Reps, 8' })).toBeDefined()
+  })
+
+  it('says why a set cannot be logged, and offers equipment that fits when there is none', async () => {
+    renderScreen({ equipment: [dumbbells] })
+
+    expect(screen.getByText('Pick the equipment to log this set.')).toBeDefined()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Pick the equipment' }))
+    expect(await screen.findByText(/Nothing you have can measure weight per side/)).toBeDefined()
+    expect(screen.getAllByRole('radio')).toHaveLength(1)
+
+    await userEvent.type(screen.getByLabelText('Name'), 'Olympic bar')
+    await userEvent.type(screen.getByLabelText('Bar weight (kg)'), '20')
+    await userEvent.click(screen.getByRole('button', { name: 'Add equipment' }))
+
+    expect(
+      await screen.findByRole('button', { name: 'Equipment: Olympic bar. Change' }),
+    ).toBeDefined()
+  })
+
+  it('keeps each exercise’s own weight and reps', async () => {
+    renderScreen({ extraExercise: true })
+
+    await userEvent.click(screen.getByRole('button', { name: /weight per side/i }))
+    for (const key of ['3', '0']) {
+      await userEvent.click(screen.getByRole('button', { name: key }))
+    }
+    await userEvent.click(screen.getByRole('button', { name: 'Close' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Next exercise' }))
+
+    expect(screen.getByRole('heading', { name: 'Incline press' })).toBeDefined()
+    expect(screen.getByRole('button', { name: 'Weight, not entered' })).toBeDefined()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Previous exercise' }))
+    expect(screen.getByRole('button', { name: 'Weight per side, 30 kilograms' })).toBeDefined()
   })
 })

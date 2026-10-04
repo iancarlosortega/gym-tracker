@@ -16,6 +16,12 @@ const supports = (kind: string, mode: MeasurementMode): boolean => {
   }
 }
 
+const KINDS = ['BARBELL', 'STACK', 'FREE_WEIGHT'] as const
+
+/** The kinds of equipment a new one could be, to measure this mode. */
+export const kindsFor = (mode: MeasurementMode): (typeof KINDS)[number][] =>
+  KINDS.filter((kind) => supports(kind, mode))
+
 export const compatibleEquipment = (
   mode: MeasurementMode,
   equipment: readonly EquipmentResponse[],
@@ -70,4 +76,18 @@ export const lastTimeState = (
   if (read.data === null) return { kind: 'none' }
   const set = read.data.sets.find((candidate) => candidate.setNumber === setNumber)
   return set === undefined ? { kind: 'no-set', setNumber } : { kind: 'value', set }
+}
+
+/** The first thing missing before a set can be logged, said plainly; null when nothing is. */
+export const logBlocker = (set: {
+  readonly equipment: boolean
+  readonly weight: number | null
+  readonly reps: number | null
+}): string | null => {
+  if (!set.equipment) return 'Pick the equipment to log this set.'
+  if (set.weight === null) return 'Enter the weight to log this set.'
+  if (set.reps === null || !Number.isInteger(set.reps) || set.reps < 1) {
+    return 'Enter the reps to log this set.'
+  }
+  return null
 }
