@@ -13,10 +13,10 @@ phases:
   design: done
   tasks: done
   apply: ready
-  verify: blocked
+  verify: done # pass with warnings W1, W2; device check 5.3 deferred
   archive: blocked
 
-next_recommended: apply
+next_recommended: archive
 review_decision: per-slice review units (owner, 2026-10-03); each slice reviewed locally and committed separately
 
 preproposal:
