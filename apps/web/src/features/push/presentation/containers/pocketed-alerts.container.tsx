@@ -6,11 +6,11 @@ import {
   type PocketedAlertsAvailability,
   pocketedAlertsAvailability,
 } from '../../application/pocketed-alerts-availability'
-import type { HttpPushGateway } from '../../infrastructure/http-push.gateway'
+import type { PushApi } from '../../infrastructure/push.api'
 import { PocketedAlertsNotice } from '../components/pocketed-alerts-notice'
 
 export interface PocketedAlertsContainerProps {
-  readonly gateway: HttpPushGateway
+  readonly gateway: PushApi
   readonly enableAlerts: EnablePocketedAlertsUseCase
 }
 

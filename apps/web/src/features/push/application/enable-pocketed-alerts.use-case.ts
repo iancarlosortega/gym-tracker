@@ -1,5 +1,5 @@
 import type { PushSubscriber } from '../infrastructure/browser-push.subscriber'
-import type { HttpPushGateway } from '../infrastructure/http-push.gateway'
+import type { PushSubscriptionRegistry } from './push-subscription.port'
 
 /**
  * Turn on alerts that arrive with the phone in a pocket.
@@ -12,7 +12,7 @@ import type { HttpPushGateway } from '../infrastructure/http-push.gateway'
 export class EnablePocketedAlertsUseCase {
   constructor(
     private readonly subscriber: PushSubscriber,
-    private readonly gateway: HttpPushGateway,
+    private readonly registry: PushSubscriptionRegistry,
   ) {}
 
   /** False when the user refused; anything else throws. */
@@ -22,7 +22,7 @@ export class EnablePocketedAlertsUseCase {
     }
 
     const subscription = await this.subscriber.subscribe(publicKey)
-    await this.gateway.registerSubscription(subscription)
+    await this.registry.registerSubscription(subscription)
 
     return true
   }

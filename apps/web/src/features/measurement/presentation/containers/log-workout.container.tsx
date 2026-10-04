@@ -12,7 +12,7 @@ import type { CompletionCue } from '@gym/domain/rest-timer/ports/completion-cue.
 import type { ScreenWakeLock } from '@gym/domain/rest-timer/ports/screen-wake-lock.port'
 import type { RestInterval } from '@gym/domain/rest-timer/value-objects/rest-interval.vo'
 import { useCallback, useEffect, useState } from 'react'
-import type { HttpPushGateway } from '../../../push/infrastructure/http-push.gateway'
+import type { PushApi } from '../../../push/infrastructure/push.api'
 import type { StartRestUseCase } from '../../../rest-timer/application/start-rest.use-case'
 import { RestTimerContainer } from '../../../rest-timer/presentation/containers/rest-timer.container'
 import type {
@@ -56,7 +56,7 @@ export interface LogWorkoutContainerProps {
    * Optional: without it the foreground countdown still runs, which is the
    * guaranteed path either way.
    */
-  readonly push?: HttpPushGateway
+  readonly push?: PushApi
   readonly displayUnit?: 'KG' | 'LB'
 }
 
