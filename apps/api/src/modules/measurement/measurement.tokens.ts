@@ -9,3 +9,4 @@
  * belong to the modules that own them, and each exports its own token.
  */
 export const SET_REPOSITORY = Symbol('SET_REPOSITORY')
+export const LAST_SETS_REPOSITORY = Symbol('LAST_SETS_REPOSITORY')

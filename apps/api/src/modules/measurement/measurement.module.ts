@@ -1,8 +1,14 @@
 import { AuthModule } from '@api/modules/auth/auth.module.js'
 import { CatalogModule } from '@api/modules/catalog/catalog.module.js'
+import { GetLastSetsUseCase } from '@api/modules/measurement/application/use-cases/get-last-sets.use-case.js'
 import { LogSetsUseCase } from '@api/modules/measurement/application/use-cases/log-sets.use-case.js'
+import { DrizzleLastSetsRepository } from '@api/modules/measurement/infrastructure/persistence/drizzle-last-sets.repository.js'
 import { DrizzleSetRepository } from '@api/modules/measurement/infrastructure/persistence/drizzle-set.repository.js'
-import { SET_REPOSITORY } from '@api/modules/measurement/measurement.tokens.js'
+import {
+  LAST_SETS_REPOSITORY,
+  SET_REPOSITORY,
+} from '@api/modules/measurement/measurement.tokens.js'
+import { GetLastSetsController } from '@api/modules/measurement/presentation/get-last-sets/get-last-sets.controller.js'
 import { LogSetsController } from '@api/modules/measurement/presentation/log-sets/log-sets.controller.js'
 import { WorkoutsModule } from '@api/modules/workouts/workouts.module.js'
 import { Module } from '@nestjs/common'
@@ -17,8 +23,13 @@ import { Module } from '@nestjs/common'
  */
 @Module({
   imports: [WorkoutsModule, CatalogModule, AuthModule],
-  controllers: [LogSetsController],
-  providers: [{ provide: SET_REPOSITORY, useClass: DrizzleSetRepository }, LogSetsUseCase],
+  controllers: [LogSetsController, GetLastSetsController],
+  providers: [
+    { provide: SET_REPOSITORY, useClass: DrizzleSetRepository },
+    { provide: LAST_SETS_REPOSITORY, useClass: DrizzleLastSetsRepository },
+    LogSetsUseCase,
+    GetLastSetsUseCase,
+  ],
   exports: [SET_REPOSITORY],
 })
 export class MeasurementModule {}
