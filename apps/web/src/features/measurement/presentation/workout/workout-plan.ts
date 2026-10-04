@@ -3,17 +3,23 @@ import type { EquipmentResponse } from '../../../workouts/infrastructure/workout
 import type { LastSetsResponse } from '../../infrastructure/last-sets.api'
 
 /** What each kind of equipment can measure, as the domain's `Equipment.supports` says. */
-const SUPPORTS: Record<string, readonly MeasurementMode[]> = {
-  BARBELL: ['PER_SIDE', 'TOTAL'],
-  STACK: ['STACK_POSITION'],
-  FREE_WEIGHT: ['TOTAL'],
+const supports = (kind: string, mode: MeasurementMode): boolean => {
+  switch (kind) {
+    case 'BARBELL':
+      return mode === 'PER_SIDE' || mode === 'TOTAL'
+    case 'STACK':
+      return mode === 'STACK_POSITION'
+    case 'FREE_WEIGHT':
+      return mode === 'TOTAL'
+    default:
+      return false
+  }
 }
 
 export const compatibleEquipment = (
   mode: MeasurementMode,
   equipment: readonly EquipmentResponse[],
-): EquipmentResponse[] =>
-  equipment.filter((item) => !item.archived && (SUPPORTS[item.kind] ?? []).includes(mode))
+): EquipmentResponse[] => equipment.filter((item) => !item.archived && supports(item.kind, mode))
 
 /**
  * The equipment a set goes on unless the user picks another: the plan's, then
