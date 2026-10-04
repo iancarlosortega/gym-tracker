@@ -43,3 +43,14 @@ describe('TabBar', () => {
     )
   })
 })
+
+describe('TabBar with a workout open', () => {
+  it('turns the start button into a way back to the workout', () => {
+    render(<TabBar pathname="/" workoutOpen />)
+
+    expect(screen.queryByRole('link', { name: 'Start a workout' })).toBeNull()
+    expect(screen.getByRole('link', { name: 'Back to the workout' }).getAttribute('href')).toBe(
+      '/workout',
+    )
+  })
+})

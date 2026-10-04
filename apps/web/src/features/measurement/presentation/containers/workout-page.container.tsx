@@ -1,5 +1,8 @@
 'use client'
 
+import { ChevronDown } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { EnablePocketedAlertsUseCase } from '../../../push/application/enable-pocketed-alerts.use-case'
 import { PushSubscriber } from '../../../push/infrastructure/browser-push.subscriber'
@@ -18,6 +21,9 @@ import {
   startWorkout,
   type WorkoutSessionResponse,
 } from '../../../workouts/infrastructure/workouts.api'
+import { offlineWork } from '../../../workouts/presentation/offline-work'
+import { openWorkout } from '../../../workouts/presentation/open-workout'
+import { useFinishWorkout } from '../../../workouts/presentation/queries'
 import { CountPendingSetsUseCase } from '../../application/count-pending-sets.use-case'
 import { LogSetOfflineUseCase } from '../../application/log-set-offline.use-case'
 import { SyncPendingSetsUseCase } from '../../application/sync-pending-sets.use-case'
@@ -39,6 +45,8 @@ interface WorkoutContext {
  * be rendered from a basement.
  */
 export const WorkoutPageContainer = () => {
+  const router = useRouter()
+  const finish = useFinishWorkout()
   const wiring = useMemo(() => {
     const queue = new IndexedDbSetRepository()
     const clock = new SystemClock()
@@ -62,7 +70,10 @@ export const WorkoutPageContainer = () => {
     void (async () => {
       try {
         const [session, exercises, equipment] = await Promise.all([
-          getCurrentWorkout(),
+          // A finish pressed offline closes the workout here before the server hears of it.
+          getCurrentWorkout().then(async (current) =>
+            openWorkout(current, await offlineWork().finishes.all()),
+          ),
           getExercises(),
           getEquipment(),
         ])
@@ -97,8 +108,27 @@ export const WorkoutPageContainer = () => {
     )
   }
 
+  const sessionId = context.session.id
+
   return (
     <div className="grid gap-6">
+      <div className="flex items-center justify-between">
+        <Link
+          href="/"
+          aria-label="Minimize workout"
+          className="flex size-11 items-center justify-center rounded-full border border-border bg-card"
+        >
+          <ChevronDown className="size-5" aria-hidden="true" />
+        </Link>
+        <button
+          type="button"
+          disabled={finish.isPending}
+          onClick={() => finish.mutate(sessionId, { onSuccess: () => router.push('/') })}
+          className="min-h-11 px-3 font-semibold"
+        >
+          Finish
+        </button>
+      </div>
       <PocketedAlertsContainer gateway={pushApi} enableAlerts={wiring.enableAlerts} />
       <LogWorkoutContainer
         sessionId={context.session.id}

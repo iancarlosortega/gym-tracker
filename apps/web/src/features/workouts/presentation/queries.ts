@@ -1,5 +1,7 @@
-import { queryOptions, useQuery } from '@tanstack/react-query'
-import { getEquipment, getExercises } from '../infrastructure/workouts.api'
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { getCurrentWorkout, getEquipment, getExercises } from '../infrastructure/workouts.api'
+import { offlineWork } from './offline-work'
+import { openWorkout } from './open-workout'
 
 export const workoutsKeys = {
   all: ['workouts'] as const,
@@ -17,3 +19,27 @@ export const equipmentQuery = () =>
   queryOptions({ queryKey: workoutsKeys.equipment(), queryFn: () => getEquipment() })
 
 export const useEquipment = () => useQuery(equipmentQuery())
+
+export const currentWorkoutQuery = () =>
+  queryOptions({
+    queryKey: [...workoutsKeys.all, 'current'] as const,
+    queryFn: async () => openWorkout(await getCurrentWorkout(), await offlineWork().finishes.all()),
+  })
+
+/** The workout in progress, with a finish the phone has not sent yet already applied. */
+export const useOpenWorkout = () => useQuery(currentWorkoutQuery())
+
+/** Finish on the phone at once, then try to tell the server. */
+export const useFinishWorkout = () => {
+  const client = useQueryClient()
+
+  return useMutation({
+    // Local work: it must run with no network, where a mutation would pause.
+    networkMode: 'always',
+    mutationFn: async (sessionId: string) => {
+      await offlineWork().finishOffline.execute(sessionId)
+      void offlineWork().sync.execute()
+    },
+    onSuccess: () => client.invalidateQueries({ queryKey: workoutsKeys.all }),
+  })
+}

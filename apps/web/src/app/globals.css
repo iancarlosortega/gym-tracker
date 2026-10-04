@@ -13,6 +13,8 @@
 @theme {
   --spacing-touch: 3.5rem;
   --spacing-touch-lg: 4rem;
+  /* A workout in progress, and progress itself: the only colour that is not grey. */
+  --color-live: #a3e635;
 }
 
 /*---break---

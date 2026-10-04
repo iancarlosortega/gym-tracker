@@ -24,13 +24,13 @@
 
 ## 1c — Web: finishing through the queue and the mini bar
 
-- [ ] 1c.1 IndexedDB: a `pending-finish` store, with a version bump. Test that the upgrade keeps queued sets, and that put, get and delete work by session.
-- [ ] 1c.2 `finish.api.ts`: `finishWorkout(sessionId, finishedAt)` with a stub-adapter test. A 409 already-finished answer counts as delivered.
-- [ ] 1c.3 `FinishWorkoutOfflineUseCase` records the intent with the device instant. Tested.
-- [ ] 1c.4 `SyncPendingSetsUseCase` becomes `SyncPendingWorkUseCase`. Tests: sets go before the finish; a finish waits while its own session still has queued sets; a finish with no queued sets is sent; a failure keeps everything pending.
-- [ ] 1c.5 `useCurrentWorkout()` treats a session with a local finish intent as closed. Tested.
-- [ ] 1c.6 `WorkoutMiniBar` (routine name, elapsed time, set count, Resume, Finish) shown in the `(app)` layout while a workout is open. The center tab slot becomes the timer. Finish runs the offline use case.
-- [ ] 1c.7 The current workout screen gets a Finish button in its header, using the same use case. The full redesign lands in 5c.
+- [x] 1c.1 IndexedDB: a `pending-finish` store, with a version bump. Test that the upgrade keeps queued sets, and that put, get and delete work by session.
+- [x] 1c.2 `finish.api.ts`: `finishWorkout(sessionId, finishedAt)` with a stub-adapter test. A 409 already-finished answer counts as delivered.
+- [x] 1c.3 `FinishWorkoutOfflineUseCase` records the intent with the device instant. Tested.
+- [x] 1c.4 `SyncPendingWorkUseCase` composes the existing `SyncPendingSetsUseCase` (no rename, less churn) and adds the finish step. Tests: sets go before the finish; a finish waits while its own session still has queued sets; a finish with no queued sets is sent; a failure keeps everything pending.
+- [x] 1c.5 `useCurrentWorkout()` treats a session with a local finish intent as closed. Tested.
+- [x] 1c.6 `WorkoutMiniBar` (routine name, elapsed time, set count, Resume, Finish) shown in the `(app)` layout while a workout is open. The center tab slot becomes the timer. Finish runs the offline use case.
+- [x] 1c.7 The current workout screen gets a Finish button in its header, using the same use case. The full redesign lands in 5c.
 
 ## 1d — Web: profile and sign-out
 

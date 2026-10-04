@@ -13,11 +13,13 @@ import { reps } from '@gym/domain/measurement/value-objects/reps.vo'
 import { stackPosition } from '@gym/domain/measurement/value-objects/stack-position.vo'
 import { Page } from '@gym/domain/shared/value-objects/page.vo'
 import type { Pagination } from '@gym/domain/shared/value-objects/pagination.vo'
-
-export const PENDING_SETS_STORE = 'pending-sets'
-
-const DATABASE_NAME = 'gym-tracker'
-const DATABASE_VERSION = 1
+import {
+  completed,
+  GYM_DATABASE,
+  openGymDatabase,
+  PENDING_SETS_STORE,
+  request,
+} from '../../shared/infrastructure/gym-database'
 
 /** The shape a set takes in the store: plain data, no class instances. */
 interface PendingSetRecord {
@@ -47,7 +49,7 @@ interface PendingSetRecord {
  * and that belongs to the use case that does it, not to storage.
  */
 export class IndexedDbSetRepository implements SetRepository {
-  constructor(private readonly databaseName: string = DATABASE_NAME) {}
+  constructor(private readonly databaseName: string = GYM_DATABASE) {}
 
   async save(set: LoggedSet): Promise<void> {
     await this.saveMany([set])
@@ -170,17 +172,7 @@ export class IndexedDbSetRepository implements SetRepository {
   }
 
   private async open(): Promise<IDBDatabase> {
-    const opening = indexedDB.open(this.databaseName, DATABASE_VERSION)
-
-    opening.onupgradeneeded = () => {
-      const database = opening.result
-
-      if (!database.objectStoreNames.contains(PENDING_SETS_STORE)) {
-        database.createObjectStore(PENDING_SETS_STORE, { keyPath: 'id' })
-      }
-    }
-
-    return await request<IDBDatabase>(opening)
+    return await openGymDatabase(this.databaseName)
   }
 }
 
@@ -195,21 +187,6 @@ function wins(candidate: LoggedSet, existing: PendingSetRecord): boolean {
     return candidate.revision > existing.revision
   }
   return candidate.loggedAt.getTime() >= new Date(existing.loggedAt).getTime()
-}
-
-function request<TResult>(pending: IDBRequest): Promise<TResult> {
-  return new Promise((resolve, reject) => {
-    pending.onsuccess = () => resolve(pending.result as TResult)
-    pending.onerror = () => reject(pending.error)
-  })
-}
-
-function completed(transaction: IDBTransaction): Promise<void> {
-  return new Promise((resolve, reject) => {
-    transaction.oncomplete = () => resolve()
-    transaction.onerror = () => reject(transaction.error)
-    transaction.onabort = () => reject(transaction.error)
-  })
 }
 
 function toRecord(set: LoggedSet): PendingSetRecord {

@@ -1,4 +1,12 @@
-import { CircleUser, ClipboardList, House, type LucideIcon, Plus, TrendingUp } from 'lucide-react'
+import {
+  CircleUser,
+  ClipboardList,
+  House,
+  type LucideIcon,
+  Plus,
+  Timer,
+  TrendingUp,
+} from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
@@ -38,9 +46,11 @@ const TabLink = ({ href, label, icon: Icon, current }: TabLinkProps) => (
 
 export interface TabBarProps {
   readonly pathname: string
+  /** While a workout runs, the middle button goes back to it instead of starting another. */
+  readonly workoutOpen?: boolean
 }
 
-export const TabBar = ({ pathname }: TabBarProps) => {
+export const TabBar = ({ pathname, workoutOpen = false }: TabBarProps) => {
   const current = activeTab(pathname)
 
   return (
@@ -55,9 +65,22 @@ export const TabBar = ({ pathname }: TabBarProps) => {
         icon={TrendingUp}
         current={current === 'progress'}
       />
-      <Link href="/workout" aria-label="Start a workout" className="flex justify-center">
-        <span className="-mt-6 flex size-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
-          <Plus className="size-7" strokeWidth={2.5} aria-hidden="true" />
+      <Link
+        href="/workout"
+        aria-label={workoutOpen ? 'Back to the workout' : 'Start a workout'}
+        className="flex justify-center"
+      >
+        <span
+          className={cn(
+            '-mt-6 flex size-16 items-center justify-center rounded-full',
+            workoutOpen ? 'bg-live text-background' : 'bg-primary text-primary-foreground',
+          )}
+        >
+          {workoutOpen ? (
+            <Timer className="size-7" strokeWidth={2.5} aria-hidden="true" />
+          ) : (
+            <Plus className="size-7" strokeWidth={2.5} aria-hidden="true" />
+          )}
         </span>
       </Link>
       <TabLink

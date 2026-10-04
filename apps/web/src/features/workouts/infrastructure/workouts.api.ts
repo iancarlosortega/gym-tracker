@@ -77,3 +77,24 @@ export const getEquipment = async (
   const { data } = await client.get<PageResponse<EquipmentResponse>>('/equipment?limit=200')
   return data.items
 }
+
+/**
+ * Close a workout at the instant the user pressed finish.
+ *
+ * A 409 means the server already closed it — a replay of a finish whose
+ * answer was lost — and that is the outcome being asked for, so it settles.
+ */
+export const finishWorkout = async (
+  sessionId: string,
+  finishedAt: Date,
+  client: AxiosInstance = apiClient,
+): Promise<void> => {
+  try {
+    await client.post(`/workouts/${sessionId}/finish`, { finishedAt: finishedAt.toISOString() })
+  } catch (error) {
+    if (isAxiosError(error) && error.response?.status === 409) {
+      return
+    }
+    throw error
+  }
+}

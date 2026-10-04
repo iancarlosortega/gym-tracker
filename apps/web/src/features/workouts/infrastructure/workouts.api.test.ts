@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { createApiClient } from '@/lib/api-client'
 import { type StubAnswer, stubAdapter } from '@/lib/testing/stub-adapter'
-import { getCurrentWorkout, getEquipment, getExercises, startWorkout } from './workouts.api.ts'
+import {
+  finishWorkout,
+  getCurrentWorkout,
+  getEquipment,
+  getExercises,
+  startWorkout,
+} from './workouts.api.ts'
 
 const clientAnswering = (answer: () => StubAnswer) => {
   const stub = stubAdapter(answer)
@@ -63,5 +69,32 @@ describe('catalogue reads', () => {
 
     expect(await getEquipment(client)).toEqual([])
     expect(stub.calls[0]?.url).toBe('/equipment?limit=200')
+  })
+})
+
+describe('finishWorkout', () => {
+  const finishedAt = new Date('2026-10-04T10:30:00.000Z')
+
+  it('sends the instant the user pressed finish', async () => {
+    const { client, stub } = clientAnswering(() => ({ status: 201, data: session }))
+
+    await finishWorkout('s-1', finishedAt, client)
+
+    expect(stub.calls[0]?.url).toBe('/workouts/s-1/finish')
+    expect(JSON.parse(String(stub.calls[0]?.data))).toEqual({
+      finishedAt: '2026-10-04T10:30:00.000Z',
+    })
+  })
+
+  it('counts an already finished workout as delivered, so a replay settles', async () => {
+    const { client } = clientAnswering(() => ({ status: 409 }))
+
+    await expect(finishWorkout('s-1', finishedAt, client)).resolves.toBeUndefined()
+  })
+
+  it('still fails when the server could not take it', async () => {
+    const { client } = clientAnswering(() => ({ status: 503 }))
+
+    await expect(finishWorkout('s-1', finishedAt, client)).rejects.toThrow('503')
   })
 })
