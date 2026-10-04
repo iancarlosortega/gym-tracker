@@ -104,9 +104,6 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOSTNAME: 0.0.0.0
-      # Read at request time, so this image is the same one in every
-      # environment rather than one baked per origin.
-      API_ORIGIN: https://${API_DOMAIN}
     depends_on:
       - api
     deploy:

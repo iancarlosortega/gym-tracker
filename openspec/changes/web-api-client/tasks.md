@@ -67,8 +67,8 @@ Commit: `refactor(web): move recompute, push and the workout page onto the api c
 
 ## Slice 5 — Remove the old plumbing
 
-- [ ] 5.1 Delete `session-aware-fetch.ts` and its test. Their scenarios now live in `api-client.test.ts` (1.4).
-- [ ] 5.2 Remove `API_ORIGIN` from the web service in `compose.yaml`. `rg 'apiBaseUrl|API_ORIGIN|sessionAwareFetch' apps/web` must return nothing.
+- [x] 5.1 Delete `session-aware-fetch.ts` and its test. Their scenarios now live in `api-client.test.ts` (1.4).
+- [x] 5.2 Remove `API_ORIGIN` from the web service in `compose.yaml` (done; the leftover in `apps/web/.env.example` is for Ian to edit, because agents cannot read env files). `rg 'apiBaseUrl|API_ORIGIN|sessionAwareFetch' apps/web` must return nothing.
 - [ ] 5.3 Device check (manual, by Ian): sign in on the phone, then check statistics, recompute and an offline set synced after reconnect.
 
 Commit: `chore(web): remove the api base url plumbing`
