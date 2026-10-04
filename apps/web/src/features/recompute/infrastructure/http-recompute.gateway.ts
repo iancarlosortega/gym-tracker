@@ -1,3 +1,4 @@
+import { sessionAwareFetch } from '../../auth/infrastructure/session-aware-fetch'
 export interface SetChangeResponse {
   readonly setId: string
   readonly exerciseId: string
@@ -32,7 +33,7 @@ export class StalePreviewError extends Error {
 export class HttpRecomputeGateway {
   constructor(
     private readonly baseUrl: string,
-    private readonly fetchImpl: typeof fetch = globalThis.fetch,
+    private readonly fetchImpl: typeof fetch = sessionAwareFetch,
   ) {}
 
   async preview(equipmentId: string): Promise<RecomputePreviewResponse> {

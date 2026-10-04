@@ -1,4 +1,5 @@
 import type { MeasurementMode } from '@gym/domain/measurement/value-objects/load-entry.vo'
+import { sessionAwareFetch } from '../../auth/infrastructure/session-aware-fetch'
 
 /** The shape the API answers with; the client never rebuilds a domain entity from it. */
 export interface WorkoutSessionResponse {
@@ -40,7 +41,7 @@ interface PageResponse<TItem> {
 export class HttpWorkoutGateway {
   constructor(
     private readonly baseUrl: string,
-    private readonly fetchImpl: typeof fetch = globalThis.fetch,
+    private readonly fetchImpl: typeof fetch = sessionAwareFetch,
   ) {}
 
   /** Null when nothing is in progress: the API answers 404 rather than a null body. */

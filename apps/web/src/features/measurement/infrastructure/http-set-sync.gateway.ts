@@ -1,5 +1,6 @@
 import type { LoggedSet } from '@gym/domain/measurement/entities/logged-set.entity'
 import type { SetSyncGateway } from '@gym/domain/measurement/ports/set-sync.gateway'
+import { sessionAwareFetch } from '../../auth/infrastructure/session-aware-fetch'
 
 interface LoggedSetResponse {
   readonly id: string
@@ -16,7 +17,7 @@ interface LoggedSetResponse {
 export class HttpSetSyncGateway implements SetSyncGateway {
   constructor(
     private readonly baseUrl: string,
-    private readonly fetchImpl: typeof fetch = globalThis.fetch,
+    private readonly fetchImpl: typeof fetch = sessionAwareFetch,
   ) {}
 
   async push(sessionId: string, sets: readonly LoggedSet[]): Promise<readonly string[]> {

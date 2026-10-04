@@ -1,3 +1,4 @@
+import { sessionAwareFetch } from '../../auth/infrastructure/session-aware-fetch'
 import type { PushSubscriptionKeys } from './browser-push.subscriber'
 
 export interface PushStateResponse {
@@ -10,7 +11,7 @@ export interface PushStateResponse {
 export class HttpPushGateway {
   constructor(
     private readonly baseUrl: string,
-    private readonly fetchImpl: typeof fetch = globalThis.fetch,
+    private readonly fetchImpl: typeof fetch = sessionAwareFetch,
   ) {}
 
   async readState(): Promise<PushStateResponse> {

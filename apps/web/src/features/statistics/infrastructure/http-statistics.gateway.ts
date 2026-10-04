@@ -1,3 +1,4 @@
+import { sessionAwareFetch } from '../../auth/infrastructure/session-aware-fetch'
 export interface WeekSummaryResponse {
   readonly sets: number
   readonly workouts: number
@@ -41,7 +42,7 @@ export interface ExerciseProgressionResponse {
 export class HttpStatisticsGateway {
   constructor(
     private readonly baseUrl: string,
-    private readonly fetchImpl: typeof fetch = globalThis.fetch,
+    private readonly fetchImpl: typeof fetch = sessionAwareFetch,
   ) {}
 
   async week(weekStart: Date): Promise<WeekComparisonResponse> {
