@@ -1,8 +1,6 @@
 'use client'
 
 import { useQueryClient } from '@tanstack/react-query'
-import { ChevronDown } from 'lucide-react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { EnablePocketedAlertsUseCase } from '../../../push/application/enable-pocketed-alerts.use-case'
@@ -13,7 +11,7 @@ import { StartRestUseCase } from '../../../rest-timer/application/start-rest.use
 import { NavigatorScreenWakeLock } from '../../../rest-timer/infrastructure/navigator-screen-wake-lock.adapter'
 import { WebAudioCompletionCue } from '../../../rest-timer/infrastructure/web-audio-completion-cue'
 import { restSecondsFor } from '../../../routines/application/rest-seconds-for'
-import { getRoutine } from '../../../routines/infrastructure/routines.api'
+import { getRoutine, type RoutineResponse } from '../../../routines/infrastructure/routines.api'
 import { SystemClock } from '../../../shared/infrastructure/system-clock.adapter'
 import {
   type EquipmentResponse,
@@ -33,7 +31,7 @@ import { SyncPendingSetsUseCase } from '../../application/sync-pending-sets.use-
 import { HttpSetSyncGateway } from '../../infrastructure/http-set-sync.gateway'
 import { IndexedDbSetRepository } from '../../infrastructure/indexed-db-set.repository'
 import { prefetchLastSets } from '../last-sets.queries'
-import { LogWorkoutContainer } from './log-workout.container'
+import { WorkoutScreenContainer } from './workout-screen.container'
 
 interface WorkoutContext {
   readonly session: WorkoutSessionResponse | null
@@ -57,6 +55,7 @@ export const WorkoutPageContainer = () => {
     const wakeLock = new NavigatorScreenWakeLock()
     return {
       enableAlerts: new EnablePocketedAlertsUseCase(new PushSubscriber(), pushApi),
+      queue,
       logSet: new LogSetOfflineUseCase(queue),
       syncSets: new SyncPendingSetsUseCase(queue, new HttpSetSyncGateway()),
       countPending: new CountPendingSetsUseCase(queue),
@@ -70,7 +69,7 @@ export const WorkoutPageContainer = () => {
   const [context, setContext] = useState<WorkoutContext | null>(null)
   const [unreachable, setUnreachable] = useState(false)
   // Null until the routine is read, and for an empty workout: rest then falls back.
-  const [plan, setPlan] = useState<Parameters<typeof restSecondsFor>[0]>(null)
+  const [routine, setRoutine] = useState<RoutineResponse | null>(null)
   const routineId = context?.session?.routineId ?? null
   const openSessionId = context?.session?.id ?? null
   const queryClient = useQueryClient()
@@ -79,15 +78,15 @@ export const WorkoutPageContainer = () => {
     if (routineId === null) return
     // Offline the routine cannot be read; logging still works on the fallback rest.
     void getRoutine(routineId)
-      .then((routine) => {
-        setPlan(routine.entries)
+      .then((followed) => {
+        setRoutine(followed)
         void prefetchLastSets(
           queryClient,
-          routine.entries.map((entry) => entry.exerciseId),
+          followed.entries.map((entry) => entry.exerciseId),
           openSessionId,
         )
       })
-      .catch(() => setPlan(null))
+      .catch(() => setRoutine(null))
   }, [routineId, openSessionId, queryClient])
 
   useEffect(() => {
@@ -132,42 +131,30 @@ export const WorkoutPageContainer = () => {
     )
   }
 
-  const sessionId = context.session.id
+  const session = context.session
 
   return (
     <div className="grid gap-6">
-      <div className="flex items-center justify-between">
-        <Link
-          href="/"
-          aria-label="Minimize workout"
-          className="flex size-11 items-center justify-center rounded-full border border-border bg-card"
-        >
-          <ChevronDown className="size-5" aria-hidden="true" />
-        </Link>
-        <button
-          type="button"
-          disabled={finish.isPending}
-          onClick={() => finish.mutate(sessionId, { onSuccess: () => router.push('/') })}
-          className="min-h-11 px-3 font-semibold"
-        >
-          Finish
-        </button>
-      </div>
-      <PocketedAlertsContainer gateway={pushApi} enableAlerts={wiring.enableAlerts} />
-      <LogWorkoutContainer
-        sessionId={context.session.id}
+      <WorkoutScreenContainer
+        sessionId={session.id}
+        startedAt={new Date(session.startedAt)}
+        routine={routine}
         exercises={context.exercises.filter((exercise) => !exercise.archived)}
         equipment={context.equipment.filter((item) => !item.archived)}
+        queue={wiring.queue}
         logSet={wiring.logSet}
         syncSets={wiring.syncSets}
         countPending={wiring.countPending}
         startRest={wiring.startRest}
-        restSecondsFor={restSecondsFor(plan)}
+        restSecondsFor={restSecondsFor(routine?.entries ?? null)}
         clock={wiring.clock}
         wakeLock={wiring.wakeLock}
         cue={wiring.cue}
         push={pushApi}
+        finishing={finish.isPending}
+        onFinish={() => finish.mutate(session.id, { onSuccess: () => router.push('/') })}
       />
+      <PocketedAlertsContainer gateway={pushApi} enableAlerts={wiring.enableAlerts} />
     </div>
   )
 }

@@ -17,7 +17,37 @@ Mode: Strict TDD. Delivery: auto-chain; each review unit is a slice that Ian rev
 - UI: the `openWorkout` rule, `offlineWork()` singletons, `useOpenWorkout` and `useFinishWorkout`, `WorkoutMiniBar`, the timer tab slot, `AppShellContainer` background sync, and the Finish button on the workout page.
 - Gap: the mini bar has no routine name or set count yet (3a/4b).
 
-## Unit 5b — the keypad (committed, under Ian's standing go-ahead)
+## Unit 5c — the focus workout screen (committed, under Ian's standing go-ahead)
+
+All implementation tasks are done. Only the manual device checks DV-U1 to DV-U4 remain, and they are Ian's.
+
+- **Addition, API (e07de2d):** `GET /workouts/:id/sets` (`ListSessionSetsUseCase`, which checks ownership through `findOwnedWorkout`). The design's "done sets = queue + synced sets of this session" had no endpoint to read the synced half. Without it, minimizing and resuming a workout would empty the done list and reset "Log set N".
+- [x] 5c.1 (34dab74, lint fix fed2f34):
+  - `LastTimeCard` covers value / no set N / first time / offline / loading, at a fixed height.
+  - `workout-plan.ts` adds `compatibleEquipment` (mirrors `Equipment.supports`), `defaultEquipmentId` (plan → used earlier this workout → the only fit → ask), `workoutOrder` (routine order, then added exercises) and `lastTimeState`.
+- [x] 5c.2 (1bcad95 components + this commit).
+  - Components: `WorkoutHeader` ("Push day · 32:10", minimize, Finish), `ExerciseFocus` ("Exercise N of M · plan", name, progressbar, equipment chip), `DoneSets` (with "waiting to sync"), `LogRow` (‹ Log set N ›).
+  - Done sets: `done-sets.ts` merges server and queue (the queue wins while a set is pending) and numbers sets per exercise by `loggedAt`.
+  - `WorkoutScreenContainer`:
+    - The keypad opens only from a tile.
+    - Logging goes through `LogSetOfflineUseCase`; the rest timer uses `restSecondsFor` and the push alert as before.
+    - There is an equipment picker drawer and an "Add an exercise" drawer (for empty workouts and extras).
+    - While typing, last time moves into the tile hint.
+- [x] 5c.3 Removed `LogWorkoutContainer`, `SetEntryForm` (+ test) and `LoggedSetList`; nothing references them.
+- **Equipment (flagged):** the chosen design has no place to pick equipment, yet every set needs it, and routine entries rarely name one. The chip and picker with a smart default keep logging possible. Ian should confirm the default order on device.
+- **Deferred:** the Home headline for an open workout ("Push day, 3 of 5 done"). It could now be derived from the session's sets, and is left as a follow-up.
+
+### Evidence
+
+| Evidence | Value |
+|----------|-------|
+| RED → GREEN | session sets use case 2 (order, other user); workout-plan 11; last-time card 5; components 7; done-sets 5; session-sets client 1 |
+| API | 33 files, 239 tests; typecheck clean |
+| Web | 55 files, 333 tests; typecheck clean; biome clean; `next build` OK |
+| Runtime harness | not run in a browser: the full flow (log offline, rest, minimize/resume) is DV-U2/U3/U4 |
+| Mistake | 1bcad95 was committed while biome reported errors in 34dab74's file (the output was swallowed by a chained command). This was fixed in fed2f34 |
+
+## Unit 5b — the keypad (committed 0c33c34)
 
 - [x] 5b.1 `presentation/keypad/keypad.reducer.ts`:
   - digit, decimal (at most one, "0." when first, ignored for reps), delete, step (weight ±2.5, reps ±1, clamped at 0), sameAsLast (fills both values) and switchField.

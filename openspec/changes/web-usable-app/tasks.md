@@ -89,8 +89,8 @@
 ## 5c — Workout: the focus screen
 
 - [x] 5c.1 `LastTimeCard` covering its four states (value, none, no set N, offline), with jsdom tests.
-- [ ] 5c.2 The workout screen container and its components (header, exercise focus, tiles, done sets, ‹ Log set N › row). The keypad opens only while a tile is being edited. Sets are logged through the existing offline use case. Rest uses the routine's value.
-- [ ] 5c.3 Remove the old set-entry form and logged-set list once nothing uses them.
+- [x] 5c.2 The workout screen container and its components (header, exercise focus, tiles, done sets, ‹ Log set N › row). The keypad opens only while a tile is being edited. Sets are logged through the existing offline use case. Rest uses the routine's value.
+- [x] 5c.3 Remove the old set-entry form and logged-set list once nothing uses them.
 
 ## Device verification (manual, Ian, after 5c)
 

@@ -20,7 +20,7 @@ const lastSetsQuery = (
   })
 
 export const useLastSets = (exerciseId: string, sessionId: string | null) =>
-  useQuery(lastSetsQuery(exerciseId, sessionId))
+  useQuery({ ...lastSetsQuery(exerciseId, sessionId), enabled: exerciseId !== '' })
 
 /**
  * Read last time for every exercise of the plan while there is a connection,

@@ -10,10 +10,10 @@ export interface ValueTileProps {
   readonly label: string
   /** As typed; empty when nothing is entered yet. */
   readonly value: string
-  readonly unit?: string
+  readonly unit?: string | undefined
   /** The unit as a screen reader should say it: "kilograms", not "kg". */
-  readonly spokenUnit?: string
-  readonly hint?: string
+  readonly spokenUnit?: string | undefined
+  readonly hint?: string | undefined
   readonly pressed: boolean
   readonly onPress: () => void
 }
