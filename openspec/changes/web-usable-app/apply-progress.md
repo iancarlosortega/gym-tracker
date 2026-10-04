@@ -17,7 +17,27 @@ Mode: Strict TDD. Delivery: auto-chain; each review unit is a slice that Ian rev
 - UI: the `openWorkout` rule, `offlineWork()` singletons, `useOpenWorkout` and `useFinishWorkout`, `WorkoutMiniBar`, the timer tab slot, `AppShellContainer` background sync, and the Finish button on the workout page.
 - Gap: the mini bar has no routine name or set count yet (3a/4b).
 
-## Unit 4b — up next: Home and the start entry points (uncommitted, awaiting Ian's local review)
+## Unit 5a — the last-sets endpoint (committed, under Ian's standing go-ahead)
+
+- [x] 5a.1 `GET /exercises/:id/last-sets?excludingSession=` returns `{ sessionStartedAt, sets: [{ setNumber, mode, value, reps }] } | null`.
+  - Domain port: `LastSetsRepository`.
+  - `GetLastSetsUseCase` numbers the sets by logged order, and gives the value as entered: total kg, kg per side, or pin position.
+  - `DrizzleLastSetsRepository` finds the user's most recent other session with a live set of the exercise, then reads its sets in `logged_at` order.
+  - The DTO accepts any UUID version.
+- [x] 5a.2 Web: `getLastSets` treats an empty body as null (Nest sends no body for a null return). `useLastSets` has infinite staleTime. `prefetchLastSets` reads each planned exercise once, only while online, and is triggered on the workout page when the routine loads.
+
+### Evidence
+
+| Evidence | Value |
+|----------|-------|
+| RED → GREEN | use case 3, PGlite repository 4 (order, exclusion, none, other user), DTO 3, web client 3, prefetch 2 |
+| API | 32 files, 237 tests; typecheck clean |
+| Web | 49 files, 293 tests; typecheck clean; `next build` OK |
+| Fixture fix | a stack set must not carry a bar weight in its snapshot (the domain refused it, correctly) |
+
+Size: 572 lines (421 API + domain, 149 web). Committed as two commits: API, then web.
+
+## Unit 4b — up next: Home and the start entry points (committed 7767527, 51a1f3d)
 
 - [x] 4b.1 Home (`features/home`).
   - `HomeHeadline` reads "<Routine> is up next." plus `lastDoneLabel` (today / yesterday / weekday / "21 Sep"; month names spelled out, because Intl gives "Sept" on this runtime). With no routines it reads "Make your first routine" and links to /routines.

@@ -1,5 +1,6 @@
 'use client'
 
+import { useQueryClient } from '@tanstack/react-query'
 import { ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -31,6 +32,7 @@ import { LogSetOfflineUseCase } from '../../application/log-set-offline.use-case
 import { SyncPendingSetsUseCase } from '../../application/sync-pending-sets.use-case'
 import { HttpSetSyncGateway } from '../../infrastructure/http-set-sync.gateway'
 import { IndexedDbSetRepository } from '../../infrastructure/indexed-db-set.repository'
+import { prefetchLastSets } from '../last-sets.queries'
 import { LogWorkoutContainer } from './log-workout.container'
 
 interface WorkoutContext {
@@ -70,14 +72,23 @@ export const WorkoutPageContainer = () => {
   // Null until the routine is read, and for an empty workout: rest then falls back.
   const [plan, setPlan] = useState<Parameters<typeof restSecondsFor>[0]>(null)
   const routineId = context?.session?.routineId ?? null
+  const openSessionId = context?.session?.id ?? null
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (routineId === null) return
     // Offline the routine cannot be read; logging still works on the fallback rest.
     void getRoutine(routineId)
-      .then((routine) => setPlan(routine.entries))
+      .then((routine) => {
+        setPlan(routine.entries)
+        void prefetchLastSets(
+          queryClient,
+          routine.entries.map((entry) => entry.exerciseId),
+          openSessionId,
+        )
+      })
       .catch(() => setPlan(null))
-  }, [routineId])
+  }, [routineId, openSessionId, queryClient])
 
   useEffect(() => {
     void (async () => {

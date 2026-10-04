@@ -78,8 +78,8 @@
 
 ## 5a — Workout: the last-sets endpoint
 
-- [ ] 5a.1 API `GET /exercises/:id/last-sets?excludingSession=`: the most recent other session containing that exercise, with its sets numbered by `logged_at`. Tests: numbering, excluding the open session, none, and other users' data.
-- [ ] 5a.2 Web: `useLastSets()` plus a prefetch for every routine exercise when the screen opens online.
+- [x] 5a.1 API `GET /exercises/:id/last-sets?excludingSession=`: the most recent other session containing that exercise, with its sets numbered by `logged_at`. Tests: numbering, excluding the open session, none, and other users' data.
+- [x] 5a.2 Web: `useLastSets()` plus a prefetch for every routine exercise when the screen opens online.
 
 ## 5b — Workout: the keypad
 
