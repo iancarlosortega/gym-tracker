@@ -30,6 +30,7 @@ const nextId = () => `0199a1f0-0000-7000-8000-${String(++counter).padStart(12, '
 let statistics: DrizzleStatisticsRepository
 let sets: DrizzleSetRepository
 let references: SeededReferences
+let client: Awaited<ReturnType<typeof createTestDatabase>>
 
 const barbellSet = (kilograms: number, loggedAt: Date) =>
   LoggedSet.create({
@@ -56,7 +57,7 @@ const machineSet = (position: number, loggedAt: Date) =>
   })
 
 beforeEach(async () => {
-  const client = await createTestDatabase()
+  client = await createTestDatabase()
   references = await seedReferences(client)
 
   const database = drizzle(client)
@@ -118,5 +119,32 @@ describe('reading the sets a statistic is computed from', () => {
 
     const volume = totalVolume(found)
     expect(volume).toMatchObject({ kind: 'resolved', excludedSets: 1 })
+  })
+})
+
+describe('reading the workouts in a period', () => {
+  const startWorkout = (id: string, userId: string, startedAt: string) =>
+    client.query(`INSERT INTO workout_session (id, user_id, started_at) VALUES ($1, $2, $3)`, [
+      id,
+      userId,
+      startedAt,
+    ])
+
+  it('returns only the user’s workouts started inside the week', async () => {
+    const stranger =
+      (
+        await client.query<{ id: string }>(
+          `INSERT INTO app_user (email, password_hash) VALUES ('other@example.test', 'hash') RETURNING id`,
+        )
+      ).rows[0]?.id ?? ''
+    await startWorkout(nextId(), references.userId, '2026-09-15T08:00:00.000Z')
+    await startWorkout(nextId(), references.userId, '2026-09-08T08:00:00.000Z')
+    await startWorkout(nextId(), stranger, '2026-09-16T08:00:00.000Z')
+
+    const sessions = await statistics.sessionsInPeriod(references.userId, week)
+
+    expect(sessions.map((session) => session.startedAt.toISOString())).toEqual([
+      '2026-09-15T08:00:00.000Z',
+    ])
   })
 })

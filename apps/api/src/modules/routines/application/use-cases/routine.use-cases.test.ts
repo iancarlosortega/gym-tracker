@@ -31,6 +31,7 @@ let removeEntry: RemoveRoutineEntryUseCase
 let reorder: ReorderRoutineUseCase
 let archive: ArchiveRoutineUseCase
 let list: ListRoutinesUseCase
+let history: Map<string, Date>
 
 let benchId: string
 let rowId: string
@@ -47,7 +48,8 @@ beforeEach(async () => {
   removeEntry = new RemoveRoutineEntryUseCase(routines)
   reorder = new ReorderRoutineUseCase(routines)
   archive = new ArchiveRoutineUseCase(routines, new FixedClock(new Date('2026-09-19T12:00:00Z')))
-  list = new ListRoutinesUseCase(routines)
+  history = new Map()
+  list = new ListRoutinesUseCase(routines, { lastDoneAt: async () => history })
 
   const bench = Exercise.create({ userId, name: 'Bench Press', defaultMode: 'PER_SIDE' })
   const row = Exercise.create({ userId, name: 'Seated Row', defaultMode: 'STACK_POSITION' })
@@ -228,10 +230,36 @@ describe('listing routines', () => {
 
     await archive.execute({ userId: userId.value, routineId: routine.id.value })
 
-    const page = await list.execute({ userId: userId.value })
+    const { page } = await list.execute({ userId: userId.value })
 
     expect(page.items.map((item) => item.name.value)).toEqual(['Pull Day'])
     expect(page.total).toBe(1)
     expect(page.limit).toBe(50)
+  })
+
+  it('says when each routine was last done and which one is up next', async () => {
+    const push = await pushDay()
+    const pull = await createRoutine.execute({ userId: userId.value, name: 'Pull Day' })
+    history.set(push.id.value, new Date('2026-09-28T09:00:00Z'))
+    history.set(pull.id.value, new Date('2026-09-21T09:00:00Z'))
+
+    const listing = await list.execute({ userId: userId.value })
+
+    expect(listing.lastDoneAt.get(push.id.value)).toEqual(new Date('2026-09-28T09:00:00Z'))
+    expect(listing.upNextRoutineId).toBe(pull.id.value)
+  })
+
+  it('puts a never-done routine up next, breaking ties by the order the list shows', async () => {
+    await pushDay()
+    const legs = await createRoutine.execute({ userId: userId.value, name: 'Legs' })
+    await createRoutine.execute({ userId: userId.value, name: 'Pull Day' })
+
+    const listing = await list.execute({ userId: userId.value })
+
+    expect(listing.upNextRoutineId).toBe(legs.id.value)
+  })
+
+  it('has nothing up next without routines', async () => {
+    expect((await list.execute({ userId: userId.value })).upNextRoutineId).toBeNull()
   })
 })

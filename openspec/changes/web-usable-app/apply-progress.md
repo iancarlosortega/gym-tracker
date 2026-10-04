@@ -17,7 +17,39 @@ Mode: Strict TDD. Delivery: auto-chain; each review unit is a slice that Ian rev
 - UI: the `openWorkout` rule, `offlineWork()` singletons, `useOpenWorkout` and `useFinishWorkout`, `WorkoutMiniBar`, the timer tab slot, `AppShellContainer` background sync, and the Finish button on the workout page.
 - Gap: the mini bar has no routine name or set count yet (3a/4b).
 
-## Unit 3b — routine editing and rest (uncommitted, awaiting Ian's local review)
+## Unit 4a — up next: domain and API (uncommitted, awaiting Ian's local review)
+
+- [x] 4a.1 `packages/domain/src/routines/services/up-next.service.ts`: the pure `upNext()` filters archived routines, puts never-done ones first (sorted as −∞), then oldest `lastDoneAt`, then position. There is one test per spec scenario (5).
+- [x] 4a.2 `GET /routines` adds `lastDoneAt` per item and a top-level `upNextRoutineId`.
+  - Domain port: `RoutineHistoryRepository.lastDoneAt(userId)`.
+  - `DrizzleRoutineHistoryRepository` does `max(started_at) group by routine_id`, for this user only, skipping empty workouts.
+  - `ListRoutinesUseCase` returns `{ page, lastDoneAt, upNextRoutineId }`; `toRoutineListView` builds the response.
+- [x] 4a.3 `GET /statistics/week` adds `trainedOn`: the distinct ISO dates of this week's workouts, sorted. A new PGlite test pins that `sessionsInPeriod` returns only this user's workouts in the period.
+- **Design gap (flagged):** routines have no position of their own; only their entries do, and the list is sorted by name. The tie-break "routine order" is therefore the order the list shows, which is name order. A real user-defined routine order would need a migration and a reorder UI, so that is left as a follow-up decision.
+
+### TDD cycle evidence
+
+| Task | RED | GREEN | Triangulate | Refactor |
+|------|-----|-------|-------------|----------|
+| 4a.1 | module missing | 5/5 | the 5 spec scenarios (ties checked both never-done and same-date) | none |
+| 4a.2 use case | the new listing shape failed | 4/4 | last done, oldest wins, a never-done tie in list order, none | none |
+| 4a.2 repository (PGlite) | module missing | 3/3 | latest of two, empty workouts and never followed, another user | none |
+| 4a.3 | `trainedOn` undefined | 2/2 | dedup + sort + only this week; empty week | none |
+| 4a.3 sessions scope (PGlite) | characterization (already true) | 1/1 | own vs another user's, in vs out of the week | none |
+
+### Work unit evidence
+
+| Evidence | Value |
+|----------|-------|
+| Domain | 210 tests passed, typecheck clean, rebuilt `dist` |
+| API | 29 files, 227 tests passed, typecheck clean |
+| Lint | biome clean |
+| Runtime harness | the repository runs against PGlite; the web consumes this in 4b |
+| Rollback boundary | the domain up-next service and history port; the API routines listing/history/view and statistics `trainedOn` |
+
+Size: 364 added lines (210 tests), within the 400 budget.
+
+## Unit 3b — routine editing and rest (committed 2fbb68b fix, 2a55eea feature)
 
 - **API bug fixed (found during 3b.3):** `ReorderRoutineDto` validated `@IsUUID('4')`, but every id is a UUIDv7, so every real reorder was refused with a 400. It is now `@IsUUID('all')`, covered by a new DTO test (red on v7 ids, then green).
 - [x] 3b.1 `routines.api.ts`: `addRoutineExercise`, `changeRoutineEntry` (PATCH), `removeRoutineEntry` (DELETE) and `reorderRoutine` (PUT `/order`, the full list of ids).

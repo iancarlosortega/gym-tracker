@@ -54,14 +54,18 @@ export interface WeekSummaryView {
 export interface WeekComparisonView {
   readonly current: WeekSummaryView
   readonly previous: WeekSummaryView
+  /** ISO dates of this week's workouts. */
+  readonly trainedOn: readonly string[]
 }
 
 export const toWeekComparisonView = (comparison: {
   readonly current: WeekSummary
   readonly previous: WeekSummary
+  readonly trainedOn: readonly string[]
 }): WeekComparisonView => ({
   current: toWeekSummaryView(comparison.current),
   previous: toWeekSummaryView(comparison.previous),
+  trainedOn: comparison.trainedOn,
 })
 
 const toWeekSummaryView = (summary: WeekSummary): WeekSummaryView => ({

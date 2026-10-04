@@ -1,3 +1,5 @@
+import { type PageView, toPageView } from '@api/common/http/page.view.js'
+import type { RoutineListing } from '@api/modules/routines/application/use-cases/list-routines.use-case.js'
 import type { Routine } from '@gym/domain/routines/entities/routine.entity'
 import type { RoutineEntry } from '@gym/domain/routines/entities/routine-entry.entity'
 
@@ -37,5 +39,25 @@ function toEntryView(entry: RoutineEntry): RoutineEntryView {
     // A range reads as "8-12"; an exact target reads as "8".
     targetReps: entry.targetReps?.toString() ?? null,
     restSeconds: entry.rest.value,
+  }
+}
+
+/** A routine as the list shows it: with when it was last done. */
+export interface ListedRoutineView extends RoutineView {
+  readonly lastDoneAt: string | null
+}
+
+export interface RoutineListView extends PageView<ListedRoutineView> {
+  readonly upNextRoutineId: string | null
+}
+
+export function toRoutineListView(listing: RoutineListing): RoutineListView {
+  return {
+    ...toPageView(listing.page),
+    items: listing.page.items.map((routine) => ({
+      ...toRoutineView(routine),
+      lastDoneAt: listing.lastDoneAt.get(routine.id.value)?.toISOString() ?? null,
+    })),
+    upNextRoutineId: listing.upNextRoutineId,
   }
 }

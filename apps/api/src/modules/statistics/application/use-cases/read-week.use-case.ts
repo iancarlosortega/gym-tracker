@@ -15,6 +15,8 @@ const WEEK_MILLISECONDS = 7 * 24 * 60 * 60 * 1000
 export interface WeekComparison {
   readonly current: WeekSummary
   readonly previous: WeekSummary
+  /** The days of this week with a workout, as ISO dates, each once and in order. */
+  readonly trainedOn: readonly string[]
 }
 
 /**
@@ -60,9 +62,13 @@ export class ReadWeekUseCase {
         plannedSetsByRoutine: plans,
         previousSets: earlierSets,
       }),
+      trainedOn: daysOf(sessions),
     }
   }
 }
+
+const daysOf = (sessions: readonly { readonly startedAt: Date }[]): string[] =>
+  [...new Set(sessions.map((session) => session.startedAt.toISOString().slice(0, 10)))].sort()
 
 /** Monday to the last instant of Sunday. */
 const weekFrom = (start: Date): DateRange =>

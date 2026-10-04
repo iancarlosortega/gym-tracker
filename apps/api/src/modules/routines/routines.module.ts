@@ -10,6 +10,7 @@ import { RemoveRoutineEntryUseCase } from '@api/modules/routines/application/use
 import { RenameRoutineUseCase } from '@api/modules/routines/application/use-cases/rename-routine.use-case.js'
 import { ReorderRoutineUseCase } from '@api/modules/routines/application/use-cases/reorder-routine.use-case.js'
 import { DrizzleRoutineRepository } from '@api/modules/routines/infrastructure/persistence/drizzle-routine.repository.js'
+import { DrizzleRoutineHistoryRepository } from '@api/modules/routines/infrastructure/persistence/drizzle-routine-history.repository.js'
 import { AddRoutineExerciseController } from '@api/modules/routines/presentation/add-routine-exercise/add-routine-exercise.controller.js'
 import { ArchiveRoutineController } from '@api/modules/routines/presentation/archive-routine/archive-routine.controller.js'
 import { ChangeRoutineEntryController } from '@api/modules/routines/presentation/change-routine-entry/change-routine-entry.controller.js'
@@ -19,7 +20,11 @@ import { ListRoutinesController } from '@api/modules/routines/presentation/list-
 import { RemoveRoutineEntryController } from '@api/modules/routines/presentation/remove-routine-entry/remove-routine-entry.controller.js'
 import { RenameRoutineController } from '@api/modules/routines/presentation/rename-routine/rename-routine.controller.js'
 import { ReorderRoutineController } from '@api/modules/routines/presentation/reorder-routine/reorder-routine.controller.js'
-import { CLOCK, ROUTINE_REPOSITORY } from '@api/modules/routines/routines.tokens.js'
+import {
+  CLOCK,
+  ROUTINE_HISTORY_REPOSITORY,
+  ROUTINE_REPOSITORY,
+} from '@api/modules/routines/routines.tokens.js'
 import { Module } from '@nestjs/common'
 
 /**
@@ -47,6 +52,7 @@ import { Module } from '@nestjs/common'
   providers: [
     { provide: CLOCK, useClass: SystemClock },
     { provide: ROUTINE_REPOSITORY, useClass: DrizzleRoutineRepository },
+    { provide: ROUTINE_HISTORY_REPOSITORY, useClass: DrizzleRoutineHistoryRepository },
     CreateRoutineUseCase,
     RenameRoutineUseCase,
     ArchiveRoutineUseCase,

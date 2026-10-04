@@ -65,9 +65,9 @@
 
 ## 4a — Up next: domain and API
 
-- [ ] 4a.1 Domain `upNext()`. The five spec scenarios are its tests.
-- [ ] 4a.2 API: the routines list adds `lastDoneAt` (grouped max over sessions) and `upNextRoutineId`. Repository and use-case tests.
-- [ ] 4a.3 API: the statistics week adds `trainedOn`. Test that only the user's sessions in the current week are counted.
+- [x] 4a.1 Domain `upNext()`. The five spec scenarios are its tests.
+- [x] 4a.2 API: the routines list adds `lastDoneAt` (grouped max over sessions) and `upNextRoutineId`. Repository and use-case tests.
+- [x] 4a.3 API: the statistics week adds `trainedOn`. Test that only the user's sessions in the current week are counted.
 
 ## 4b — Up next: Home and the start entry points
 

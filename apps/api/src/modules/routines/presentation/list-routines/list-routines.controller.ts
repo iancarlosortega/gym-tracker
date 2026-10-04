@@ -1,7 +1,9 @@
 import { GetUserId } from '@api/common/http/decorators/caller.decorator.js'
-import { type PageView, toPageView } from '@api/common/http/page.view.js'
 import { ListRoutinesUseCase } from '@api/modules/routines/application/use-cases/list-routines.use-case.js'
-import { type RoutineView, toRoutineView } from '@api/modules/routines/presentation/routine.view.js'
+import {
+  type RoutineListView,
+  toRoutineListView,
+} from '@api/modules/routines/presentation/routine.view.js'
 import { Controller, Get, Query } from '@nestjs/common'
 import { ListRoutinesDto } from './list-routines.dto.js'
 
@@ -13,7 +15,7 @@ export class ListRoutinesController {
   async handle(
     @GetUserId() userId: string,
     @Query() query: ListRoutinesDto,
-  ): Promise<PageView<RoutineView>> {
+  ): Promise<RoutineListView> {
     const found = await this.listRoutines.execute({
       userId,
       includeArchived: query.includeArchived,
@@ -21,6 +23,6 @@ export class ListRoutinesController {
       offset: query.offset,
     })
 
-    return toPageView(found.map(toRoutineView))
+    return toRoutineListView(found)
   }
 }
