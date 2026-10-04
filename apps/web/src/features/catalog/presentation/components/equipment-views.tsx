@@ -1,4 +1,4 @@
-import { ChevronRight, Pencil, Scale } from 'lucide-react'
+import { ChevronRight, Pencil, Plus, Scale } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -20,32 +20,48 @@ export const usageLabel = (usage: EquipmentUsageResponse): string =>
 
 export const EquipmentList = ({
   equipment,
+  onNew,
 }: {
   readonly equipment: readonly EquipmentResponse[]
+  readonly onNew: () => void
 }) => {
   const active = equipment.filter((item) => !item.archived)
 
   if (active.length === 0) {
-    return <p className="py-10 text-center text-muted-foreground">No equipment yet.</p>
+    return (
+      <div className="grid justify-items-center gap-3 py-10 text-center">
+        <p className="text-muted-foreground">No equipment yet.</p>
+        <Button className="min-h-touch" onClick={onNew}>
+          <Plus className="size-5" />
+          Add your first equipment
+        </Button>
+      </div>
+    )
   }
 
   return (
-    <ul className="grid gap-2">
-      {active.map((item) => (
-        <li key={item.id}>
-          <Link
-            href={`/equipment/${item.id}`}
-            className="flex min-h-touch items-center justify-between gap-3 rounded-xl bg-card px-4 py-3"
-          >
-            <span>{item.name}</span>
-            <span className="flex items-center gap-2 text-muted-foreground text-sm">
-              {equipmentSummary(item)}
-              <ChevronRight className="size-4" />
-            </span>
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <div className="grid gap-4">
+      <Button variant="outline" className="min-h-touch justify-self-start" onClick={onNew}>
+        <Plus className="size-5" />
+        New equipment
+      </Button>
+      <ul className="grid gap-2">
+        {active.map((item) => (
+          <li key={item.id}>
+            <Link
+              href={`/equipment/${item.id}`}
+              className="flex min-h-touch items-center justify-between gap-3 rounded-xl bg-card px-4 py-3"
+            >
+              <span>{item.name}</span>
+              <span className="flex items-center gap-2 text-muted-foreground text-sm">
+                {equipmentSummary(item)}
+                <ChevronRight className="size-4" />
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 

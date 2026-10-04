@@ -3,6 +3,7 @@ import { createApiClient } from '@/lib/api-client'
 import { type StubAnswer, stubAdapter } from '@/lib/testing/stub-adapter'
 import {
   archiveEquipment,
+  createEquipment,
   getCatalogEquipment,
   getEquipmentUsage,
   renameEquipment,
@@ -73,5 +74,21 @@ describe('renameEquipment and archiveEquipment', () => {
 
     expect(stub.calls[0]?.method).toBe('post')
     expect(stub.calls[0]?.url).toBe('/equipment/q-1/archive')
+  })
+})
+
+describe('createEquipment', () => {
+  it('sends a barbell with its bar weight', async () => {
+    const { client, stub } = clientAnswering(() => ({ status: 201, data: smith }))
+
+    expect(
+      await createEquipment({ name: 'Smith machine', kind: 'BARBELL', barKilograms: 15 }, client),
+    ).toEqual(smith)
+    expect(stub.calls[0]?.url).toBe('/equipment')
+    expect(JSON.parse(String(stub.calls[0]?.data))).toEqual({
+      name: 'Smith machine',
+      kind: 'BARBELL',
+      barKilograms: 15,
+    })
   })
 })

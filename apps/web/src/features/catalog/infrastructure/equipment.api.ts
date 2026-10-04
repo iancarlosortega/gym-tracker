@@ -41,3 +41,16 @@ export const archiveEquipment = async (
   const { data } = await client.post<EquipmentResponse>(`/equipment/${equipmentId}/archive`)
   return data
 }
+
+export type NewEquipment =
+  | { readonly name: string; readonly kind: 'BARBELL'; readonly barKilograms: number }
+  | { readonly name: string; readonly kind: 'STACK'; readonly stackPositions: number }
+  | { readonly name: string; readonly kind: 'FREE_WEIGHT' }
+
+export const createEquipment = async (
+  equipment: NewEquipment,
+  client: AxiosInstance = apiClient,
+): Promise<EquipmentResponse> => {
+  const { data } = await client.post<EquipmentResponse>('/equipment', equipment)
+  return data
+}

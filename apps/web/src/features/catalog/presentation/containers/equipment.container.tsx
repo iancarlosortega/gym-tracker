@@ -5,22 +5,54 @@ import { QueryState } from '@/components/query-state'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import { EquipmentDetails, EquipmentList } from '../components/equipment-views'
 import { EditCatalogItemForm } from '../components/exercise-forms'
+import { NewEquipmentForm } from '../components/new-equipment-form'
 import {
   useArchiveEquipment,
   useCatalogEquipment,
+  useCreateEquipment,
   useEquipmentUsage,
   useRenameEquipment,
 } from '../queries'
 
-export const EquipmentListContainer = () => (
-  <QueryState
-    query={useCatalogEquipment()}
-    pending={<p>Reading your equipment…</p>}
-    failed={<p role="alert">Could not reach the server, so your equipment cannot be shown.</p>}
-  >
-    {(equipment) => <EquipmentList equipment={equipment} />}
-  </QueryState>
-)
+export const EquipmentListContainer = () => {
+  const create = useCreateEquipment()
+  const [creating, setCreating] = useState(false)
+
+  return (
+    <>
+      <QueryState
+        query={useCatalogEquipment()}
+        pending={<p>Reading your equipment…</p>}
+        failed={<p role="alert">Could not reach the server, so your equipment cannot be shown.</p>}
+      >
+        {(equipment) => <EquipmentList equipment={equipment} onNew={() => setCreating(true)} />}
+      </QueryState>
+
+      <Drawer
+        open={creating}
+        onOpenChange={(open) => {
+          setCreating(open)
+          create.reset()
+        }}
+      >
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>New equipment</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-6">
+            <NewEquipmentForm
+              pending={create.isPending}
+              failed={create.isError}
+              onSubmit={(equipment) =>
+                create.mutate(equipment, { onSuccess: () => setCreating(false) })
+              }
+            />
+          </div>
+        </DrawerContent>
+      </Drawer>
+    </>
+  )
+}
 
 export const EquipmentDetailContainer = ({ equipmentId }: { readonly equipmentId: string }) => {
   const equipment = useCatalogEquipment()

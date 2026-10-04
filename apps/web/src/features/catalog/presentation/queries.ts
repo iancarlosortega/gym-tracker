@@ -2,8 +2,10 @@ import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/r
 import { workoutsKeys } from '../../workouts/presentation/queries'
 import {
   archiveEquipment,
+  createEquipment,
   getCatalogEquipment,
   getEquipmentUsage,
+  type NewEquipment,
   renameEquipment,
 } from '../infrastructure/equipment.api'
 import {
@@ -76,3 +78,6 @@ export const useRenameEquipment = () =>
 
 export const useArchiveEquipment = () =>
   useCatalogMutation((id: string) => archiveEquipment(id), equipmentLists)
+
+export const useCreateEquipment = () =>
+  useCatalogMutation((equipment: NewEquipment) => createEquipment(equipment), equipmentLists)

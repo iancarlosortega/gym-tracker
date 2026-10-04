@@ -57,7 +57,7 @@ describe('usageLabel', () => {
 
 describe('EquipmentList', () => {
   it('links each piece to its detail and hides archived ones', () => {
-    render(<EquipmentList equipment={[smith, { ...legPress, archived: true }]} />)
+    render(<EquipmentList equipment={[smith, { ...legPress, archived: true }]} onNew={vi.fn()} />)
 
     expect(screen.getByRole('link', { name: /smith machine/i }).getAttribute('href')).toBe(
       '/equipment/q-1',
@@ -65,10 +65,21 @@ describe('EquipmentList', () => {
     expect(screen.queryByText('Leg press')).toBeNull()
   })
 
-  it('says when there is nothing yet', () => {
-    render(<EquipmentList equipment={[]} />)
+  it('offers adding the first piece when there is nothing yet', async () => {
+    const onNew = vi.fn()
+    render(<EquipmentList equipment={[]} onNew={onNew} />)
 
     expect(screen.getByText('No equipment yet.')).toBeDefined()
+    await userEvent.click(screen.getByRole('button', { name: 'Add your first equipment' }))
+    expect(onNew).toHaveBeenCalledOnce()
+  })
+
+  it('adds more from the list', async () => {
+    const onNew = vi.fn()
+    render(<EquipmentList equipment={[smith]} onNew={onNew} />)
+
+    await userEvent.click(screen.getByRole('button', { name: 'New equipment' }))
+    expect(onNew).toHaveBeenCalledOnce()
   })
 })
 

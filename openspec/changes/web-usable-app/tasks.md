@@ -95,7 +95,7 @@
 ## 6 — Device-verification fixes (found by Ian on the iPhone, 2026-10-04)
 
 - [x] 6.1 Every screen clears the status bar (safe-area top inset); the workout page loses its leftover "Log a workout" title.
-- [ ] 6.2 Equipment can be created: `createEquipment` client, a New equipment form (name, kind, bar weight or stack positions), on `/equipment` and its empty state.
+- [x] 6.2 Equipment can be created: `createEquipment` client, a New equipment form (name, kind, bar weight or stack positions), on `/equipment` and its empty state.
 - [ ] 6.3 The workout's equipment picker never shows an empty sheet: with nothing that fits, it explains why and offers to create a fitting one.
 - [ ] 6.4 Log set says why it cannot log yet (no equipment, no weight, no reps).
 - [ ] 6.5 Each exercise in a workout keeps its own weight and reps.
