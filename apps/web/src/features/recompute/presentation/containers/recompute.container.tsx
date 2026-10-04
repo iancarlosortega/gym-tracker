@@ -1,17 +1,14 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import {
-  HttpRecomputeGateway,
-  type RecomputePreviewResponse,
-  StalePreviewError,
-} from '../../infrastructure/http-recompute.gateway'
+import { StalePreviewError } from '../../application/stale-preview.error'
+import type { RecomputePreviewResponse } from '../../infrastructure/recompute.api'
 import { RecomputeConsequences, SetChangeList } from '../components/recompute-consequences'
 import { StalePreviewNotice } from '../components/stale-preview-notice'
+import { useApplyRecompute, usePreviewRecompute } from '../queries'
 
 export interface RecomputeContainerProps {
-  readonly apiBaseUrl: string
   readonly equipmentId: string
   readonly equipmentName: string
   readonly exerciseNames: ReadonlyMap<string, string>
@@ -28,29 +25,28 @@ type Outcome = 'reviewing' | 'stale' | 'applied' | 'unreachable'
  * already did. Everything else can be undone by logging another set.
  */
 export const RecomputeContainer = ({
-  apiBaseUrl,
   equipmentId,
   equipmentName,
   exerciseNames,
   onDone,
 }: RecomputeContainerProps) => {
-  const gateway = useMemo(() => new HttpRecomputeGateway(apiBaseUrl), [apiBaseUrl])
+  const { mutateAsync: requestPreview } = usePreviewRecompute(equipmentId)
+  const { mutateAsync: applyPreview, isPending: busy } = useApplyRecompute(equipmentId)
   const [preview, setPreview] = useState<RecomputePreviewResponse | null>(null)
   const [outcome, setOutcome] = useState<Outcome>('reviewing')
   const [acknowledged, setAcknowledged] = useState(false)
   const [showLedger, setShowLedger] = useState(false)
-  const [busy, setBusy] = useState(false)
 
   const refresh = useCallback(async () => {
     setAcknowledged(false)
 
     try {
-      setPreview(await gateway.preview(equipmentId))
+      setPreview(await requestPreview())
       setOutcome('reviewing')
     } catch {
       setOutcome('unreachable')
     }
-  }, [gateway, equipmentId])
+  }, [requestPreview])
 
   useEffect(() => {
     void refresh()
@@ -89,15 +85,11 @@ export const RecomputeContainer = ({
   }
 
   const apply = async () => {
-    setBusy(true)
-
     try {
-      await gateway.apply(equipmentId, preview.previewToken)
+      await applyPreview(preview.previewToken)
       setOutcome('applied')
     } catch (failure) {
       setOutcome(failure instanceof StalePreviewError ? 'stale' : 'unreachable')
-    } finally {
-      setBusy(false)
     }
   }
 

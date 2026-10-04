@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
-import type { RecomputePreviewResponse } from '../../infrastructure/http-recompute.gateway'
+import type { RecomputePreviewResponse } from '../../infrastructure/recompute.api'
 import { RecomputeConsequences } from './recompute-consequences.tsx'
 
 const names = new Map([['bench', 'Bench press']])

@@ -48,10 +48,10 @@ Commit: `refactor(web): read statistics through queries`
 
 ## Slice 4 — Recompute, push and the workout page
 
-- [ ] 4.1 Move `StalePreviewError` to `recompute/application/stale-preview.error.ts`.
-- [ ] 4.2 `recompute/infrastructure/recompute.api.ts` with `previewRecompute` and `applyRecompute`. RED first: a 409 on apply rejects with `StalePreviewError`, and any other failure rethrows.
-- [ ] 4.3 `recompute/presentation/queries.ts`: the preview and apply mutations. A successful apply invalidates `statisticsKeys.all`, which a test covers.
-- [ ] 4.4 Rewrite `recompute.container.tsx` and `recompute-page.container.tsx` on the hooks, keeping the copy. The "history changed" message is still keyed off `StalePreviewError`. The page drops `API_ORIGIN`.
+- [x] 4.1 Move `StalePreviewError` to `recompute/application/stale-preview.error.ts`.
+- [x] 4.2 `recompute/infrastructure/recompute.api.ts` with `previewRecompute` and `applyRecompute`. RED first: a 409 on apply rejects with `StalePreviewError`, and any other failure rethrows.
+- [x] 4.3 `recompute/presentation/queries.ts`: the preview and apply mutations. A successful apply invalidates `statisticsKeys.all`, which a test covers.
+- [x] 4.4 Rewrite `recompute.container.tsx` and `recompute-page.container.tsx` on the hooks, keeping the copy. The "history changed" message is still keyed off `StalePreviewError`. The page drops `API_ORIGIN`.
 - [ ] 4.5 `push/infrastructure/push.api.ts` with `getPushState`, `registerPushSubscription`, `scheduleRestAlert` and `cancelRestAlert`.
 - [ ] 4.6 Rewire `workout-page.container.tsx`:
   - the initial reads become `workouts.api` functions;

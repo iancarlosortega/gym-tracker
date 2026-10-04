@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import type {
   RecomputePreviewResponse,
   SetChangeResponse,
-} from '../../infrastructure/http-recompute.gateway'
+} from '../../infrastructure/recompute.api'
 
 export interface RecomputeConsequencesProps {
   readonly preview: RecomputePreviewResponse
