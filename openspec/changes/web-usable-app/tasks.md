@@ -17,7 +17,7 @@
 
 - [x] 1b.1 `lib/query-client.ts`: `retry` max 1, `retryDelay` 1000. Update the `shouldRetry` tests.
 - [x] 1b.2 `components/query-state.tsx`, a shared helper, with jsdom tests for paused → "You're offline", error → the failure slot, and success → children.
-- [ ] 1b.3 (moved to 2a, the first unit with a sheet; nothing in 1b uses it) shadcn: add `drawer` (resolves research U1); fall back to `sheet` with `side="bottom"`. Record which one was used.
+- [x] 1b.3 (moved to 2a, the first unit with a sheet; nothing in 1b uses it) shadcn: add `drawer` (resolves research U1); fall back to `sheet` with `side="bottom"`. Record which one was used. **Used: Drawer** — the base-nova preset installs the Base UI drawer (`@base-ui/react/drawer`, `swipeDirection="down"`); no Sheet fallback needed.
 - [x] 1b.4 `features/shell/presentation`: `TabBar` (5 slots; the active state comes from the pathname, and the Routines tab covers routines, exercises and equipment) and `AppHeader` (logo plus a visual-only menu button with an `aria-label`). Tests: the active tab per pathname, and the labels.
 - [x] 1b.5 The `(app)` route group and its layout. Move statistics into it. App route "" (root) becomes a Home skeleton with a "Start a workout" link to the workout route and the existing statistics summary. Set the manifest `start_url` to the root.
 - [x] 1b.6 Statistics and recompute screens use `QueryState`. This closes W1/W2 on existing screens.
@@ -40,10 +40,10 @@
 
 ## 2a — Catalog: exercises
 
-- [ ] 2a.1 `catalog/infrastructure/exercises.api.ts`: create, rename and archive, with tests.
-- [ ] 2a.2 `CatalogSegments` (Routines | Exercises | Equipment as links). Test the active segment.
-- [ ] 2a.3 App route "exercises": a list with mode chips, archived ones hidden behind "Show archived (N)", and an empty state that offers creating the first exercise.
-- [ ] 2a.4 The New exercise drawer: a name field and three mode cards (radio inputs inside labels), using react-hook-form and zod. Rename and archive happen from a row action. Invalidate `workoutsKeys.exercises()`.
+- [x] 2a.1 `catalog/infrastructure/exercises.api.ts`: create, rename and archive, with tests.
+- [x] 2a.2 `CatalogSegments` (Routines | Exercises | Equipment as links). Test the active segment.
+- [x] 2a.3 App route "exercises": a list with mode chips, archived ones hidden behind "Show archived (N)", and an empty state that offers creating the first exercise.
+- [x] 2a.4 The New exercise drawer: a name field and three mode cards (radio inputs inside labels), using react-hook-form and zod. Rename and archive happen from a row action. Invalidate `workoutsKeys.exercises()`.
 
 ## 2b — Catalog: equipment and the usage endpoint
 
