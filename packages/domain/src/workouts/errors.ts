@@ -18,3 +18,12 @@ export class WorkoutAlreadyOpenError extends DomainError {
 export class InvalidWorkoutTimesError extends DomainError {
   readonly errorCode: WorkoutErrorCode = 'INVALID_WORKOUT_TIMES'
 }
+
+/**
+ * Raised when a finish names an instant further ahead than any phone clock
+ * plausibly runs. The finish is the device's instant, so a few minutes of skew
+ * is expected; more than that is a wrong clock, not a late delivery.
+ */
+export class WorkoutFinishedInFutureError extends DomainError {
+  readonly errorCode: WorkoutErrorCode = 'WORKOUT_FINISHED_IN_FUTURE'
+}

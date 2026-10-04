@@ -69,6 +69,7 @@ export const WORKOUT_ERROR_CODES = [
   'WORKOUT_ALREADY_FINISHED',
   'WORKOUT_ALREADY_OPEN',
   'INVALID_WORKOUT_TIMES',
+  'WORKOUT_FINISHED_IN_FUTURE',
 ] as const
 
 export type WorkoutErrorCode = (typeof WORKOUT_ERROR_CODES)[number]

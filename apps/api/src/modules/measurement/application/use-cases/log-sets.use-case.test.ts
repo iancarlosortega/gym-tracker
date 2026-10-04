@@ -157,6 +157,25 @@ describe('logging sets', () => {
   })
 })
 
+describe('sets that arrive after the workout finished', () => {
+  it('stores a set logged before the finish, delivered late from the offline queue', async () => {
+    await sessions.save(session.finishedAt(new Date('2026-09-20T09:00:00.000Z')))
+
+    await logSets.execute({ userId, sessionId, sets: [perSideSet()] })
+
+    expect(sets.sets.size).toBe(1)
+  })
+
+  it('stores a set logged at the very instant the workout finished', async () => {
+    const finishedAt = new Date('2026-09-20T09:00:00.000Z')
+    await sessions.save(session.finishedAt(finishedAt))
+
+    await logSets.execute({ userId, sessionId, sets: [{ ...perSideSet(), loggedAt: finishedAt }] })
+
+    expect(sets.sets.size).toBe(1)
+  })
+})
+
 describe('refusing a set', () => {
   it('refuses a session belonging to someone else', async () => {
     await expect(
@@ -164,12 +183,29 @@ describe('refusing a set', () => {
     ).rejects.toThrow(WorkoutSessionNotFoundError)
   })
 
-  it('refuses a workout that has already been finished', async () => {
+  it('refuses a set logged after the workout finished', async () => {
     await sessions.save(session.finishedAt(new Date('2026-09-20T09:00:00.000Z')))
 
-    await expect(logSets.execute({ userId, sessionId, sets: [perSideSet()] })).rejects.toThrow(
-      WorkoutAlreadyFinishedError,
-    )
+    await expect(
+      logSets.execute({
+        userId,
+        sessionId,
+        sets: [{ ...perSideSet(), loggedAt: new Date('2026-09-20T09:01:00.000Z') }],
+      }),
+    ).rejects.toThrow(WorkoutAlreadyFinishedError)
+  })
+
+  it('writes nothing when one set in a late batch was logged after the finish', async () => {
+    await sessions.save(session.finishedAt(new Date('2026-09-20T09:00:00.000Z')))
+
+    await expect(
+      logSets.execute({
+        userId,
+        sessionId,
+        sets: [perSideSet(), { ...perSideSet(), loggedAt: new Date('2026-09-20T09:01:00.000Z') }],
+      }),
+    ).rejects.toThrow(WorkoutAlreadyFinishedError)
+    expect(sets.sets.size).toBe(0)
   })
 
   it('refuses an exercise the user does not own', async () => {

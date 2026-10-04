@@ -82,7 +82,12 @@ export class LogSetsUseCase {
   async execute(input: LogSetsInput): Promise<readonly LoggedSet[]> {
     const session = await findOwnedWorkout(this.sessions, input.userId, input.sessionId)
 
-    if (session.isFinished) {
+    // A set logged before the finish still belongs to the workout, however late
+    // it arrives: the phone queues sets offline and may only reach the server
+    // after the user has pressed finish. One set logged after the finish means
+    // the batch is not this workout's, and nothing of it is written.
+    const finishedOn = session.finishedOn
+    if (finishedOn !== null && input.sets.some((set) => set.loggedAt > finishedOn)) {
       throw new WorkoutAlreadyFinishedError('That workout has already been finished.')
     }
 

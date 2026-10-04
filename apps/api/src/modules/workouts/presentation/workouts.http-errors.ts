@@ -9,4 +9,6 @@ export const workoutsHttpErrors: HttpErrorMapping<WorkoutErrorCode> = {
   WORKOUT_ALREADY_OPEN: () => new ConflictException('You already have a workout in progress.'),
   INVALID_WORKOUT_TIMES: () =>
     new BadRequestException('A workout cannot finish before it started.'),
+  WORKOUT_FINISHED_IN_FUTURE: () =>
+    new BadRequestException('A workout cannot finish in the future.'),
 }
