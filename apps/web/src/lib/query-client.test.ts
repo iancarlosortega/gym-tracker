@@ -1,6 +1,6 @@
 import { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 import { describe, expect, it } from 'vitest'
-import { shouldRetry } from './query-client.ts'
+import { makeQueryClient, shouldRetry } from './query-client.ts'
 
 const answered = (status: number): AxiosError => {
   const config = { headers: {} } as InternalAxiosRequestConfig
@@ -14,13 +14,20 @@ describe('shouldRetry', () => {
     expect(shouldRetry(0, answered(401))).toBe(false)
   })
 
-  it('retries a server failure up to three times', () => {
+  it('retries a server failure once, so the screen says so within seconds', () => {
     expect(shouldRetry(0, answered(500))).toBe(true)
-    expect(shouldRetry(2, answered(500))).toBe(true)
-    expect(shouldRetry(3, answered(500))).toBe(false)
+    expect(shouldRetry(1, answered(500))).toBe(false)
   })
 
   it('retries an unreachable server', () => {
     expect(shouldRetry(0, new TypeError('Failed to fetch'))).toBe(true)
+  })
+})
+
+describe('makeQueryClient', () => {
+  it('waits one second before its single retry', () => {
+    const retryDelay = makeQueryClient().getDefaultOptions().queries?.retryDelay
+
+    expect(retryDelay).toBe(1000)
   })
 })

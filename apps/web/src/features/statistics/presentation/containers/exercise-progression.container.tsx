@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { isWaitingForNetwork, OfflineNotice } from '@/components/query-state'
 import { Button } from '@/components/ui/button'
 import { useExercises } from '../../../workouts/presentation/queries'
 import type { ExerciseProgressionResponse } from '../../infrastructure/statistics.api'
@@ -33,6 +34,10 @@ export const ExerciseProgressionContainer = ({ exerciseId }: ExerciseProgression
 
   if (progressionQuery.isError) {
     return <p role="alert">Could not reach the server, so this progression cannot be shown.</p>
+  }
+
+  if (isWaitingForNetwork(progressionQuery)) {
+    return <OfflineNotice />
   }
 
   if (progressionQuery.isPending) {

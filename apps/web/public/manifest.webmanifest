@@ -2,7 +2,7 @@
   "name": "Gym Tracker",
   "short_name": "Gym",
   "description": "Personal workout logging that works without a signal",
-  "start_url": "/workout",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

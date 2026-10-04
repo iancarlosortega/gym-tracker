@@ -1,7 +1,14 @@
 import { QueryClient } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
 
-const MAX_RETRIES = 3
+/**
+ * One retry, a second apart: a failure reaches the screen in about two seconds
+ * instead of the seven the library's three backed-off retries take — long
+ * enough to ride out a blip, short enough not to leave a lifter staring at a
+ * loader between sets.
+ */
+const MAX_RETRIES = 1
+const RETRY_DELAY_MS = 1000
 
 /** A 401 already sent the user to sign in; asking again would only repeat it. */
 export const shouldRetry = (failureCount: number, error: unknown): boolean =>
@@ -15,6 +22,11 @@ export const shouldRetry = (failureCount: number, error: unknown): boolean =>
 export const makeQueryClient = (): QueryClient =>
   new QueryClient({
     defaultOptions: {
-      queries: { staleTime: 30_000, refetchOnWindowFocus: true, retry: shouldRetry },
+      queries: {
+        staleTime: 30_000,
+        refetchOnWindowFocus: true,
+        retry: shouldRetry,
+        retryDelay: RETRY_DELAY_MS,
+      },
     },
   })

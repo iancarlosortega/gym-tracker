@@ -15,12 +15,12 @@
 
 ## 1b — Web: shell, navigation, query states
 
-- [ ] 1b.1 `lib/query-client.ts`: `retry` max 1, `retryDelay` 1000. Update the `shouldRetry` tests.
-- [ ] 1b.2 `components/query-state.tsx`, a shared helper, with jsdom tests for paused → "You're offline", error → the failure slot, and success → children.
-- [ ] 1b.3 shadcn: add `drawer` (resolves research U1); fall back to `sheet` with `side="bottom"`. Record which one was used.
-- [ ] 1b.4 `features/shell/presentation`: `TabBar` (5 slots; the active state comes from the pathname, and the Routines tab covers routines, exercises and equipment) and `AppHeader` (logo plus a visual-only menu button with an `aria-label`). Tests: the active tab per pathname, and the labels.
-- [ ] 1b.5 The `(app)` route group and its layout. Move statistics into it. App route "" (root) becomes a Home skeleton with a "Start a workout" link to the workout route and the existing statistics summary. Set the manifest `start_url` to the root.
-- [ ] 1b.6 Statistics and recompute screens use `QueryState`. This closes W1/W2 on existing screens.
+- [x] 1b.1 `lib/query-client.ts`: `retry` max 1, `retryDelay` 1000. Update the `shouldRetry` tests.
+- [x] 1b.2 `components/query-state.tsx`, a shared helper, with jsdom tests for paused → "You're offline", error → the failure slot, and success → children.
+- [ ] 1b.3 (moved to 2a, the first unit with a sheet; nothing in 1b uses it) shadcn: add `drawer` (resolves research U1); fall back to `sheet` with `side="bottom"`. Record which one was used.
+- [x] 1b.4 `features/shell/presentation`: `TabBar` (5 slots; the active state comes from the pathname, and the Routines tab covers routines, exercises and equipment) and `AppHeader` (logo plus a visual-only menu button with an `aria-label`). Tests: the active tab per pathname, and the labels.
+- [x] 1b.5 The `(app)` route group and its layout. Move statistics into it. App route "" (root) becomes a Home skeleton with a "Start a workout" link to the workout route and the existing statistics summary. Set the manifest `start_url` to the root.
+- [x] 1b.6 Statistics and recompute screens use `QueryState`. This closes W1/W2 on existing screens.
 
 ## 1c — Web: finishing through the queue and the mini bar
 

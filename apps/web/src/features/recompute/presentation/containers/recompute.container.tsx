@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { OfflineNotice } from '@/components/query-state'
 import { Button } from '@/components/ui/button'
 import { StalePreviewError } from '../../application/stale-preview.error'
 import type { RecomputePreviewResponse } from '../../infrastructure/recompute.api'
@@ -30,7 +31,8 @@ export const RecomputeContainer = ({
   exerciseNames,
   onDone,
 }: RecomputeContainerProps) => {
-  const { mutateAsync: requestPreview } = usePreviewRecompute(equipmentId)
+  const { mutateAsync: requestPreview, isPaused: waitingForNetwork } =
+    usePreviewRecompute(equipmentId)
   const { mutateAsync: applyPreview, isPending: busy } = useApplyRecompute(equipmentId)
   const [preview, setPreview] = useState<RecomputePreviewResponse | null>(null)
   const [outcome, setOutcome] = useState<Outcome>('reviewing')
@@ -70,7 +72,7 @@ export const RecomputeContainer = ({
   }
 
   if (preview === null) {
-    return <p>Working out what would change…</p>
+    return waitingForNetwork ? <OfflineNotice /> : <p>Working out what would change…</p>
   }
 
   if (preview.affectedSets === 0) {
