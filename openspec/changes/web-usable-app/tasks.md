@@ -47,8 +47,8 @@
 
 ## 2b — Catalog: equipment and the usage endpoint
 
-- [ ] 2b.1 API `GET /equipment/:id/usage`: a use case plus a repository query. Tests count distinct exercises and sets, and confirm another user's sets are never counted.
-- [ ] 2b.2 Web: app route "equipment" (list) and its detail page (bar weight or stack, usage, "Correct the bar weight…" linking to the existing recompute route, rename, and the Archive button with its one-line note).
+- [x] 2b.1 API `GET /equipment/:id/usage`: a use case plus a repository query. Tests count distinct exercises and sets, and confirm another user's sets are never counted.
+- [x] 2b.2 Web: app route "equipment" (list) and its detail page (bar weight or stack, usage, "Correct the bar weight…" linking to the existing recompute route, rename, and the Archive button with its one-line note).
 
 ## 3a — Routines: list and plan
 

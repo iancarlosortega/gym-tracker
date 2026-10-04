@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { QueryState } from '@/components/query-state'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import type { ExerciseResponse } from '../../../workouts/infrastructure/workouts.api'
-import { EditExerciseForm, NewExerciseForm } from '../components/exercise-forms'
+import { EditCatalogItemForm, NewExerciseForm } from '../components/exercise-forms'
 import { ExerciseList } from '../components/exercise-list'
 import {
   useArchiveExercise,
@@ -63,7 +63,7 @@ export const ExercisesContainer = () => {
               />
             )}
             {editing?.kind === 'edit' && (
-              <EditExerciseForm
+              <EditCatalogItemForm
                 // A fresh form per exercise, so the name field starts from the right value.
                 key={editing.exercise.id}
                 name={editing.exercise.name}

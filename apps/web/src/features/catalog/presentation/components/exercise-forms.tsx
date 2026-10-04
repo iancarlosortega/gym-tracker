@@ -46,10 +46,10 @@ const NameField = <TForm extends FieldValues & { name: string }>({
     control={control}
     render={({ field, fieldState }) => (
       <Field data-invalid={fieldState.invalid}>
-        <FieldLabel htmlFor="exercise-name">Name</FieldLabel>
+        <FieldLabel htmlFor="catalog-item-name">Name</FieldLabel>
         <Input
           {...field}
-          id="exercise-name"
+          id="catalog-item-name"
           autoComplete="off"
           aria-invalid={fieldState.invalid}
           className="h-12 text-base"
@@ -121,7 +121,7 @@ export const NewExerciseForm = ({ pending, failed, onSubmit }: NewExerciseFormPr
 
 const renameSchema = z.object({ name })
 
-export interface EditExerciseFormProps {
+export interface EditCatalogItemFormProps {
   readonly name: string
   readonly pending: boolean
   readonly failed: boolean
@@ -129,13 +129,13 @@ export interface EditExerciseFormProps {
   readonly onArchive: () => void
 }
 
-export const EditExerciseForm = ({
+export const EditCatalogItemForm = ({
   name: current,
   pending,
   failed,
   onRename,
   onArchive,
-}: EditExerciseFormProps) => {
+}: EditCatalogItemFormProps) => {
   const form = useForm<z.output<typeof renameSchema>>({
     resolver: zodResolver(renameSchema),
     defaultValues: { name: current },

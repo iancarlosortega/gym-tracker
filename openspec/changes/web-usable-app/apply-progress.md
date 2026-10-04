@@ -17,7 +17,40 @@ Mode: Strict TDD. Delivery: auto-chain; each review unit is a slice that Ian rev
 - UI: the `openWorkout` rule, `offlineWork()` singletons, `useOpenWorkout` and `useFinishWorkout`, `WorkoutMiniBar`, the timer tab slot, `AppShellContainer` background sync, and the Finish button on the workout page.
 - Gap: the mini bar has no routine name or set count yet (3a/4b).
 
-## Unit 2a — exercises catalog (uncommitted, awaiting Ian's local review)
+## Unit 2b — equipment and the usage endpoint (uncommitted, awaiting Ian's local review)
+
+- [x] 2b.1 API `GET /equipment/:id/usage` returns `{ exercises, sets }`.
+  - Domain port: `EquipmentUsageRepository`.
+  - `GetEquipmentUsageUseCase` checks ownership through `findOwnedEquipment` before it counts anything.
+  - `DrizzleEquipmentUsageRepository` runs `countDistinct(exercise_id)` and `count(id)`, joining through `workout_session` for the owner and leaving out deleted sets.
+- [x] 2b.2 Web `/equipment`: a list (bar N kg / stack · N positions / free weight) with archived items hidden.
+  - `/equipment/[id]` shows the bar weight with "Correct the bar weight…" linking to the existing recompute route (barbells only), the stack size, a usage line, and "Rename or archive", which opens a Drawer.
+  - The drawer reuses the shared form, renamed from `EditExerciseForm` to `EditCatalogItemForm`.
+  - `useExerciseMutation` was generalized to `useCatalogMutation`; equipment writes invalidate the catalog and workouts equipment keys.
+
+### TDD cycle evidence
+
+| Task | RED | GREEN | Triangulate | Refactor |
+|------|-----|-------|-------------|----------|
+| 2b.1 use case | module missing | 2/2 | owner vs stranger (usage never read) | none |
+| 2b.1 repository (PGlite) | module missing | 4/4 | distinct exercises vs sets; zero; deleted; another user | none |
+| 2b.2 api | module missing | 5/5 | usage, a 500, rename, archive | none |
+| 2b.2 views | module missing | 13/13 | 3 summaries, 3 usage labels, list/empty, bar vs stack | shared edit form renamed; mutation helper generalized |
+
+### Work unit evidence
+
+| Evidence | Value |
+|----------|-------|
+| API suite | 26 files, 215 tests passed; typecheck clean (after rebuilding `@gym/domain` so the new port is exported) |
+| Domain suite | 205 passed |
+| Web suite | 39 files, 231 tests passed; typecheck clean; `next build` OK (`/equipment`, `/equipment/[equipmentId]`) |
+| Lint | biome clean on all touched paths |
+| Runtime harness | the repository runs against PGlite (real Postgres); the endpoint has no supertest test (the existing equipment controllers have none either) |
+| Rollback boundary | API: catalog usage port, use case, repository and controller, plus module wiring. Web: catalog equipment api/views/container/queries and `(app)/equipment` routes |
+
+Size: 749 added lines (265 API + domain, about 484 web + openspec), against a 300 forecast. **This is over the 400 budget.** Two commits are proposed: the API endpoint, then the web screens.
+
+## Unit 2a — exercises catalog (committed c07a984 drawer, ff5ce8b feature)
 
 - [x] 1b.3 Drawer: the base-nova preset installs the Base UI drawer (`@base-ui/react/drawer`, `swipeDirection="down"`). Research U1 is resolved and no Sheet fallback is needed. The file is vendored by the shadcn CLI and only reformatted by biome.
 - [x] 2a.1 `catalog/infrastructure/exercises.api.ts`: `getCatalogExercises` (includes archived), `createExercise`, `renameExercise` (PATCH) and `archiveExercise` (POST `:id/archive`).

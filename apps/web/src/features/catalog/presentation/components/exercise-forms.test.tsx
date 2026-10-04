@@ -2,7 +2,7 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { EditExerciseForm, NewExerciseForm } from './exercise-forms.tsx'
+import { EditCatalogItemForm, NewExerciseForm } from './exercise-forms.tsx'
 
 afterEach(cleanup)
 
@@ -45,12 +45,12 @@ describe('NewExerciseForm', () => {
   })
 })
 
-describe('EditExerciseForm', () => {
+describe('EditCatalogItemForm', () => {
   const props = { name: 'Squat', pending: false, failed: false }
 
   it('renames', async () => {
     const onRename = vi.fn()
-    render(<EditExerciseForm {...props} onRename={onRename} onArchive={vi.fn()} />)
+    render(<EditCatalogItemForm {...props} onRename={onRename} onArchive={vi.fn()} />)
 
     await userEvent.clear(screen.getByLabelText('Name'))
     await userEvent.type(screen.getByLabelText('Name'), 'Back squat')
@@ -61,7 +61,7 @@ describe('EditExerciseForm', () => {
 
   it('archives', async () => {
     const onArchive = vi.fn()
-    render(<EditExerciseForm {...props} onRename={vi.fn()} onArchive={onArchive} />)
+    render(<EditCatalogItemForm {...props} onRename={vi.fn()} onArchive={onArchive} />)
 
     await userEvent.click(screen.getByRole('button', { name: /archive/i }))
 
