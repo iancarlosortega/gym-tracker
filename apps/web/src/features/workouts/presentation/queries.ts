@@ -1,5 +1,10 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getCurrentWorkout, getEquipment, getExercises } from '../infrastructure/workouts.api'
+import {
+  getCurrentWorkout,
+  getEquipment,
+  getExercises,
+  startWorkout,
+} from '../infrastructure/workouts.api'
 import { offlineWork } from './offline-work'
 import { openWorkout } from './open-workout'
 
@@ -51,6 +56,16 @@ export const useFinishWorkout = () => {
       await offlineWork().finishOffline.execute(sessionId)
       void offlineWork().sync.execute()
     },
+    onSuccess: () => client.invalidateQueries({ queryKey: workoutsKeys.all }),
+  })
+}
+
+/** Every start goes through here: a routine's plan, Home and the + menu. */
+export const useStartWorkout = () => {
+  const client = useQueryClient()
+
+  return useMutation({
+    mutationFn: (routineId?: string) => startWorkout(routineId),
     onSuccess: () => client.invalidateQueries({ queryKey: workoutsKeys.all }),
   })
 }

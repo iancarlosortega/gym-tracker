@@ -17,7 +17,35 @@ Mode: Strict TDD. Delivery: auto-chain; each review unit is a slice that Ian rev
 - UI: the `openWorkout` rule, `offlineWork()` singletons, `useOpenWorkout` and `useFinishWorkout`, `WorkoutMiniBar`, the timer tab slot, `AppShellContainer` background sync, and the Finish button on the workout page.
 - Gap: the mini bar has no routine name or set count yet (3a/4b).
 
-## Unit 2b — equipment and the usage endpoint (uncommitted, awaiting Ian's local review)
+## Unit 3a — routines list and plan (uncommitted, awaiting Ian's local review)
+
+- [x] 3a.1 `routines/infrastructure/routines.api.ts`: list (`/routines?limit=200`), get, create, rename (PATCH) and archive (POST `:id/archive`).
+- [x] 3a.2 `/routines`: `RoutineCards` (name, exercise names in plan order, exercise count, archived hidden), "New routine" opening a `NewRoutineForm` drawer (navigates to the new plan), and an empty state with "Make your first routine". The catalog segments are on top.
+- [x] 3a.3 `/routines/[routineId]`: `RoutinePlan` lists the entries numbered in position order as "4 × 6–8 · rest 3:00", with "Start <routine>" through the new `useStartWorkout()`, which then navigates to `/workout`. A failure shows an alert ("Finish the open workout first…").
+- **Deviation:** "Edit" currently opens rename/archive (reusing `EditCatalogItemForm`). The full edit mode (reorder, add an exercise) is task 3b.3.
+
+### TDD cycle evidence
+
+| Task | RED | GREEN | Triangulate | Refactor |
+|------|-----|-------|-------------|----------|
+| 3a.1 | module missing | 6/6 | list, get, 404, create, rename, archive | none |
+| 3a.2/3a.3 views | module missing | 14/14 | rest 3:00/1:30/0:45; 4 target shapes; archived/empty; order; start/fail/edit | none |
+| 3a.2 form | module missing | 3/3 | trimmed name, blank, failure | none |
+
+### Work unit evidence
+
+| Evidence | Value |
+|----------|-------|
+| Web suite | 42 files, 254 tests passed (231 before) |
+| Typecheck / lint / build | clean / clean / `next build` OK (`/routines`, `/routines/[routineId]`) |
+| Runtime harness | N/A: no browser e2e; start → /workout is checked manually |
+| Rollback boundary | features/routines/**, `(app)/routines/**`, and `useStartWorkout` in workouts queries |
+
+Size: 705 added lines (232 tests, about 470 code + openspec), against a 260 forecast. **This is over the 400 budget.** Proposed commits: the API client + views (with tests), then the containers + pages.
+
+**Ledger note:** 2b's attempt was settled by mistake by a probe call. Its evidence revision is recorded as all zeros with the diagnosis "probe". The real evidence for 2b is in the 2b section below.
+
+## Unit 2b — equipment and the usage endpoint (committed 2fcfff1 api, 7929dd5 web)
 
 - [x] 2b.1 API `GET /equipment/:id/usage` returns `{ exercises, sets }`.
   - Domain port: `EquipmentUsageRepository`.

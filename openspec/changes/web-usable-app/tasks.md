@@ -52,9 +52,9 @@
 
 ## 3a — Routines: list and plan
 
-- [ ] 3a.1 `routines.api.ts`: list, get, create and rename, with tests.
-- [ ] 3a.2 App route "routines": cards (name, exercise names, entry count), New, and the segments.
-- [ ] 3a.3 App route "routines/[routineId]": the numbered plan (sets × reps, rest, mode note), Edit, and "Start <routine>" through `useStartWorkout()`.
+- [x] 3a.1 `routines.api.ts`: list, get, create and rename, with tests.
+- [x] 3a.2 App route "routines": cards (name, exercise names, entry count), New, and the segments.
+- [x] 3a.3 App route "routines/[routineId]": the numbered plan (sets × reps, rest, mode note), Edit, and "Start <routine>" through `useStartWorkout()`.
 
 ## 3b — Routines: editing and rest
 
