@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { HttpWorkoutGateway } from '../../../workouts/infrastructure/http-workout.gateway'
 import {
   type ExerciseProgressionResponse,
   HttpStatisticsGateway,
@@ -12,7 +13,6 @@ import { ProgressionChart } from '../components/progression-chart'
 export interface ExerciseProgressionContainerProps {
   readonly apiBaseUrl: string
   readonly exerciseId: string
-  readonly exerciseName: string
 }
 
 const WEEKS_SHOWN = 12
@@ -23,10 +23,23 @@ type Metric = 'load' | 'reps'
 export const ExerciseProgressionContainer = ({
   apiBaseUrl,
   exerciseId,
-  exerciseName,
 }: ExerciseProgressionContainerProps) => {
   const gateway = useMemo(() => new HttpStatisticsGateway(apiBaseUrl), [apiBaseUrl])
+  const workouts = useMemo(() => new HttpWorkoutGateway(apiBaseUrl), [apiBaseUrl])
   const [progression, setProgression] = useState<ExerciseProgressionResponse | null>(null)
+  const [exerciseName, setExerciseName] = useState('This exercise')
+
+  // The name is read from the browser, which holds the session cookie. A
+  // failed lookup keeps the plain fallback rather than hiding the chart.
+  useEffect(() => {
+    void workouts
+      .exercises()
+      .then((all) => {
+        const name = all.find((candidate) => candidate.id === exerciseId)?.name
+        if (name !== undefined) setExerciseName(name)
+      })
+      .catch(() => undefined)
+  }, [workouts, exerciseId])
   const [metric, setMetric] = useState<Metric>('load')
   const [unreachable, setUnreachable] = useState(false)
 

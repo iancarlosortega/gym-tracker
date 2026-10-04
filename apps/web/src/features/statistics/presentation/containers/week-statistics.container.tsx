@@ -3,7 +3,10 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { Card } from '@/components/ui/card'
-import type { ExerciseResponse } from '../../../workouts/infrastructure/http-workout.gateway'
+import {
+  type ExerciseResponse,
+  HttpWorkoutGateway,
+} from '../../../workouts/infrastructure/http-workout.gateway'
 import {
   HttpStatisticsGateway,
   type WeekComparisonResponse,
@@ -12,7 +15,6 @@ import { WeekHeadline } from '../components/week-headline'
 
 export interface WeekStatisticsContainerProps {
   readonly apiBaseUrl: string
-  readonly exercises: readonly ExerciseResponse[]
 }
 
 /** Monday, so a week is the week a lifter thinks in. */
@@ -25,12 +27,11 @@ const startOfWeek = (instant: Date): Date => {
   return start
 }
 
-export const WeekStatisticsContainer = ({
-  apiBaseUrl,
-  exercises,
-}: WeekStatisticsContainerProps) => {
+export const WeekStatisticsContainer = ({ apiBaseUrl }: WeekStatisticsContainerProps) => {
   const gateway = useMemo(() => new HttpStatisticsGateway(apiBaseUrl), [apiBaseUrl])
+  const workouts = useMemo(() => new HttpWorkoutGateway(apiBaseUrl), [apiBaseUrl])
   const [week, setWeek] = useState<WeekComparisonResponse | null>(null)
+  const [exercises, setExercises] = useState<readonly ExerciseResponse[]>([])
   const [unreachable, setUnreachable] = useState(false)
 
   useEffect(() => {
@@ -39,6 +40,16 @@ export const WeekStatisticsContainer = ({
       .then(setWeek)
       .catch(() => setUnreachable(true))
   }, [gateway])
+
+  // Read from the browser, which holds the session cookie; a server-side read
+  // has no session and was always refused. A failure leaves the week summary
+  // to speak for itself rather than taking the page down.
+  useEffect(() => {
+    void workouts
+      .exercises()
+      .then((all) => setExercises(all.filter((exercise) => !exercise.archived)))
+      .catch(() => setExercises([]))
+  }, [workouts])
 
   if (unreachable) {
     return <p role="alert">Could not reach the server, so this week cannot be summarised.</p>
