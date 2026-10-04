@@ -71,10 +71,10 @@
 
 ## 4b — Up next: Home and the start entry points
 
-- [ ] 4b.1 Home: the "<Routine> is up next." headline (or "Make your first routine"), the week strip from `trainedOn`, the routine list with "last done", and the stat cards.
-- [ ] 4b.2 `RoutineStartSheet` (Start / See the plan) opened from a Home row. While a workout is open, rows are disabled with "finish the open one first".
-- [ ] 4b.3 `StartMenu` on the center tab: Start <up next> (starts directly), Pick a different routine, and Empty workout. `RoutinePickerSheet` starts on tap.
-- [ ] 4b.4 An "Up next" tag on the routines list.
+- [x] 4b.1 Home: the "<Routine> is up next." headline (or "Make your first routine"), the week strip from `trainedOn`, the routine list with "last done", and the stat cards.
+- [x] 4b.2 `RoutineStartSheet` (Start / See the plan) opened from a Home row. While a workout is open, rows are disabled with "finish the open one first".
+- [x] 4b.3 `StartMenu` on the center tab: Start <up next> (starts directly), Pick a different routine, and Empty workout. `RoutinePickerSheet` starts on tap.
+- [x] 4b.4 An "Up next" tag on the routines list.
 
 ## 5a — Workout: the last-sets endpoint
 

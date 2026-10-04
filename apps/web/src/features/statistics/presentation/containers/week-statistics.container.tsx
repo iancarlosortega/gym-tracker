@@ -6,16 +6,7 @@ import { Card } from '@/components/ui/card'
 import { useExercises } from '../../../workouts/presentation/queries'
 import { WeekHeadline } from '../components/week-headline'
 import { useWeekComparison } from '../queries'
-
-/** Monday, so a week is the week a lifter thinks in. */
-const startOfWeek = (instant: Date): Date => {
-  const start = new Date(
-    Date.UTC(instant.getUTCFullYear(), instant.getUTCMonth(), instant.getUTCDate()),
-  )
-  start.setUTCDate(start.getUTCDate() - ((start.getUTCDay() + 6) % 7))
-
-  return start
-}
+import { startOfWeek } from '../week-start'
 
 export const WeekStatisticsContainer = () => {
   const weekQuery = useWeekComparison(startOfWeek(new Date()))

@@ -28,10 +28,14 @@ const legs = { id: 'r-1', name: 'Legs', archived: false, entries: [] }
 const body = (call: { data?: unknown } | undefined) => JSON.parse(String(call?.data))
 
 describe('reading routines', () => {
-  it('unwraps the page of routines', async () => {
-    const { client, stub } = clientAnswering(() => ({ status: 200, data: { items: [legs] } }))
+  it('reads the routines with when each was last done, and which one is up next', async () => {
+    const listed = { ...legs, lastDoneAt: '2026-09-28T09:00:00.000Z' }
+    const { client, stub } = clientAnswering(() => ({
+      status: 200,
+      data: { items: [listed], upNextRoutineId: 'r-1' },
+    }))
 
-    expect(await getRoutines(client)).toEqual([legs])
+    expect(await getRoutines(client)).toEqual({ routines: [listed], upNextRoutineId: 'r-1' })
     expect(stub.calls[0]?.url).toBe('/routines?limit=200')
   })
 

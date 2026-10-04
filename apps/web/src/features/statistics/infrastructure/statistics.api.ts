@@ -14,6 +14,8 @@ export interface WeekSummaryResponse {
 export interface WeekComparisonResponse {
   readonly current: WeekSummaryResponse
   readonly previous: WeekSummaryResponse
+  /** ISO dates of this week's workouts. */
+  readonly trainedOn: readonly string[]
 }
 
 export interface ProgressionPointResponse {

@@ -48,9 +48,10 @@ export const RoutinesContainer = () => {
         pending={<p>Reading your routines…</p>}
         failed={<p role="alert">Could not reach the server, so your routines cannot be shown.</p>}
       >
-        {(list) => (
+        {(listing) => (
           <RoutineCards
-            routines={list}
+            routines={listing.routines}
+            upNextId={listing.upNextRoutineId}
             exerciseNames={exerciseNames}
             onNew={() => setCreating(true)}
           />

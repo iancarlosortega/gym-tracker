@@ -17,7 +17,43 @@ Mode: Strict TDD. Delivery: auto-chain; each review unit is a slice that Ian rev
 - UI: the `openWorkout` rule, `offlineWork()` singletons, `useOpenWorkout` and `useFinishWorkout`, `WorkoutMiniBar`, the timer tab slot, `AppShellContainer` background sync, and the Finish button on the workout page.
 - Gap: the mini bar has no routine name or set count yet (3a/4b).
 
-## Unit 4a — up next: domain and API (uncommitted, awaiting Ian's local review)
+## Unit 4b — up next: Home and the start entry points (uncommitted, awaiting Ian's local review)
+
+- [x] 4b.1 Home (`features/home`).
+  - `HomeHeadline` reads "<Routine> is up next." plus `lastDoneLabel` (today / yesterday / weekday / "21 Sep"; month names spelled out, because Intl gives "Sept" on this runtime). With no routines it reads "Make your first routine" and links to /routines.
+  - `WeekStrip` shows Mon–Sun, filled from `trainedOn`.
+  - The existing `WeekHeadline` serves as the stat cards.
+  - `HomeRoutineList` shows "last done" and an Up next tag.
+- [x] 4b.2 `RoutineStartChoices` (Start / See the plan) opens in a drawer from a Home row. While a workout is open, rows are disabled with "Finish the open one first."
+- [x] 4b.3 The + in the TabBar is now a button (`onStart`) that opens `StartMenu`: Start <up next> starts directly, plus "Pick a different routine" and "Empty workout". `RoutinePicker` ("Start which routine?") puts up next first, tagged, and starts on tap. With a workout open, + stays the timer link back to /workout. Both are hosted in `AppShellContainer`.
+- [x] 4b.4 `UpNextTag` on the Routines list cards.
+- **Contract change:** the web `getRoutines()` now returns `{ routines, upNextRoutineId }` (with `lastDoneAt`), and `WeekComparisonResponse` gains `trainedOn`. `startOfWeek` moved to `statistics/presentation/week-start.ts`.
+- **Gap (flagged):** the canvas headline for an open workout ("Push day, 3 of 5 done. Next up: …") is not built. It needs per-session set progress, which fits 5c. Home rows already block a second start.
+- The old tab-bar test ("+ is a link to /workout") was replaced, because + is now the start menu by design.
+
+### TDD cycle evidence
+
+| Task | RED | GREEN | Triangulate | Refactor |
+|------|-----|-------|-------------|----------|
+| 4b.1 | module missing | 6/9, then 9/9 | 5 last-done shapes ("Sept" caught → fixed month list); headline with/without; strip | none |
+| 4b.1 list | module missing | 3/3 | tag + labels, pick, workout open | none |
+| 4b.2/4b.3 sheets | module missing | 4/4 | start/plan; menu 3 actions; no routines; picker order + tap | none |
+| 4b.3 tab bar | button missing | 2/2 | closed → button, open → link | superseded link test removed |
+| 4b.4 | tag missing | 1/1 | tagged vs untagged | none |
+| listing client | shape mismatch | 1/1 | items + upNext | none |
+
+### Work unit evidence
+
+| Evidence | Value |
+|----------|-------|
+| Web suite | 47 files, 288 tests passed (272 before); typecheck clean; `next build` OK |
+| Lint | biome clean (`--write` touched only 4b files) |
+| Runtime harness | N/A: no browser e2e. Home and the + menu are device verification (DV) |
+| Rollback boundary | features/home, start-sheets, the tab-bar + button, app-shell start sheets, the routines listing client, statistics `trainedOn` type, and week-start |
+
+Size: 682 added lines, 73 removed (203 tests), against a forecast of about 380. **This is over the 400 budget.** Proposed commits: the views and sheets with their tests, then the wiring (shell, home page, listing client).
+
+## Unit 4a — up next: domain and API (committed 4c94bf8)
 
 - [x] 4a.1 `packages/domain/src/routines/services/up-next.service.ts`: the pure `upNext()` filters archived routines, puts never-done ones first (sorted as −∞), then oldest `lastDoneAt`, then position. There is one test per spec scenario (5).
 - [x] 4a.2 `GET /routines` adds `lastDoneAt` per item and a top-level `upNextRoutineId`.

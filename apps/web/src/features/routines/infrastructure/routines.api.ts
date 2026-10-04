@@ -20,11 +20,21 @@ export interface RoutineResponse {
   readonly entries: readonly RoutineEntryResponse[]
 }
 
-export const getRoutines = async (
-  client: AxiosInstance = apiClient,
-): Promise<readonly RoutineResponse[]> => {
-  const { data } = await client.get<PageResponse<RoutineResponse>>('/routines?limit=200')
-  return data.items
+/** A routine as the list sends it: with the start of its last workout, if any. */
+export interface ListedRoutineResponse extends RoutineResponse {
+  readonly lastDoneAt: string | null
+}
+
+export interface RoutineListing {
+  readonly routines: readonly ListedRoutineResponse[]
+  readonly upNextRoutineId: string | null
+}
+
+export const getRoutines = async (client: AxiosInstance = apiClient): Promise<RoutineListing> => {
+  const { data } = await client.get<
+    PageResponse<ListedRoutineResponse> & { readonly upNextRoutineId: string | null }
+  >('/routines?limit=200')
+  return { routines: data.items, upNextRoutineId: data.upNextRoutineId }
 }
 
 export const getRoutine = async (
