@@ -2,7 +2,7 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { moved, RoutineEditor } from './routine-editor.tsx'
+import { addedEntry, moved, RoutineEditor } from './routine-editor.tsx'
 
 afterEach(cleanup)
 
@@ -83,6 +83,7 @@ describe('RoutineEditor', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Add an exercise' }))
     expect(screen.queryByRole('button', { name: 'Add Old press' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Add Squat' })).toBeNull()
     await userEvent.click(screen.getByRole('button', { name: 'Add Lunge' }))
 
     expect(on.onAdd).toHaveBeenCalledWith('e-4')
@@ -95,5 +96,17 @@ describe('RoutineEditor', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Done' }))
 
     expect(on.onDone).toHaveBeenCalledOnce()
+  })
+})
+
+describe('addedEntry', () => {
+  it('finds the entry an add created, so its targets can be set straight away', () => {
+    const after = { ...legs, entries: [...legs.entries, entry('n-4', 'e-4', 4)] }
+
+    expect(addedEntry(legs, after)?.id).toBe('n-4')
+  })
+
+  it('is nothing when the add created no entry', () => {
+    expect(addedEntry(legs, legs)).toBeNull()
   })
 })

@@ -92,6 +92,16 @@
 - [x] 5c.2 The workout screen container and its components (header, exercise focus, tiles, done sets, ‹ Log set N › row). The keypad opens only while a tile is being edited. Sets are logged through the existing offline use case. Rest uses the routine's value.
 - [x] 5c.3 Remove the old set-entry form and logged-set list once nothing uses them.
 
+## 6 — Device-verification fixes (found by Ian on the iPhone, 2026-10-04)
+
+- [x] 6.1 Every screen clears the status bar (safe-area top inset); the workout page loses its leftover "Log a workout" title.
+- [ ] 6.2 Equipment can be created: `createEquipment` client, a New equipment form (name, kind, bar weight or stack positions), on `/equipment` and its empty state.
+- [ ] 6.3 The workout's equipment picker never shows an empty sheet: with nothing that fits, it explains why and offers to create a fitting one.
+- [ ] 6.4 Log set says why it cannot log yet (no equipment, no weight, no reps).
+- [ ] 6.5 Each exercise in a workout keeps its own weight and reps.
+- [x] 6.6 The routine editor offers only exercises not already in the routine.
+- [x] 6.7 Adding an exercise to a routine opens its targets sheet straight away.
+
 ## Device verification (manual, Ian, after 5c)
 
 - [ ] DV-U1 Install the PWA and confirm it opens on Home.

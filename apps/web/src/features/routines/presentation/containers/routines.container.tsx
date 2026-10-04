@@ -10,7 +10,7 @@ import { useStartWorkout } from '../../../workouts/presentation/queries'
 import type { RoutineEntryResponse } from '../../infrastructure/routines.api'
 import { EntryEditor } from '../components/entry-editor'
 import { NewRoutineForm } from '../components/new-routine-form'
-import { RoutineEditor } from '../components/routine-editor'
+import { addedEntry, RoutineEditor } from '../components/routine-editor'
 import { RoutineCards, RoutinePlan } from '../components/routine-views'
 import {
   useAddRoutineExercise,
@@ -126,7 +126,15 @@ export const RoutinePlanContainer = ({ routineId }: { readonly routineId: string
               pending={add.isPending || reorder.isPending}
               onReorder={(entryIds) => reorder.mutate(entryIds)}
               onEditEntry={(entry) => setSheet({ kind: 'entry', entry })}
-              onAdd={(exerciseId) => add.mutate(exerciseId)}
+              onAdd={(exerciseId) =>
+                add.mutate(exerciseId, {
+                  // Straight to its targets: an exercise with none is only half added.
+                  onSuccess: (updated) => {
+                    const created = addedEntry(plan, updated)
+                    if (created !== null) setSheet({ kind: 'entry', entry: created })
+                  },
+                })
+              }
               onRename={() => setSheet({ kind: 'rename' })}
               onDone={() => setEditing(false)}
             />

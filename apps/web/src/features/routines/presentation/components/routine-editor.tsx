@@ -19,6 +19,15 @@ export const moved = (ids: readonly string[], id: string, step: -1 | 1): string[
   return order
 }
 
+/** The entry an add created: the one present after that was not there before. */
+export const addedEntry = (
+  before: RoutineResponse,
+  after: RoutineResponse,
+): RoutineEntryResponse | null => {
+  const known = new Set(before.entries.map((entry) => entry.id))
+  return after.entries.find((entry) => !known.has(entry.id)) ?? null
+}
+
 export interface RoutineEditorProps {
   readonly routine: RoutineResponse
   readonly exerciseNames: ReadonlyMap<string, string>
@@ -48,7 +57,9 @@ export const RoutineEditor = ({
   const [adding, setAdding] = useState(false)
   const entries = [...routine.entries].sort((a, b) => a.position - b.position)
   const ids = entries.map((entry) => entry.id)
-  const offered = exercises.filter((exercise) => !exercise.archived)
+  // An exercise appears once in a plan; more sets are a target, not a second entry.
+  const planned = new Set(entries.map((entry) => entry.exerciseId))
+  const offered = exercises.filter((exercise) => !exercise.archived && !planned.has(exercise.id))
 
   return (
     <div className="grid gap-5">
@@ -108,7 +119,7 @@ export const RoutineEditor = ({
           <h2 className="font-semibold text-base">Add an exercise</h2>
           {offered.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              No exercises yet. Add them under Exercises.
+              Every exercise is already in this routine. Add more under Exercises.
             </p>
           ) : (
             <ul className="grid gap-2">
