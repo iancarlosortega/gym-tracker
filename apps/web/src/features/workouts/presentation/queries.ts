@@ -29,6 +29,17 @@ export const currentWorkoutQuery = () =>
 /** The workout in progress, with a finish the phone has not sent yet already applied. */
 export const useOpenWorkout = () => useQuery(currentWorkoutQuery())
 
+export const pendingSetsQuery = () =>
+  queryOptions({
+    queryKey: [...workoutsKeys.all, 'pending-sets'] as const,
+    queryFn: () => offlineWork().countPendingSets.execute(),
+    // Read from the phone, so it must answer with no network.
+    networkMode: 'always',
+  })
+
+/** How many logged sets the server has not confirmed yet. */
+export const usePendingSetCount = () => useQuery(pendingSetsQuery())
+
 /** Finish on the phone at once, then try to tell the server. */
 export const useFinishWorkout = () => {
   const client = useQueryClient()

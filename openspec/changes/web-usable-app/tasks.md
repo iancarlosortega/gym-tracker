@@ -34,9 +34,9 @@
 
 ## 1d — Web: profile and sign-out
 
-- [ ] 1d.1 `auth.api.ts`: `getMe()` and `signOut()`, with stub-adapter tests.
-- [ ] 1d.2 App route "profile": email, rest-alert state, pending count, and the Sign out button (tinted, with an icon).
-- [ ] 1d.3 Sign out clears the query cache and does a full navigation to sign-in. The queue is kept. Tested.
+- [x] 1d.1 `auth.api.ts`: `getMe()` and `signOut()`, with stub-adapter tests.
+- [x] 1d.2 App route "profile": email, rest-alert state, pending count, and the Sign out button (tinted, with an icon).
+- [x] 1d.3 Sign out clears the query cache and does a full navigation to sign-in. The queue is kept. Tested.
 
 ## 2a — Catalog: exercises
 

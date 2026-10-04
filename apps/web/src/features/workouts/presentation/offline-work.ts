@@ -1,3 +1,4 @@
+import { CountPendingSetsUseCase } from '../../measurement/application/count-pending-sets.use-case'
 import { SyncPendingSetsUseCase } from '../../measurement/application/sync-pending-sets.use-case'
 import { HttpSetSyncGateway } from '../../measurement/infrastructure/http-set-sync.gateway'
 import { IndexedDbSetRepository } from '../../measurement/infrastructure/indexed-db-set.repository'
@@ -12,6 +13,7 @@ const build = () => {
   const finishes = new IndexedDbPendingFinishStore()
 
   return {
+    countPendingSets: new CountPendingSetsUseCase(queue),
     finishes,
     finishOffline: new FinishWorkoutOfflineUseCase(finishes, new SystemClock()),
     sync: new SyncPendingWorkUseCase(
