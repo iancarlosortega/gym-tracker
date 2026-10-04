@@ -1,10 +1,15 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  addRoutineExercise,
   archiveRoutine,
+  changeRoutineEntry,
   createRoutine,
+  type EntryTargets,
   getRoutine,
   getRoutines,
+  removeRoutineEntry,
   renameRoutine,
+  reorderRoutine,
 } from '../infrastructure/routines.api'
 
 export const routinesKeys = {
@@ -39,3 +44,17 @@ export const useRenameRoutine = () =>
   useRoutineMutation(({ id, name }: { id: string; name: string }) => renameRoutine(id, name))
 
 export const useArchiveRoutine = () => useRoutineMutation((id: string) => archiveRoutine(id))
+
+export const useAddRoutineExercise = (routineId: string) =>
+  useRoutineMutation((exerciseId: string) => addRoutineExercise(routineId, { exerciseId }))
+
+export const useChangeRoutineEntry = (routineId: string) =>
+  useRoutineMutation(({ entryId, targets }: { entryId: string; targets: EntryTargets }) =>
+    changeRoutineEntry(routineId, entryId, targets),
+  )
+
+export const useRemoveRoutineEntry = (routineId: string) =>
+  useRoutineMutation((entryId: string) => removeRoutineEntry(routineId, entryId))
+
+export const useReorderRoutine = (routineId: string) =>
+  useRoutineMutation((entryIds: readonly string[]) => reorderRoutine(routineId, entryIds))

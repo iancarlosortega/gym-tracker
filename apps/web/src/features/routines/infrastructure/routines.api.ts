@@ -59,3 +59,55 @@ export const archiveRoutine = async (
   const { data } = await client.post<RoutineResponse>(`/routines/${routineId}/archive`)
   return data
 }
+
+/** The targets an entry can carry; each one is optional, as the API's are. */
+export interface EntryTargets {
+  readonly targetSets?: number
+  readonly targetRepsMin?: number
+  readonly targetRepsMax?: number
+  readonly restSeconds?: number
+}
+
+export const addRoutineExercise = async (
+  routineId: string,
+  entry: EntryTargets & { readonly exerciseId: string },
+  client: AxiosInstance = apiClient,
+): Promise<RoutineResponse> => {
+  const { data } = await client.post<RoutineResponse>(`/routines/${routineId}/exercises`, entry)
+  return data
+}
+
+export const changeRoutineEntry = async (
+  routineId: string,
+  entryId: string,
+  targets: EntryTargets,
+  client: AxiosInstance = apiClient,
+): Promise<RoutineResponse> => {
+  const { data } = await client.patch<RoutineResponse>(
+    `/routines/${routineId}/exercises/${entryId}`,
+    targets,
+  )
+  return data
+}
+
+/** Past sets of that exercise are untouched: only the plan changes. */
+export const removeRoutineEntry = async (
+  routineId: string,
+  entryId: string,
+  client: AxiosInstance = apiClient,
+): Promise<RoutineResponse> => {
+  const { data } = await client.delete<RoutineResponse>(
+    `/routines/${routineId}/exercises/${entryId}`,
+  )
+  return data
+}
+
+/** Every entry, exactly once: the API refuses a partial order rather than guess. */
+export const reorderRoutine = async (
+  routineId: string,
+  entryIds: readonly string[],
+  client: AxiosInstance = apiClient,
+): Promise<RoutineResponse> => {
+  const { data } = await client.put<RoutineResponse>(`/routines/${routineId}/order`, { entryIds })
+  return data
+}

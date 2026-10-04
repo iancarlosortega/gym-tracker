@@ -17,7 +17,37 @@ Mode: Strict TDD. Delivery: auto-chain; each review unit is a slice that Ian rev
 - UI: the `openWorkout` rule, `offlineWork()` singletons, `useOpenWorkout` and `useFinishWorkout`, `WorkoutMiniBar`, the timer tab slot, `AppShellContainer` background sync, and the Finish button on the workout page.
 - Gap: the mini bar has no routine name or set count yet (3a/4b).
 
-## Unit 3a — routines list and plan (uncommitted, awaiting Ian's local review)
+## Unit 3b — routine editing and rest (uncommitted, awaiting Ian's local review)
+
+- **API bug fixed (found during 3b.3):** `ReorderRoutineDto` validated `@IsUUID('4')`, but every id is a UUIDv7, so every real reorder was refused with a 400. It is now `@IsUUID('all')`, covered by a new DTO test (red on v7 ids, then green).
+- [x] 3b.1 `routines.api.ts`: `addRoutineExercise`, `changeRoutineEntry` (PATCH), `removeRoutineEntry` (DELETE) and `reorderRoutine` (PUT `/order`, the full list of ids).
+- [x] 3b.2 `EntryEditor`: a 56 px sets stepper (min 1, max 50), From/To reps, rest chips (1:00, 1:30, 2:00, 3:00, 4:00, plus the current value if it is custom), Save, and "Remove from routine". Reps are validated with the domain's `TargetReps.create` inside zod `superRefine`, so the form shows the domain's own message.
+- [x] 3b.3 `RoutineEditor`: an edit mode in the plan, with large up/down buttons (the pure `moved()` builds the full order), tapping an entry to open `EntryEditor` in a drawer, "Add an exercise" from the catalog (archived ones are never offered), "Rename or archive", and Done.
+- [x] 3b.4 `restSecondsFor(entries | null)(exerciseId)` falls back to `FALLBACK_REST_SECONDS = 180`. The workout page reads the open session's routine and passes it as the `restSecondsFor` prop; if that read fails while offline, the fallback is used. This closes MVP task 10.2.
+
+### TDD cycle evidence
+
+| Task | RED | GREEN | Triangulate | Refactor |
+|------|-----|-------|-------------|----------|
+| reorder DTO | v7 ids refused (1 of 3 failing) | 3/3 | v7 accepted; non-uuid and empty refused | none |
+| 3b.1 | missing exports | 4/4 | add, change, remove, reorder | none |
+| 3b.2 | module missing | 5/5 | full edit, initial values, min sets, domain range error, remove | `onSave` type tightened |
+| 3b.3 | module missing | 6/6 | moved up/down/edges; reorder, edit, add (no archived), done | none |
+| 3b.4 | module missing | 3/3 | planned, outside the routine, empty workout | none |
+
+### Work unit evidence
+
+| Evidence | Value |
+|----------|-------|
+| Web suite | 45 files, 272 tests passed (254 before); typecheck clean; `next build` OK |
+| API suite | 27 files, 218 tests passed; typecheck clean |
+| Lint | biome clean |
+| Runtime harness | N/A: no browser e2e. The rest countdown with a routine is device verification (DV) |
+| Rollback boundary | API reorder DTO (+test); web routines api/editor/entry-editor/rest-seconds-for/queries/container; workout page rest wiring |
+
+Size: 793 added lines (274 tests, 25 API), against a forecast of about 380 for 3b. **This is over the 400 budget.** Proposed commits: `fix(api)` reorder ids, then the web editing feature.
+
+## Unit 3a — routines list and plan (committed 4b3b36b, 1d45b15)
 
 - [x] 3a.1 `routines/infrastructure/routines.api.ts`: list (`/routines?limit=200`), get, create, rename (PATCH) and archive (POST `:id/archive`).
 - [x] 3a.2 `/routines`: `RoutineCards` (name, exercise names in plan order, exercise count, archived hidden), "New routine" opening a `NewRoutineForm` drawer (navigates to the new plan), and an empty state with "Make your first routine". The catalog segments are on top.

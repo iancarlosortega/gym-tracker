@@ -2,11 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { createApiClient } from '@/lib/api-client'
 import { type StubAnswer, stubAdapter } from '@/lib/testing/stub-adapter'
 import {
+  addRoutineExercise,
   archiveRoutine,
+  changeRoutineEntry,
   createRoutine,
   getRoutine,
   getRoutines,
+  removeRoutineEntry,
   renameRoutine,
+  reorderRoutine,
 } from './routines.api.ts'
 
 const clientAnswering = (answer: () => StubAnswer) => {
@@ -71,5 +75,55 @@ describe('writing routines', () => {
 
     expect(stub.calls[0]?.method).toBe('post')
     expect(stub.calls[0]?.url).toBe('/routines/r-1/archive')
+  })
+})
+
+describe('editing a routine’s entries', () => {
+  it('adds an exercise with its targets', async () => {
+    const { client, stub } = clientAnswering(() => ({ status: 201, data: legs }))
+
+    await addRoutineExercise(
+      'r-1',
+      { exerciseId: 'e-1', targetSets: 4, targetRepsMin: 6, targetRepsMax: 8, restSeconds: 180 },
+      client,
+    )
+
+    expect(stub.calls[0]?.url).toBe('/routines/r-1/exercises')
+    expect(body(stub.calls[0])).toEqual({
+      exerciseId: 'e-1',
+      targetSets: 4,
+      targetRepsMin: 6,
+      targetRepsMax: 8,
+      restSeconds: 180,
+    })
+  })
+
+  it('changes one entry', async () => {
+    const { client, stub } = clientAnswering(() => ({ status: 200, data: legs }))
+
+    await changeRoutineEntry('r-1', 'n-1', { targetSets: 3, restSeconds: 90 }, client)
+
+    expect(stub.calls[0]?.method).toBe('patch')
+    expect(stub.calls[0]?.url).toBe('/routines/r-1/exercises/n-1')
+    expect(body(stub.calls[0])).toEqual({ targetSets: 3, restSeconds: 90 })
+  })
+
+  it('removes one entry', async () => {
+    const { client, stub } = clientAnswering(() => ({ status: 200, data: legs }))
+
+    await removeRoutineEntry('r-1', 'n-1', client)
+
+    expect(stub.calls[0]?.method).toBe('delete')
+    expect(stub.calls[0]?.url).toBe('/routines/r-1/exercises/n-1')
+  })
+
+  it('sends the whole new order', async () => {
+    const { client, stub } = clientAnswering(() => ({ status: 200, data: legs }))
+
+    await reorderRoutine('r-1', ['n-2', 'n-1'], client)
+
+    expect(stub.calls[0]?.method).toBe('put')
+    expect(stub.calls[0]?.url).toBe('/routines/r-1/order')
+    expect(body(stub.calls[0])).toEqual({ entryIds: ['n-2', 'n-1'] })
   })
 })

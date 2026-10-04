@@ -11,6 +11,8 @@ import { PocketedAlertsContainer } from '../../../push/presentation/containers/p
 import { StartRestUseCase } from '../../../rest-timer/application/start-rest.use-case'
 import { NavigatorScreenWakeLock } from '../../../rest-timer/infrastructure/navigator-screen-wake-lock.adapter'
 import { WebAudioCompletionCue } from '../../../rest-timer/infrastructure/web-audio-completion-cue'
+import { restSecondsFor } from '../../../routines/application/rest-seconds-for'
+import { getRoutine } from '../../../routines/infrastructure/routines.api'
 import { SystemClock } from '../../../shared/infrastructure/system-clock.adapter'
 import {
   type EquipmentResponse,
@@ -65,6 +67,17 @@ export const WorkoutPageContainer = () => {
 
   const [context, setContext] = useState<WorkoutContext | null>(null)
   const [unreachable, setUnreachable] = useState(false)
+  // Null until the routine is read, and for an empty workout: rest then falls back.
+  const [plan, setPlan] = useState<Parameters<typeof restSecondsFor>[0]>(null)
+  const routineId = context?.session?.routineId ?? null
+
+  useEffect(() => {
+    if (routineId === null) return
+    // Offline the routine cannot be read; logging still works on the fallback rest.
+    void getRoutine(routineId)
+      .then((routine) => setPlan(routine.entries))
+      .catch(() => setPlan(null))
+  }, [routineId])
 
   useEffect(() => {
     void (async () => {
@@ -138,6 +151,7 @@ export const WorkoutPageContainer = () => {
         syncSets={wiring.syncSets}
         countPending={wiring.countPending}
         startRest={wiring.startRest}
+        restSecondsFor={restSecondsFor(plan)}
         clock={wiring.clock}
         wakeLock={wiring.wakeLock}
         cue={wiring.cue}

@@ -58,10 +58,10 @@
 
 ## 3b — Routines: editing and rest
 
-- [ ] 3b.1 `routines.api.ts`: add exercise, change entry, remove entry and reorder, with tests.
-- [ ] 3b.2 The entry drawer: a 56 px sets stepper, from/to reps, rest chips (1:00, 1:30, 2:00, 3:00, 4:00), Save, and Remove. Validation follows the domain `TargetReps` rules.
-- [ ] 3b.3 Edit mode in the plan: reorder and add an exercise from the catalog.
-- [ ] 3b.4 Rest wiring: the workout route reads the routine of the open session, and `restSecondsFor(exerciseId)` falls back to 180. Tested. This closes MVP task 10.2.
+- [x] 3b.1 `routines.api.ts`: add exercise, change entry, remove entry and reorder, with tests.
+- [x] 3b.2 The entry drawer: a 56 px sets stepper, from/to reps, rest chips (1:00, 1:30, 2:00, 3:00, 4:00), Save, and Remove. Validation follows the domain `TargetReps` rules.
+- [x] 3b.3 Edit mode in the plan: reorder and add an exercise from the catalog.
+- [x] 3b.4 Rest wiring: the workout route reads the routine of the open session, and `restSecondsFor(exerciseId)` falls back to 180. Tested. This closes MVP task 10.2.
 
 ## 4a — Up next: domain and API
 
