@@ -120,3 +120,15 @@ describe('RoutinePlan', () => {
     expect(onEdit).toHaveBeenCalledOnce()
   })
 })
+
+describe('RoutineCards up next', () => {
+  it('tags the routine that is up next', () => {
+    const push = { ...legs, id: 'r-9', name: 'Push day' }
+    render(
+      <RoutineCards routines={[legs, push]} upNextId="r-9" exerciseNames={names} onNew={vi.fn()} />,
+    )
+
+    expect(screen.getByRole('link', { name: /push day/i }).textContent).toMatch(/Up next/)
+    expect(screen.getByRole('link', { name: /legs/i }).textContent).not.toMatch(/Up next/)
+  })
+})

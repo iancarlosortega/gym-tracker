@@ -19,13 +19,18 @@ const inOrder = (entries: readonly RoutineEntryResponse[]) =>
 const nameOf = (names: ReadonlyMap<string, string>, exerciseId: string) =>
   names.get(exerciseId) ?? 'Unknown exercise'
 
+export const UpNextTag = () => (
+  <span className="rounded-full bg-live/15 px-2 py-0.5 font-semibold text-xs">Up next</span>
+)
+
 export interface RoutineCardsProps {
   readonly routines: readonly RoutineResponse[]
   readonly exerciseNames: ReadonlyMap<string, string>
+  readonly upNextId?: string | null
   readonly onNew: () => void
 }
 
-export const RoutineCards = ({ routines, exerciseNames, onNew }: RoutineCardsProps) => {
+export const RoutineCards = ({ routines, exerciseNames, upNextId, onNew }: RoutineCardsProps) => {
   const active = routines.filter((routine) => !routine.archived)
 
   if (active.length === 0) {
@@ -57,7 +62,10 @@ export const RoutineCards = ({ routines, exerciseNames, onNew }: RoutineCardsPro
                 className="flex min-h-touch items-center justify-between gap-3 rounded-xl bg-card px-4 py-3"
               >
                 <span className="grid gap-0.5">
-                  <strong>{routine.name}</strong>
+                  <span className="flex items-center gap-2">
+                    <strong>{routine.name}</strong>
+                    {routine.id === upNextId && <UpNextTag />}
+                  </span>
                   <span className="text-muted-foreground text-sm">
                     {entries.length === 0
                       ? 'No exercises yet'
