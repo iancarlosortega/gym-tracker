@@ -1,0 +1,32 @@
+change: web-usable-app
+created: 2026-10-04
+artifact_store: hybrid
+execution_mode: interactive
+delivery_strategy: single-pr
+delivery_note: Sole developer. Delivery is commits pushed to main after local review; no PRs. Per-slice review units, as in web-api-client.
+design_input: https://claude.ai/artifact/4TJ4TW6rGcWBsdnjKjVsvC
+
+phases:
+  explore: done
+  research: done
+  proposal: done
+  spec: done
+  design: done
+  tasks: done
+  apply: blocked
+  verify: blocked
+  archive: blocked
+
+next_recommended: apply
+review_decision: per-unit review (owner, 2026-10-04); each unit reviewed locally and committed separately
+
+preproposal:
+  schema: gentle-ai.sdd-preproposal/v1
+  revision: 1
+  exploration: exploration.md (done)
+  research: research.md (revision 1, done)
+  decisions:
+    approach: confirmed # A, one change sliced vertically (owner, 2026-10-04)
+    finish_with_queued_sets: confirmed # P1(b) server accepts sets with logged_at <= finished_at
+    offline_workout_reads: confirmed # P2 keep the card, show "Offline · last time unavailable"
+  proposal_ready: true
