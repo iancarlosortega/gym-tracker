@@ -198,6 +198,7 @@ names the slice it belongs to and what has to be true before it can be run.
 
 - [x] B1 Introduce a generic `DomainError` base class carrying an `errorCode` and a message, and re-parent every domain error onto it. Requested 2026-09-19. Rationale: error codes survive translation and message edits, so the presentation layer can map a code to user-facing copy and to an HTTP status without string-matching prose. Slice 2's errors are plain `Error` subclasses today; converting them is mechanical and belongs with the first slice that needs to surface errors over the wire (slice 4b or 7b).
   Done in `1cee9d6`; the field, first shipped as `code`, was renamed to `errorCode` on 2026-09-21. `DomainExceptionFilter` maps codes to HTTP statuses. The web app's `StalePreviewError` and `QueueWriteFailedError` stay plain `Error` subclasses on purpose: they are client-side infrastructure failures, not domain rules.
+- [ ] B3 Drop the `typescript@^6` pin from `apps/api` once TypeScript 7.1 ships its programmatic compiler API. Pinned 2026-10-03: TypeScript 7.0 ships only the `tsc` executable, and `nest start --watch` needs the API, so the dev server would not start. The rest of the workspace stays on 7. To close: remove the pin, confirm `pnpm --filter ./apps/api dev` boots and `pnpm typecheck` passes.
 
 ## Naming — type suffixes
 

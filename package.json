@@ -12,7 +12,9 @@
     "typecheck": "pnpm build:packages && pnpm -r typecheck",
     "lint": "biome check . && ./scripts/check-no-barrels.sh && ./scripts/check-import-placement.sh",
     "format": "biome format --write .",
-    "build:packages": "pnpm --filter \"./packages/**\" build"
+    "build:packages": "pnpm --filter \"./packages/**\" build",
+    "db:migrate": "pnpm build:packages && pnpm --filter ./apps/api db:migrate",
+    "db:seed": "pnpm build:packages && pnpm --filter ./apps/api db:seed"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",

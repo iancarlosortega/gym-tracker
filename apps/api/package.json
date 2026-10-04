@@ -8,8 +8,8 @@
     "start": "node dist/main.js",
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "seed-account": "node dist/commands/seed-account.command.js",
-    "migrate": "node dist/commands/migrate.command.js"
+    "db:migrate": "pnpm build && node --env-file-if-exists=.env dist/commands/migrate.command.js",
+    "db:seed": "pnpm build && node --env-file-if-exists=.env dist/commands/seed-account.command.js"
   },
   "dependencies": {
     "@gym/contracts": "workspace:*",
@@ -40,6 +40,7 @@
     "@types/supertest": "^7.2.1",
     "@types/web-push": "^3.6.4",
     "drizzle-kit": "^0.31.10",
-    "supertest": "^7.2.2"
+    "supertest": "^7.2.2",
+    "typescript": "^6.0.3"
   }
 }
