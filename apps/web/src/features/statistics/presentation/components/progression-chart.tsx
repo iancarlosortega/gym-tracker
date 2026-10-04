@@ -1,4 +1,4 @@
-import type { ProgressionSeriesResponse } from '../../infrastructure/http-statistics.gateway'
+import type { ProgressionSeriesResponse } from '../../infrastructure/statistics.api'
 
 export interface ProgressionChartProps {
   readonly series: ProgressionSeriesResponse

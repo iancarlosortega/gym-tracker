@@ -1,21 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
 import { Card } from '@/components/ui/card'
-import {
-  type ExerciseResponse,
-  HttpWorkoutGateway,
-} from '../../../workouts/infrastructure/http-workout.gateway'
-import {
-  HttpStatisticsGateway,
-  type WeekComparisonResponse,
-} from '../../infrastructure/http-statistics.gateway'
+import { useExercises } from '../../../workouts/presentation/queries'
 import { WeekHeadline } from '../components/week-headline'
-
-export interface WeekStatisticsContainerProps {
-  readonly apiBaseUrl: string
-}
+import { useWeekComparison } from '../queries'
 
 /** Monday, so a week is the week a lifter thinks in. */
 const startOfWeek = (instant: Date): Date => {
@@ -27,37 +16,21 @@ const startOfWeek = (instant: Date): Date => {
   return start
 }
 
-export const WeekStatisticsContainer = ({ apiBaseUrl }: WeekStatisticsContainerProps) => {
-  const gateway = useMemo(() => new HttpStatisticsGateway(apiBaseUrl), [apiBaseUrl])
-  const workouts = useMemo(() => new HttpWorkoutGateway(apiBaseUrl), [apiBaseUrl])
-  const [week, setWeek] = useState<WeekComparisonResponse | null>(null)
-  const [exercises, setExercises] = useState<readonly ExerciseResponse[]>([])
-  const [unreachable, setUnreachable] = useState(false)
+export const WeekStatisticsContainer = () => {
+  const weekQuery = useWeekComparison(startOfWeek(new Date()))
+  // A failed exercise read leaves the week summary to speak for itself rather
+  // than taking the page down.
+  const exercises = (useExercises().data ?? []).filter((exercise) => !exercise.archived)
 
-  useEffect(() => {
-    void gateway
-      .week(startOfWeek(new Date()))
-      .then(setWeek)
-      .catch(() => setUnreachable(true))
-  }, [gateway])
-
-  // Read from the browser, which holds the session cookie; a server-side read
-  // has no session and was always refused. A failure leaves the week summary
-  // to speak for itself rather than taking the page down.
-  useEffect(() => {
-    void workouts
-      .exercises()
-      .then((all) => setExercises(all.filter((exercise) => !exercise.archived)))
-      .catch(() => setExercises([]))
-  }, [workouts])
-
-  if (unreachable) {
+  if (weekQuery.isError) {
     return <p role="alert">Could not reach the server, so this week cannot be summarised.</p>
   }
 
-  if (week === null) {
+  if (weekQuery.isPending) {
     return <p>Reading your week…</p>
   }
+
+  const week = weekQuery.data
 
   return (
     <div className="grid gap-5">

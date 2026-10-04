@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
-import type { ProgressionSeriesResponse } from '../../infrastructure/http-statistics.gateway'
+import type { ProgressionSeriesResponse } from '../../infrastructure/statistics.api'
 import { ProgressionChart } from './progression-chart.tsx'
 
 const point = (value: number, reps: number, week: string) => ({

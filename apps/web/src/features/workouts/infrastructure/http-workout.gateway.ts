@@ -1,38 +1,16 @@
-import type { MeasurementMode } from '@gym/domain/measurement/value-objects/load-entry.vo'
 import { sessionAwareFetch } from '../../auth/infrastructure/session-aware-fetch'
-
-/** The shape the API answers with; the client never rebuilds a domain entity from it. */
-export interface WorkoutSessionResponse {
-  readonly id: string
-  readonly routineId: string | null
-  readonly startedAt: string
-  readonly finishedAt: string | null
-  readonly open: boolean
-}
-
-export interface ExerciseResponse {
-  readonly id: string
-  readonly name: string
-  readonly defaultMode: MeasurementMode
-  readonly archived: boolean
-}
-
-export interface EquipmentResponse {
-  readonly id: string
-  readonly name: string
-  readonly kind: string
-  /** Kilograms over the wire; grams are the domain's unit and stay inside it. */
-  readonly barKilograms: number | null
-  readonly stackPositions: number | null
-  readonly archived: boolean
-}
-
-interface PageResponse<TItem> {
-  readonly items: readonly TItem[]
-}
+import type {
+  EquipmentResponse,
+  ExerciseResponse,
+  PageResponse,
+  WorkoutSessionResponse,
+} from './workouts.api'
 
 /**
  * Reads the context the logging surface needs.
+ *
+ * Superseded by `workouts.api`; removed once the workout and recompute pages
+ * move onto it.
  *
  * Only reads live here. Writes go through the queue and drain through
  * SetSyncGateway, because a write must work with the API unreachable and a

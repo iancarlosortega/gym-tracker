@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
-import type { WeekSummaryResponse } from '../../infrastructure/http-statistics.gateway'
+import type { WeekSummaryResponse } from '../../infrastructure/statistics.api'
 import { WeekHeadline } from './week-headline.tsx'
 
 const week = (overrides: Partial<WeekSummaryResponse> = {}): WeekSummaryResponse => ({

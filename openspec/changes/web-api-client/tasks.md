@@ -38,11 +38,11 @@ Commit: `refactor(web): move the port adapters onto the api client`
 
 ## Slice 3 — Statistics and workouts as API functions and queries
 
-- [ ] 3.1 `workouts/infrastructure/workouts.api.ts` with `getCurrentWorkout`, `startWorkout`, `getExercises` and `getEquipment`. Response types move here. RED first: the test pins the existing `getCurrentWorkout` "none → `null`" mapping, read from the current gateway before it is removed.
-- [ ] 3.2 `statistics/infrastructure/statistics.api.ts` with `getWeekComparison` and `getExerciseProgression`. Response types move here.
-- [ ] 3.3 `workouts/presentation/queries.ts` (keys, `useExercises`) and `statistics/presentation/queries.ts` (keys, `useWeekComparison`, `useExerciseProgression`). The key test covers this: equal instants give equal keys, and different inputs give different keys.
-- [ ] 3.4 Rewrite `week-statistics.container.tsx` and `exercise-progression.container.tsx` on the hooks. They keep the existing loading and unreachable copy, and the `apiBaseUrl` props and `useMemo` gateways go. Their pages drop `API_ORIGIN` and `connection()`.
-- [ ] 3.5 Delete `http-statistics.gateway.ts`. `http-workout.gateway.ts` stays until slice 4, because the workout and recompute pages still use it.
+- [x] 3.1 `workouts/infrastructure/workouts.api.ts` with `getCurrentWorkout`, `startWorkout`, `getExercises` and `getEquipment`. Response types move here. RED first: the test pins the existing `getCurrentWorkout` "none → `null`" mapping, read from the current gateway before it is removed.
+- [x] 3.2 `statistics/infrastructure/statistics.api.ts` with `getWeekComparison` and `getExerciseProgression`. Response types move here.
+- [x] 3.3 `workouts/presentation/queries.ts` (keys, `useExercises`) and `statistics/presentation/queries.ts` (keys, `useWeekComparison`, `useExerciseProgression`). The key test covers this: equal instants give equal keys, and different inputs give different keys.
+- [x] 3.4 Rewrite `week-statistics.container.tsx` and `exercise-progression.container.tsx` on the hooks. They keep the existing loading and unreachable copy, and the `apiBaseUrl` props and `useMemo` gateways go. Their pages drop `API_ORIGIN` and `connection()`.
+- [x] 3.5 Delete `http-statistics.gateway.ts`. `http-workout.gateway.ts` stays until slice 4, because the workout and recompute pages still use it.
 
 Commit: `refactor(web): read statistics through queries`
 

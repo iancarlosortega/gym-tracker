@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card'
-import type { WeekSummaryResponse } from '../../infrastructure/http-statistics.gateway'
+import type { WeekSummaryResponse } from '../../infrastructure/statistics.api'
 
 export interface WeekHeadlineProps {
   readonly current: WeekSummaryResponse

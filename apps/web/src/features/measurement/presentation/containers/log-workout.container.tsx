@@ -18,7 +18,7 @@ import { RestTimerContainer } from '../../../rest-timer/presentation/containers/
 import type {
   EquipmentResponse,
   ExerciseResponse,
-} from '../../../workouts/infrastructure/http-workout.gateway'
+} from '../../../workouts/infrastructure/workouts.api'
 import type { CountPendingSetsUseCase } from '../../application/count-pending-sets.use-case'
 import type { LogSetOfflineUseCase } from '../../application/log-set-offline.use-case'
 import { QueueWriteFailedError } from '../../application/queue-write-failed.error'

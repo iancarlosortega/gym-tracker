@@ -1,17 +1,14 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { HttpWorkoutGateway } from '../../../workouts/infrastructure/http-workout.gateway'
-import {
-  type ExerciseProgressionResponse,
-  HttpStatisticsGateway,
-} from '../../infrastructure/http-statistics.gateway'
+import { useExercises } from '../../../workouts/presentation/queries'
+import type { ExerciseProgressionResponse } from '../../infrastructure/statistics.api'
 import { ModeChangeNotice } from '../components/mode-change-notice'
 import { ProgressionChart } from '../components/progression-chart'
+import { useExerciseProgression } from '../queries'
 
 export interface ExerciseProgressionContainerProps {
-  readonly apiBaseUrl: string
   readonly exerciseId: string
 }
 
@@ -20,46 +17,29 @@ const WEEK_MILLISECONDS = 7 * 24 * 60 * 60 * 1000
 
 type Metric = 'load' | 'reps'
 
-export const ExerciseProgressionContainer = ({
-  apiBaseUrl,
-  exerciseId,
-}: ExerciseProgressionContainerProps) => {
-  const gateway = useMemo(() => new HttpStatisticsGateway(apiBaseUrl), [apiBaseUrl])
-  const workouts = useMemo(() => new HttpWorkoutGateway(apiBaseUrl), [apiBaseUrl])
-  const [progression, setProgression] = useState<ExerciseProgressionResponse | null>(null)
-  const [exerciseName, setExerciseName] = useState('This exercise')
+/** Fixed once per visit: a range read from the clock on every render would be a new query key each time. */
+const lastWeeks = (): { readonly from: Date; readonly to: Date } => {
+  const to = new Date()
+  return { from: new Date(to.getTime() - WEEKS_SHOWN * WEEK_MILLISECONDS), to }
+}
 
-  // The name is read from the browser, which holds the session cookie. A
-  // failed lookup keeps the plain fallback rather than hiding the chart.
-  useEffect(() => {
-    void workouts
-      .exercises()
-      .then((all) => {
-        const name = all.find((candidate) => candidate.id === exerciseId)?.name
-        if (name !== undefined) setExerciseName(name)
-      })
-      .catch(() => undefined)
-  }, [workouts, exerciseId])
+export const ExerciseProgressionContainer = ({ exerciseId }: ExerciseProgressionContainerProps) => {
+  const [range] = useState(lastWeeks)
+  const progressionQuery = useExerciseProgression(exerciseId, range.from, range.to)
+  // A failed name lookup keeps the plain fallback rather than hiding the chart.
+  const exerciseName =
+    useExercises().data?.find((candidate) => candidate.id === exerciseId)?.name ?? 'This exercise'
   const [metric, setMetric] = useState<Metric>('load')
-  const [unreachable, setUnreachable] = useState(false)
 
-  useEffect(() => {
-    const to = new Date()
-    const from = new Date(to.getTime() - WEEKS_SHOWN * WEEK_MILLISECONDS)
-
-    void gateway
-      .progression(exerciseId, from, to)
-      .then(setProgression)
-      .catch(() => setUnreachable(true))
-  }, [gateway, exerciseId])
-
-  if (unreachable) {
+  if (progressionQuery.isError) {
     return <p role="alert">Could not reach the server, so this progression cannot be shown.</p>
   }
 
-  if (progression === null) {
+  if (progressionQuery.isPending) {
     return <p>Reading your progression…</p>
   }
+
+  const progression = progressionQuery.data
 
   return (
     <div className="grid gap-5">

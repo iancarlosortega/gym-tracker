@@ -9,12 +9,12 @@ import { StartRestUseCase } from '../../../rest-timer/application/start-rest.use
 import { NavigatorScreenWakeLock } from '../../../rest-timer/infrastructure/navigator-screen-wake-lock.adapter'
 import { WebAudioCompletionCue } from '../../../rest-timer/infrastructure/web-audio-completion-cue'
 import { SystemClock } from '../../../shared/infrastructure/system-clock.adapter'
-import {
-  type EquipmentResponse,
-  type ExerciseResponse,
-  HttpWorkoutGateway,
-  type WorkoutSessionResponse,
-} from '../../../workouts/infrastructure/http-workout.gateway'
+import { HttpWorkoutGateway } from '../../../workouts/infrastructure/http-workout.gateway'
+import type {
+  EquipmentResponse,
+  ExerciseResponse,
+  WorkoutSessionResponse,
+} from '../../../workouts/infrastructure/workouts.api'
 import { CountPendingSetsUseCase } from '../../application/count-pending-sets.use-case'
 import { LogSetOfflineUseCase } from '../../application/log-set-offline.use-case'
 import { SyncPendingSetsUseCase } from '../../application/sync-pending-sets.use-case'
