@@ -1,48 +1,54 @@
 import { describe, expect, it } from 'vitest'
+import { createApiClient } from '@/lib/api-client'
+import { type StubAnswer, stubAdapter } from '@/lib/testing/stub-adapter'
 import { InvalidCredentialsError } from '../application/invalid-credentials.error.ts'
 import { HttpSignInGateway } from './http-sign-in.gateway.ts'
 
-const answering =
-  (status: number, calls: { url: string; init: RequestInit | undefined }[] = []): typeof fetch =>
-  async (input, init) => {
-    calls.push({ url: String(input), init })
-    return new Response(null, { status })
-  }
-
 const credentials = { email: 'ian@example.com', password: 'secret' }
 
-describe('HttpSignInGateway', () => {
-  it('posts the credentials with the cookie jar enabled', async () => {
-    const calls: { url: string; init: RequestInit | undefined }[] = []
-
-    await new HttpSignInGateway('http://api', answering(204, calls)).signIn(credentials)
-
-    expect(calls[0]?.url).toBe('http://api/auth/sign-in')
-    expect(calls[0]?.init?.method).toBe('POST')
-    expect(calls[0]?.init?.credentials).toBe('include')
-    expect(calls[0]?.init?.body).toBe(JSON.stringify(credentials))
+const gatewayAnswering = (answer: () => StubAnswer) => {
+  let signalled = 0
+  const stub = stubAdapter(answer)
+  const client = createApiClient({
+    baseURL: 'https://api.test',
+    adapter: stub.adapter,
+    onUnauthenticated: () => (signalled += 1),
   })
 
-  it('maps a 401 to invalid credentials', async () => {
-    await expect(
-      new HttpSignInGateway('http://api', answering(401)).signIn(credentials),
-    ).rejects.toBeInstanceOf(InvalidCredentialsError)
+  return { gateway: new HttpSignInGateway(client), stub, signalled: () => signalled }
+}
+
+describe('HttpSignInGateway', () => {
+  it('posts the credentials to the sign-in route', async () => {
+    const { gateway, stub } = gatewayAnswering(() => ({ status: 204 }))
+
+    await gateway.signIn(credentials)
+
+    expect(stub.calls[0]?.method).toBe('post')
+    expect(stub.calls[0]?.url).toBe('/auth/sign-in')
+    expect(JSON.parse(String(stub.calls[0]?.data))).toEqual(credentials)
+  })
+
+  it('maps a 401 to invalid credentials without treating it as a lapsed session', async () => {
+    const { gateway, signalled } = gatewayAnswering(() => ({ status: 401 }))
+
+    await expect(gateway.signIn(credentials)).rejects.toBeInstanceOf(InvalidCredentialsError)
+    expect(signalled()).toBe(0)
   })
 
   it('reports any other refusal as a plain failure, not as a wrong password', async () => {
-    const attempt = new HttpSignInGateway('http://api', answering(500)).signIn(credentials)
+    const { gateway } = gatewayAnswering(() => ({ status: 500 }))
+    const attempt = gateway.signIn(credentials)
 
-    await expect(attempt).rejects.toThrow('The server answered 500.')
+    await expect(attempt).rejects.toThrow('500')
     await expect(attempt).rejects.not.toBeInstanceOf(InvalidCredentialsError)
   })
 
   it('lets a dead connection throw as it is', async () => {
-    const dead: typeof fetch = async () => {
+    const { gateway } = gatewayAnswering(() => {
       throw new TypeError('Failed to fetch')
-    }
+    })
 
-    await expect(new HttpSignInGateway('http://api', dead).signIn(credentials)).rejects.toThrow(
-      'Failed to fetch',
-    )
+    await expect(gateway.signIn(credentials)).rejects.toThrow('Failed to fetch')
   })
 })

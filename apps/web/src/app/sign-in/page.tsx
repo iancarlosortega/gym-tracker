@@ -1,21 +1,11 @@
 import { Dumbbell } from 'lucide-react'
-import { connection } from 'next/server'
 import { SignInContainer } from '@/features/auth/presentation/containers/sign-in.container'
 
-/** Same runtime-read origin as the other pages; see the workout page for why. */
 const SignInPage = async ({
   searchParams,
 }: {
   searchParams: Promise<{ next?: string | string[] }>
 }) => {
-  await connection()
-
-  const apiBaseUrl = process.env.API_ORIGIN
-
-  if (apiBaseUrl === undefined || apiBaseUrl === '') {
-    throw new Error('API_ORIGIN is not configured, so the app has no server to talk to.')
-  }
-
   const { next } = await searchParams
 
   return (
@@ -35,7 +25,7 @@ const SignInPage = async ({
         </p>
       </header>
 
-      <SignInContainer apiBaseUrl={apiBaseUrl} next={Array.isArray(next) ? next[0] : next} />
+      <SignInContainer next={Array.isArray(next) ? next[0] : next} />
     </main>
   )
 }

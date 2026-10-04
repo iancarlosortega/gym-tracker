@@ -51,7 +51,7 @@ export const WorkoutPageContainer = ({ apiBaseUrl }: WorkoutPageContainerProps) 
       enableAlerts: new EnablePocketedAlertsUseCase(new PushSubscriber(), push),
       workouts: new HttpWorkoutGateway(apiBaseUrl),
       logSet: new LogSetOfflineUseCase(queue),
-      syncSets: new SyncPendingSetsUseCase(queue, new HttpSetSyncGateway(apiBaseUrl)),
+      syncSets: new SyncPendingSetsUseCase(queue, new HttpSetSyncGateway()),
       countPending: new CountPendingSetsUseCase(queue),
       startRest: new StartRestUseCase(clock, wakeLock),
       cue: new WebAudioCompletionCue(),

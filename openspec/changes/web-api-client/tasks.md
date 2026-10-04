@@ -27,12 +27,12 @@ Commit: `feat(web): add the axios api client and query provider`
 
 ## Slice 2 — Port adapters on the client
 
-- [ ] 2.1 `HttpSignInGateway(client = apiClient)`. Rewrite `http-sign-in.gateway.test.ts` against `createApiClient({ adapter: stub })`:
+- [x] 2.1 `HttpSignInGateway(client = apiClient)`. Rewrite `http-sign-in.gateway.test.ts` against `createApiClient({ adapter: stub })`:
   - a POST to the API sign-in route carrying the credentials and `skipSignInRedirect`;
   - a 401 maps to `InvalidCredentialsError` and `onUnauthenticated` is not called;
   - a 500 rethrows.
-- [ ] 2.2 `HttpSetSyncGateway(client = apiClient)`. Add a test for the push request shape and for the returned ids. Keep the domain `SetSyncGateway` contract unchanged.
-- [ ] 2.3 Drop `apiBaseUrl` from `sign-in.container.tsx` and `app/sign-in/page.tsx`, along with `connection()` if it served only the URL.
+- [x] 2.2 `HttpSetSyncGateway(client = apiClient)`. Add a test for the push request shape and for the returned ids. Keep the domain `SetSyncGateway` contract unchanged.
+- [x] 2.3 Drop `apiBaseUrl` from `sign-in.container.tsx` and `app/sign-in/page.tsx`, along with `connection()` if it served only the URL.
 
 Commit: `refactor(web): move the port adapters onto the api client`
 

@@ -9,14 +9,13 @@ import { HttpSignInGateway } from '../../infrastructure/http-sign-in.gateway'
 import { type SignInFailure, SignInForm, type SignInSubmission } from '../components/sign-in-form'
 
 export interface SignInContainerProps {
-  readonly apiBaseUrl: string
   /** The raw `next` query parameter; it is checked here, never trusted. */
   readonly next?: string | undefined
 }
 
-export const SignInContainer = ({ apiBaseUrl, next }: SignInContainerProps) => {
+export const SignInContainer = ({ next }: SignInContainerProps) => {
   const router = useRouter()
-  const signIn = useMemo(() => new SignInUseCase(new HttpSignInGateway(apiBaseUrl)), [apiBaseUrl])
+  const signIn = useMemo(() => new SignInUseCase(new HttpSignInGateway()), [])
   const [pending, setPending] = useState(false)
   const [failure, setFailure] = useState<SignInFailure | null>(null)
 

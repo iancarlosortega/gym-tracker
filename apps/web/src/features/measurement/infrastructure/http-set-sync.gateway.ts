@@ -1,6 +1,7 @@
 import type { LoggedSet } from '@gym/domain/measurement/entities/logged-set.entity'
 import type { SetSyncGateway } from '@gym/domain/measurement/ports/set-sync.gateway'
-import { sessionAwareFetch } from '../../auth/infrastructure/session-aware-fetch'
+import type { AxiosInstance } from 'axios'
+import { apiClient } from '@/lib/api-client'
 
 interface LoggedSetResponse {
   readonly id: string
@@ -15,25 +16,14 @@ interface LoggedSetResponse {
  * a dead connection throws, and the caller treats that as "still pending".
  */
 export class HttpSetSyncGateway implements SetSyncGateway {
-  constructor(
-    private readonly baseUrl: string,
-    private readonly fetchImpl: typeof fetch = sessionAwareFetch,
-  ) {}
+  constructor(private readonly client: AxiosInstance = apiClient) {}
 
   async push(sessionId: string, sets: readonly LoggedSet[]): Promise<readonly string[]> {
-    const response = await this.fetchImpl(`${this.baseUrl}/workouts/${sessionId}/sets`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      // The session lives in a cookie, and the queue drains cross-origin.
-      credentials: 'include',
-      body: JSON.stringify({ sets: sets.map(toRequest) }),
-    })
+    const { data: written } = await this.client.post<readonly LoggedSetResponse[]>(
+      `/workouts/${sessionId}/sets`,
+      { sets: sets.map(toRequest) },
+    )
 
-    if (!response.ok) {
-      throw new Error(`The server refused the batch with ${response.status}.`)
-    }
-
-    const written = (await response.json()) as readonly LoggedSetResponse[]
     return written.map((set) => set.id)
   }
 }
