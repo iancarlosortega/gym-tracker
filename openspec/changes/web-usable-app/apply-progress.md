@@ -17,7 +17,28 @@ Mode: Strict TDD. Delivery: auto-chain; each review unit is a slice that Ian rev
 - UI: the `openWorkout` rule, `offlineWork()` singletons, `useOpenWorkout` and `useFinishWorkout`, `WorkoutMiniBar`, the timer tab slot, `AppShellContainer` background sync, and the Finish button on the workout page.
 - Gap: the mini bar has no routine name or set count yet (3a/4b).
 
-## Unit 5a — the last-sets endpoint (committed, under Ian's standing go-ahead)
+## Unit 5b — the keypad (committed, under Ian's standing go-ahead)
+
+- [x] 5b.1 `presentation/keypad/keypad.reducer.ts`:
+  - digit, decimal (at most one, "0." when first, ignored for reps), delete, step (weight ±2.5, reps ±1, clamped at 0), sameAsLast (fills both values) and switchField.
+  - The first key after opening a field replaces its value.
+  - `keypadValues` reads an empty or unfinished value ("22.") as null.
+- [x] 5b.2 `ValueTile` and `SetKeypad`.
+  - `ValueTile` is a `<button aria-pressed>` labelled "Weight per side, 22.5 kilograms" (or "not entered").
+  - `SetKeypad` has −/Same as last/+ chips, 60px keys, "Decimal point" and "Delete" labels, Reps ›/‹ Weight, a tall "Log set N", and Close. A `role="status"` live region announces "<Field> <value>".
+  - It renders no input or textarea.
+
+### Evidence
+
+| Evidence | Value |
+|----------|-------|
+| RED → GREEN | reducer 10 (decimal rules, integer reps, delete, step clamp, same as last, switch, unfinished value); components 7 (tile labels, no input, the 2-2-.5 → "22.5" announcement, chips + switch, no last, log/close) |
+| Web | 51 files, 310 tests; typecheck clean; biome clean |
+| Device | VoiceOver behaviour stays DV-U3 |
+
+Size: 444 lines (about 170 tests). One commit.
+
+## Unit 5a — the last-sets endpoint (committed 4ba7b70, ff4b9b7)
 
 - [x] 5a.1 `GET /exercises/:id/last-sets?excludingSession=` returns `{ sessionStartedAt, sets: [{ setNumber, mode, value, reps }] } | null`.
   - Domain port: `LastSetsRepository`.

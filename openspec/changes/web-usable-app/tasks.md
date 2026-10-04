@@ -83,8 +83,8 @@
 
 ## 5b — Workout: the keypad
 
-- [ ] 5b.1 `keypad.reducer.ts`: digit, decimal (at most one), delete, step ±2.5 (never below 0), sameAsLast, switchField; reps are integers only. The reducer tests come first.
-- [ ] 5b.2 `ValueTile` (button, `aria-pressed`, a full `aria-label`) and `SetKeypad` (chips, pad, Reps ›, Log, Close, a polite live region). jsdom tests: no `input` is rendered, and the value is announced.
+- [x] 5b.1 `keypad.reducer.ts`: digit, decimal (at most one), delete, step ±2.5 (never below 0), sameAsLast, switchField; reps are integers only. The reducer tests come first.
+- [x] 5b.2 `ValueTile` (button, `aria-pressed`, a full `aria-label`) and `SetKeypad` (chips, pad, Reps ›, Log, Close, a polite live region). jsdom tests: no `input` is rendered, and the value is announced.
 
 ## 5c — Workout: the focus screen
 
