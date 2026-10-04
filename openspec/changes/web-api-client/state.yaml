@@ -1,0 +1,31 @@
+change: web-api-client
+created: 2026-10-03
+artifact_store: hybrid
+execution_mode: interactive
+delivery_strategy: single-pr
+delivery_note: Sole developer. Delivery is commits pushed to main after local review; no PRs.
+
+phases:
+  explore: done
+  research: done
+  proposal: done
+  spec: done
+  design: done
+  tasks: done
+  apply: ready
+  verify: blocked
+  archive: blocked
+
+next_recommended: apply
+review_decision: per-slice review units (owner, 2026-10-03); each slice reviewed locally and committed separately
+
+preproposal:
+  schema: gentle-ai.sdd-preproposal/v1
+  revision: 1
+  exploration: exploration.md (done)
+  research: research.md (revision 1, done)
+  decisions:
+    approach: confirmed # B
+    test_doubles: confirmed # stub adapter injected into createApiClient
+    stale_time: confirmed # 30s + refetchOnWindowFocus
+  proposal_ready: true
