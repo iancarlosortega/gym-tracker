@@ -17,6 +17,22 @@ Mode: Strict TDD. Delivery: auto-chain; each review unit is a slice that Ian rev
 - UI: the `openWorkout` rule, `offlineWork()` singletons, `useOpenWorkout` and `useFinishWorkout`, `WorkoutMiniBar`, the timer tab slot, `AppShellContainer` background sync, and the Finish button on the workout page.
 - Gap: the mini bar has no routine name or set count yet (3a/4b).
 
+## Unit 6 — device-verification fixes (Ian's iPhone pass, 2026-10-04)
+
+DV-U1 passed (installed app opens on Home); the keypad never raised the iOS keyboard. Ian found these bugs:
+
+- [x] 6.1 (07e5297) The status bar overlapped content: the app draws under `black-translucent` with `viewportFit: cover`, but only Home and sign-in padded for it. The `(app)` layout, the workout page and the recompute page now pad `env(safe-area-inset-top)`, and the leftover "Log a workout" title is gone.
+- [x] 6.2 (acc457c) Equipment could not be created anywhere in the app; the API supported it. There is now a `createEquipment` client, `NewEquipmentForm` (barbell + bar kg / stack + positions / free weights, validated), and "New equipment" plus an empty-state call to action on /equipment.
+- [x] 6.3 The workout's equipment picker was an empty sheet. With nothing that fits it now says so and shows the create form limited to `kindsFor(mode)`; the created piece is chosen at once. "New equipment" is also offered under a non-empty list.
+- [x] 6.4 Log set was silently disabled. `logBlocker` now names the first missing thing (equipment, weight, reps) under the button.
+- [x] 6.5 Values were shared across exercises. A keypad `load` action plus a per-exercise memory restore each exercise's typed values on ‹ ›.
+- [x] 6.6 (cddbf33) The routine editor offered exercises already in the routine. They are now filtered out.
+- [x] 6.7 (cddbf33) Adding an exercise to a routine opens its targets sheet (`addedEntry`).
+
+Evidence: RED → GREEN for each behaviour (6.1 is CSS-only, so it has no jsdom test); web 57 files / 350 tests; typecheck, biome, `next build` OK.
+
+**Open question for Ian:** a dumbbell exercise logged "per side" can only use a barbell, because the domain's `FREE_WEIGHT` supports TOTAL only.
+
 ## Unit 5c — the focus workout screen (committed, under Ian's standing go-ahead)
 
 All implementation tasks are done. Only the manual device checks DV-U1 to DV-U4 remain, and they are Ian's.
