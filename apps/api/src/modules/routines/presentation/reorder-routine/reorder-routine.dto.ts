@@ -9,6 +9,6 @@ export class ReorderRoutineDto {
    */
   @IsArray()
   @ArrayNotEmpty()
-  @IsUUID('4', { each: true })
+  @IsUUID('all', { each: true })
   entryIds!: string[]
 }
