@@ -4,6 +4,7 @@ import { ArchiveExerciseUseCase } from '@api/modules/catalog/application/use-cas
 import { CorrectBarWeightUseCase } from '@api/modules/catalog/application/use-cases/correct-bar-weight.use-case.js'
 import { CreateEquipmentUseCase } from '@api/modules/catalog/application/use-cases/create-equipment.use-case.js'
 import { CreateExerciseUseCase } from '@api/modules/catalog/application/use-cases/create-exercise.use-case.js'
+import { GetEquipmentUsageUseCase } from '@api/modules/catalog/application/use-cases/get-equipment-usage.use-case.js'
 import { ListEquipmentUseCase } from '@api/modules/catalog/application/use-cases/list-equipment.use-case.js'
 import { ListExercisesUseCase } from '@api/modules/catalog/application/use-cases/list-exercises.use-case.js'
 import { RenameEquipmentUseCase } from '@api/modules/catalog/application/use-cases/rename-equipment.use-case.js'
@@ -11,15 +12,18 @@ import { RenameExerciseUseCase } from '@api/modules/catalog/application/use-case
 import {
   CLOCK,
   EQUIPMENT_REPOSITORY,
+  EQUIPMENT_USAGE_REPOSITORY,
   EXERCISE_REPOSITORY,
 } from '@api/modules/catalog/catalog.tokens.js'
 import { DrizzleEquipmentRepository } from '@api/modules/catalog/infrastructure/persistence/drizzle-equipment.repository.js'
+import { DrizzleEquipmentUsageRepository } from '@api/modules/catalog/infrastructure/persistence/drizzle-equipment-usage.repository.js'
 import { DrizzleExerciseRepository } from '@api/modules/catalog/infrastructure/persistence/drizzle-exercise.repository.js'
 import { ArchiveEquipmentController } from '@api/modules/catalog/presentation/archive-equipment/archive-equipment.controller.js'
 import { ArchiveExerciseController } from '@api/modules/catalog/presentation/archive-exercise/archive-exercise.controller.js'
 import { CorrectBarWeightController } from '@api/modules/catalog/presentation/correct-bar-weight/correct-bar-weight.controller.js'
 import { CreateEquipmentController } from '@api/modules/catalog/presentation/create-equipment/create-equipment.controller.js'
 import { CreateExerciseController } from '@api/modules/catalog/presentation/create-exercise/create-exercise.controller.js'
+import { GetEquipmentUsageController } from '@api/modules/catalog/presentation/get-equipment-usage/get-equipment-usage.controller.js'
 import { ListEquipmentController } from '@api/modules/catalog/presentation/list-equipment/list-equipment.controller.js'
 import { ListExercisesController } from '@api/modules/catalog/presentation/list-exercises/list-exercises.controller.js'
 import { RenameEquipmentController } from '@api/modules/catalog/presentation/rename-equipment/rename-equipment.controller.js'
@@ -43,11 +47,13 @@ import { Module } from '@nestjs/common'
     CorrectBarWeightController,
     ArchiveEquipmentController,
     ListEquipmentController,
+    GetEquipmentUsageController,
   ],
   providers: [
     { provide: CLOCK, useClass: SystemClock },
     { provide: EXERCISE_REPOSITORY, useClass: DrizzleExerciseRepository },
     { provide: EQUIPMENT_REPOSITORY, useClass: DrizzleEquipmentRepository },
+    { provide: EQUIPMENT_USAGE_REPOSITORY, useClass: DrizzleEquipmentUsageRepository },
     CreateExerciseUseCase,
     RenameExerciseUseCase,
     ArchiveExerciseUseCase,
@@ -57,6 +63,7 @@ import { Module } from '@nestjs/common'
     CorrectBarWeightUseCase,
     ArchiveEquipmentUseCase,
     ListEquipmentUseCase,
+    GetEquipmentUsageUseCase,
   ],
   exports: [EXERCISE_REPOSITORY, EQUIPMENT_REPOSITORY],
 })
