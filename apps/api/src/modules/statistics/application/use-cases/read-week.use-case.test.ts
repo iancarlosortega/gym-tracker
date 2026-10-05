@@ -49,3 +49,45 @@ describe('the days trained this week', () => {
     expect(week.trainedOn).toEqual([])
   })
 })
+
+describe("the week in the phone's time zone", () => {
+  const guayaquil = 'America/Guayaquil'
+
+  it('marks a Sunday-evening workout on Sunday, in the week it was done', async () => {
+    // 20:24 on Sunday 4 October in Guayaquil.
+    const readWeek = new ReadWeekUseCase(statisticsWith([workoutAt('2026-10-05T01:24:20.089Z')]))
+
+    const week = await readWeek.execute({
+      userId: userId.value,
+      weekStart: new Date('2026-09-28T05:00:00Z'),
+      timeZone: guayaquil,
+    })
+
+    expect(week.trainedOn).toEqual(['2026-10-04'])
+  })
+
+  it('leaves that workout out of the week that starts on the local Monday after it', async () => {
+    const readWeek = new ReadWeekUseCase(statisticsWith([workoutAt('2026-10-05T01:24:20.089Z')]))
+
+    const week = await readWeek.execute({
+      userId: userId.value,
+      weekStart: new Date('2026-10-05T05:00:00Z'),
+      timeZone: guayaquil,
+    })
+
+    expect(week.trainedOn).toEqual([])
+  })
+
+  it('reads the week holding the instant it is given, whatever time of day it is', async () => {
+    const readWeek = new ReadWeekUseCase(statisticsWith([workoutAt('2026-10-05T01:24:20.089Z')]))
+
+    // Wednesday noon local: the whole week around it, Monday to Sunday night.
+    const week = await readWeek.execute({
+      userId: userId.value,
+      weekStart: new Date('2026-09-30T17:00:00Z'),
+      timeZone: guayaquil,
+    })
+
+    expect(week.trainedOn).toEqual(['2026-10-04'])
+  })
+})

@@ -10,6 +10,8 @@ export interface ReadProgressionInput {
   readonly exerciseId: string
   readonly from: Date
   readonly to: Date
+  /** The phone's IANA zone: weeks start on its Mondays. */
+  readonly timeZone?: string | undefined
 }
 
 @Injectable()
@@ -23,6 +25,6 @@ export class ReadProgressionUseCase {
       DateRange.between(input.from, input.to),
     )
 
-    return progression(input.exerciseId, sets)
+    return progression(input.exerciseId, sets, input.timeZone ?? 'UTC')
   }
 }

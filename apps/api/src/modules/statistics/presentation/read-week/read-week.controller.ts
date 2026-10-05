@@ -16,6 +16,12 @@ export class ReadWeekController {
     @GetUserId() userId: string,
     @Query() query: ReadWeekDto,
   ): Promise<WeekComparisonView> {
-    return toWeekComparisonView(await this.readWeek.execute({ userId, weekStart: query.weekStart }))
+    return toWeekComparisonView(
+      await this.readWeek.execute({
+        userId,
+        weekStart: query.weekStart,
+        timeZone: query.timeZone,
+      }),
+    )
   }
 }

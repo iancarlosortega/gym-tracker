@@ -23,6 +23,7 @@ export class ReadProgressionController {
         exerciseId,
         from: query.from,
         to: query.to,
+        timeZone: query.timeZone,
       }),
     )
   }
