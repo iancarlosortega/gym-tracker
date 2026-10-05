@@ -19,10 +19,10 @@ Strict TDD. Each unit is green before it is handed over: tests, typecheck, biome
 - [x] 3.2 Network-first with a 3 s timeout: a cached copy is served when the network is late and the cache is updated afterwards; with no cached copy, the SW waits for the network. Covered by `sw.test.ts`.
 
 ## S4 — Session in the Query cache + start navigates first
-- [ ] 4.1 Key factory entries `current`, `sessionSets(id)` and `start`. `sessionSetsQuery` merges server and queue sets with `networkMode: 'always'` and falls back to the queue offline (D4). Tests use fake-indexeddb.
-- [ ] 4.2 `workout-page.container` moves onto queries. Port the existing container test first; its assertions stay green.
-- [ ] 4.3 The workout screen writes logged rows into `sessionSetsQuery` and invalidates after the drain. The existing offline-logging tests stay green.
-- [ ] 4.4 Start navigates first. The workout page has a starting state, plus a failed state with Try again. The raw `startWorkout()` is replaced (D3).
+- [x] 4.1 Key factory entries `current`, `sessionSets(id)` and `start`. `sessionSetsQuery` merges server and queue sets with `networkMode: 'always'` and falls back to the queue offline (D4). Tests use fake-indexeddb.
+- [x] 4.2 `workout-page.container` moves onto queries. Port the existing container test first; its assertions stay green.
+- [x] 4.3 The workout screen writes logged rows into `sessionSetsQuery` and invalidates after the drain. The existing offline-logging tests stay green.
+- [x] 4.4 Start navigates first. The workout page has a starting state, plus a failed state with Try again. The raw `startWorkout()` is replaced (D3).
 
 ## S5 — Home headline
 - [ ] 5.1 `sessionProgress` pure function, tested on target, no target, extra exercises and queued sets.

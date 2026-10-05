@@ -78,9 +78,10 @@ export const HomeContainer = () => {
                     <RoutineStartChoices
                       routine={picked}
                       starting={start.isPending}
-                      onStart={() =>
-                        start.mutate(picked.id, { onSuccess: () => router.push('/workout') })
-                      }
+                      onStart={() => {
+                        start.mutate(picked.id)
+                        router.push('/workout')
+                      }}
                     />
                   )}
                   {start.isError && (

@@ -1,9 +1,11 @@
 'use client'
 
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { PlanSkeleton } from '@/components/loading-skeletons'
+import { isWaitingForNetwork } from '@/components/query-state'
+import { Button } from '@/components/ui/button'
 import { EnablePocketedAlertsUseCase } from '../../../push/application/enable-pocketed-alerts.use-case'
 import { PushSubscriber } from '../../../push/infrastructure/browser-push.subscriber'
 import { pushApi } from '../../../push/infrastructure/push.api'
@@ -12,20 +14,18 @@ import { StartRestUseCase } from '../../../rest-timer/application/start-rest.use
 import { NavigatorScreenWakeLock } from '../../../rest-timer/infrastructure/navigator-screen-wake-lock.adapter'
 import { WebAudioCompletionCue } from '../../../rest-timer/infrastructure/web-audio-completion-cue'
 import { restSecondsFor } from '../../../routines/application/rest-seconds-for'
-import { getRoutine, type RoutineResponse } from '../../../routines/infrastructure/routines.api'
+import { getRoutine } from '../../../routines/infrastructure/routines.api'
+import { routinesKeys, useRoutines } from '../../../routines/presentation/queries'
 import { SystemClock } from '../../../shared/infrastructure/system-clock.adapter'
 import {
-  type EquipmentResponse,
-  type ExerciseResponse,
-  getCurrentWorkout,
-  getEquipment,
-  getExercises,
-  startWorkout,
-  type WorkoutSessionResponse,
-} from '../../../workouts/infrastructure/workouts.api'
-import { offlineWork } from '../../../workouts/presentation/offline-work'
-import { openWorkout } from '../../../workouts/presentation/open-workout'
-import { useFinishWorkout } from '../../../workouts/presentation/queries'
+  type StartingWorkout,
+  useEquipment,
+  useExercises,
+  useFinishWorkout,
+  useOpenWorkout,
+  useStartingWorkout,
+  useStartWorkout,
+} from '../../../workouts/presentation/queries'
 import { CountPendingSetsUseCase } from '../../application/count-pending-sets.use-case'
 import { LogSetOfflineUseCase } from '../../application/log-set-offline.use-case'
 import { SyncPendingSetsUseCase } from '../../application/sync-pending-sets.use-case'
@@ -34,10 +34,36 @@ import { IndexedDbSetRepository } from '../../infrastructure/indexed-db-set.repo
 import { prefetchLastSets } from '../last-sets.queries'
 import { WorkoutScreenContainer } from './workout-screen.container'
 
-interface WorkoutContext {
-  readonly session: WorkoutSessionResponse | null
-  readonly exercises: readonly ExerciseResponse[]
-  readonly equipment: readonly EquipmentResponse[]
+/** The workout screen between the tap on start and the server's answer. */
+export const StartingWorkoutView = ({
+  starting,
+  routineName,
+  onRetry,
+}: {
+  readonly starting: StartingWorkout
+  readonly routineName: string | null
+  readonly onRetry: () => void
+}) => {
+  if (starting.status === 'error') {
+    return (
+      <div className="grid gap-3">
+        <p role="alert">Could not start {routineName ?? 'the workout'}.</p>
+        <Button className="min-h-touch text-base" onClick={onRetry}>
+          Try again
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid gap-4">
+      <h1 className="font-bold text-2xl">{routineName ?? 'Workout'}</h1>
+      <p role="status" className="text-muted-foreground">
+        {starting.offline ? "You're offline. It starts once you're back online." : 'Starting…'}
+      </p>
+      <PlanSkeleton />
+    </div>
+  )
 }
 
 /**
@@ -67,72 +93,63 @@ export const WorkoutPageContainer = () => {
     }
   }, [])
 
-  const [context, setContext] = useState<WorkoutContext | null>(null)
-  const [unreachable, setUnreachable] = useState(false)
+  const starting = useStartingWorkout()
+  const start = useStartWorkout()
+  // While a start is in flight, "no workout yet" is not an answer worth asking for.
+  const current = useOpenWorkout({ enabled: starting?.status !== 'pending' })
+  const exercises = useExercises()
+  const equipment = useEquipment()
+  const routines = useRoutines()
+  const routineId = current.data?.routineId ?? null
   // Null until the routine is read, and for an empty workout: rest then falls back.
-  const [routine, setRoutine] = useState<RoutineResponse | null>(null)
-  const routineId = context?.session?.routineId ?? null
-  const openSessionId = context?.session?.id ?? null
+  const routine =
+    useQuery({
+      queryKey: routinesKeys.detail(routineId ?? ''),
+      queryFn: () => getRoutine(routineId ?? ''),
+      enabled: routineId !== null,
+    }).data ?? null
+  const openSessionId = current.data?.id ?? null
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    if (routineId === null) return
-    // Offline the routine cannot be read; logging still works on the fallback rest.
-    void getRoutine(routineId)
-      .then((followed) => {
-        setRoutine(followed)
-        void prefetchLastSets(
-          queryClient,
-          followed.entries.map((entry) => entry.exerciseId),
-          openSessionId,
-        )
-      })
-      .catch(() => setRoutine(null))
-  }, [routineId, openSessionId, queryClient])
+    if (routine === null) return
+    void prefetchLastSets(
+      queryClient,
+      routine.entries.map((entry) => entry.exerciseId),
+      openSessionId,
+    )
+  }, [routine, openSessionId, queryClient])
 
-  useEffect(() => {
-    void (async () => {
-      try {
-        const [session, exercises, equipment] = await Promise.all([
-          // A finish pressed offline closes the workout here before the server hears of it.
-          getCurrentWorkout().then(async (current) =>
-            openWorkout(current, await offlineWork().finishes.all()),
-          ),
-          getExercises(),
-          getEquipment(),
-        ])
-
-        setContext({ session, exercises, equipment })
-      } catch {
-        setUnreachable(true)
-      }
-    })()
-  }, [])
-
-  if (unreachable) {
-    return <p role="alert">Could not reach the server. Sets you log will be kept and sent later.</p>
-  }
-
-  if (context === null) {
-    return <PlanSkeleton />
-  }
-
-  if (context.session === null) {
+  if (starting !== null && current.data == null) {
+    const name =
+      routines.data?.routines.find((candidate) => candidate.id === starting.routineId)?.name ?? null
     return (
-      <button
-        type="button"
-        onClick={() => {
-          void startWorkout()
-            .then((session) => setContext({ ...context, session }))
-            .catch(() => setUnreachable(true))
-        }}
-      >
-        Start a workout
-      </button>
+      <StartingWorkoutView
+        starting={starting}
+        routineName={name}
+        onRetry={() => start.mutate(starting.routineId)}
+      />
     )
   }
 
-  const session = context.session
+  const reads = [current, exercises, equipment]
+  if (reads.some((read) => read.isError || isWaitingForNetwork(read))) {
+    return <p role="alert">Could not reach the server. Sets you log will be kept and sent later.</p>
+  }
+
+  if (current.data === undefined || exercises.data === undefined || equipment.data === undefined) {
+    return <PlanSkeleton />
+  }
+
+  if (current.data === null) {
+    return (
+      <Button className="min-h-touch text-base" onClick={() => start.mutate(undefined)}>
+        Start a workout
+      </Button>
+    )
+  }
+
+  const session = current.data
 
   return (
     <div className="grid gap-6">
@@ -140,8 +157,8 @@ export const WorkoutPageContainer = () => {
         sessionId={session.id}
         startedAt={new Date(session.startedAt)}
         routine={routine}
-        exercises={context.exercises.filter((exercise) => !exercise.archived)}
-        equipment={context.equipment.filter((item) => !item.archived)}
+        exercises={exercises.data.filter((exercise) => !exercise.archived)}
+        equipment={equipment.data.filter((item) => !item.archived)}
         queue={wiring.queue}
         logSet={wiring.logSet}
         syncSets={wiring.syncSets}

@@ -62,13 +62,12 @@ const useStartSheets = () => {
   const routines = (listing?.routines ?? []).filter((routine) => !routine.archived)
   const upNext = routines.find((routine) => routine.id === listing?.upNextRoutineId) ?? null
 
-  const startWith = (routineId?: string) =>
-    start.mutate(routineId, {
-      onSuccess: () => {
-        setSheet(null)
-        router.push('/workout')
-      },
-    })
+  /** The workout screen opens on the tap and shows the start while the server confirms it. */
+  const startWith = (routineId?: string) => {
+    start.mutate(routineId)
+    setSheet(null)
+    router.push('/workout')
+  }
 
   const sheets = (
     <Drawer

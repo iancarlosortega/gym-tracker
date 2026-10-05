@@ -153,7 +153,10 @@ export const RoutinePlanContainer = ({ routineId }: { readonly routineId: string
               exerciseNames={exerciseNames}
               starting={start.isPending}
               startFailed={start.isError}
-              onStart={() => start.mutate(plan.id, { onSuccess: () => router.push('/workout') })}
+              onStart={() => {
+                start.mutate(plan.id)
+                router.push('/workout')
+              }}
               onEdit={() => setEditing(true)}
             />
           )}

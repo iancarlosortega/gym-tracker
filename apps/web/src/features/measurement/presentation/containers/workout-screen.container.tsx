@@ -11,19 +11,12 @@ import { stackPosition } from '@gym/domain/measurement/value-objects/stack-posit
 import type { CompletionCue } from '@gym/domain/rest-timer/ports/completion-cue.port'
 import type { ScreenWakeLock } from '@gym/domain/rest-timer/ports/screen-wake-lock.port'
 import type { RestInterval } from '@gym/domain/rest-timer/value-objects/rest-interval.vo'
-import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
-import { Pagination } from '@gym/domain/shared/value-objects/pagination.vo'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
-import {
-  type DisplayUnit,
-  fromDisplay,
-  kilogramsToDisplay,
-  spokenUnit,
-  unitLabel,
-} from '@/lib/units'
+import { type DisplayUnit, fromDisplay, spokenUnit, unitLabel } from '@/lib/units'
 import { useDisplayUnit } from '../../../auth/presentation/queries'
 import { NewEquipmentForm } from '../../../catalog/presentation/components/new-equipment-form'
 import { useCreateEquipment } from '../../../catalog/presentation/queries'
@@ -41,19 +34,12 @@ import type { CountPendingSetsUseCase } from '../../application/count-pending-se
 import type { LogSetOfflineUseCase } from '../../application/log-set-offline.use-case'
 import { QueueWriteFailedError } from '../../application/queue-write-failed.error'
 import type { SyncPendingSetsUseCase } from '../../application/sync-pending-sets.use-case'
-import { getSessionSets } from '../../infrastructure/session-sets.api'
 import { SyncStatus } from '../components/sync-status'
 import { keypadReducer, keypadValues, openKeypad } from '../keypad/keypad.reducer'
 import { SetKeypad, ValueTile } from '../keypad/set-keypad'
 import { useLastSets } from '../last-sets.queries'
-import {
-  type DoneSet,
-  doneLabel,
-  doneRowsFor,
-  fromQueue,
-  fromServer,
-  mergeDone,
-} from '../workout/done-sets'
+import { sessionSetsQuery } from '../session-sets.queries'
+import { type DoneSet, doneLabel, doneRowsFor, fromQueue } from '../workout/done-sets'
 import { LastTimeCard, lastSetLabel } from '../workout/last-time-card'
 import {
   compatibleEquipment,
@@ -137,7 +123,7 @@ const useNow = (): Date => {
   return now
 }
 
-const WHOLE_WORKOUT = Pagination.create({ limit: 200 })
+const NOTHING_DONE: readonly DoneSet[] = []
 
 /**
  * The focus screen: one exercise at a time, values on tiles, the keypad only
@@ -167,7 +153,9 @@ export const WorkoutScreenContainer = ({
 }: WorkoutScreenProps) => {
   const now = useNow()
   const unit = useDisplayUnit()
-  const [done, setDone] = useState<readonly DoneSet[]>([])
+  const queryClient = useQueryClient()
+  const doneKey = sessionSetsQuery(sessionId, queue).queryKey
+  const done = useQuery(sessionSetsQuery(sessionId, queue)).data ?? NOTHING_DONE
   const [added, setAdded] = useState<readonly string[]>([])
   const [index, setIndex] = useState(0)
   const [chosenEquipment, setChosenEquipment] = useState<ReadonlyMap<string, string>>(new Map())
@@ -192,13 +180,9 @@ export const WorkoutScreenContainer = ({
 
   /** The done list, from the server and whatever the phone still holds. */
   const refresh = useCallback(async () => {
-    const [server, queued] = await Promise.all([
-      getSessionSets(sessionId).catch(() => []),
-      queue.findMany(Criteria.create({ sessionId }), WHOLE_WORKOUT),
-    ])
-    setDone(mergeDone(server.map(fromServer), queued.items.map(fromQueue)))
+    await queryClient.invalidateQueries({ queryKey: doneKey })
     setPending(await countPending.execute())
-  }, [sessionId, queue, countPending])
+  }, [queryClient, doneKey, countPending])
 
   const drain = useCallback(async () => {
     await syncSets.execute()
@@ -206,11 +190,14 @@ export const WorkoutScreenContainer = ({
   }, [syncSets, refresh])
 
   useEffect(() => {
-    void refresh()
+    void countPending.execute().then(setPending)
+  }, [countPending])
+
+  useEffect(() => {
     const onOnline = () => void drain()
     globalThis.addEventListener?.('online', onOnline)
     return () => globalThis.removeEventListener?.('online', onOnline)
-  }, [refresh, drain])
+  }, [drain])
 
   const order = workoutOrder(routine?.entries ?? null, [
     ...done.map((set) => set.exerciseId),
@@ -293,7 +280,7 @@ export const WorkoutScreenContainer = ({
       })
       setKeypadOpen(false)
       const row = fromQueue(set)
-      setDone((current) => [...current, row])
+      queryClient.setQueryData<readonly DoneSet[]>(doneKey, (current = []) => [...current, row])
       setPending(await countPending.execute())
       void drain()
 

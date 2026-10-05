@@ -13,6 +13,7 @@ const build = () => {
   const finishes = new IndexedDbPendingFinishStore()
 
   return {
+    sets: queue,
     countPendingSets: new CountPendingSetsUseCase(queue),
     finishes,
     finishOffline: new FinishWorkoutOfflineUseCase(finishes, new SystemClock()),
