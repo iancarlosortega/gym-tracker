@@ -49,10 +49,17 @@ const bar = {
 }
 
 const incline = { id: 'e-2', name: 'Incline press', defaultMode: 'TOTAL' as const, archived: false }
-const dumbbells = { ...bar, id: 'q-2', name: 'Dumbbells', kind: 'FREE_WEIGHT', barKilograms: null }
+const legPress = {
+  ...bar,
+  id: 'q-2',
+  name: 'Leg press',
+  kind: 'STACK',
+  barKilograms: null,
+  stackPositions: 20,
+}
 
 const renderScreen = ({
-  equipment = [bar] as (typeof bar | typeof dumbbells)[],
+  equipment = [bar] as (typeof bar | typeof legPress)[],
   extraExercise = false,
 } = {}) => {
   const logged: LogSetOfflineInput[] = []
@@ -153,16 +160,17 @@ describe('the workout screen, wired', () => {
   })
 
   it('says why a set cannot be logged, and offers equipment that fits when there is none', async () => {
-    renderScreen({ equipment: [dumbbells] })
+    renderScreen({ equipment: [legPress] })
 
     expect(screen.getByText('Pick the equipment to log this set.')).toBeDefined()
 
     await userEvent.click(screen.getByRole('button', { name: 'Pick the equipment' }))
     expect(await screen.findByText(/Nothing you have can measure weight per side/)).toBeDefined()
-    expect(screen.getAllByRole('radio')).toHaveLength(1)
+    expect(screen.getAllByRole('radio')).toHaveLength(2)
 
     await userEvent.type(screen.getByLabelText('Name'), 'Olympic bar')
-    await userEvent.type(screen.getByLabelText('Bar weight (kg)'), '20')
+    await userEvent.click(screen.getByRole('radio', { name: /plate-loaded/i }))
+    await userEvent.type(screen.getByLabelText('Bar or sled weight (kg)'), '20')
     await userEvent.click(screen.getByRole('button', { name: 'Add equipment' }))
 
     expect(

@@ -4,10 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { type DisplayUnit, unitLabel } from '@/lib/units'
 import { cn } from '@/lib/utils'
 import type { NewEquipment } from '../../infrastructure/equipment.api'
+import { barKilogramsFrom } from './bar-weight-form'
 
 export type EquipmentKindOption = NewEquipment['kind']
 
@@ -16,42 +18,58 @@ const KIND_CARDS: readonly {
   readonly title: string
   readonly explanation: string
 }[] = [
-  { kind: 'BARBELL', title: 'Barbell', explanation: 'A bar you load with plates, like the Smith.' },
+  {
+    kind: 'BARBELL',
+    title: 'Plate-loaded',
+    explanation: 'A bar or machine you load with plates: a barbell, the Smith, a hack squat.',
+  },
   { kind: 'STACK', title: 'Weight stack', explanation: 'A machine with a pin you move.' },
-  { kind: 'FREE_WEIGHT', title: 'Free weights', explanation: 'Dumbbells, kettlebells, a vest.' },
+  {
+    kind: 'FREE_WEIGHT',
+    title: 'Free weights',
+    explanation: 'Dumbbells and kettlebells. Per side means per hand.',
+  },
 ]
 
-const schema = z
-  .object({
-    name: z.string().trim().min(1, 'Give it a name.').max(120, 'Keep it under 120 characters.'),
-    kind: z.enum(['BARBELL', 'STACK', 'FREE_WEIGHT']),
-    bar: z.string().trim(),
-    positions: z.string().trim(),
-  })
-  .superRefine((form, context) => {
-    const bar = Number(form.bar)
-    if (form.kind === 'BARBELL' && (form.bar === '' || !(bar > 0) || bar > 500)) {
-      context.addIssue({ code: 'custom', path: ['bar'], message: 'Enter what the bar weighs.' })
-    }
-    const positions = Number(form.positions)
-    if (
-      form.kind === 'STACK' &&
-      (!Number.isInteger(positions) || positions < 1 || positions > 100)
-    ) {
-      context.addIssue({
-        code: 'custom',
-        path: ['positions'],
-        message: 'Enter how many pin positions it has.',
-      })
-    }
-  })
+const schemaFor = (unit: DisplayUnit) =>
+  z
+    .object({
+      name: z.string().trim().min(1, 'Give it a name.').max(120, 'Keep it under 120 characters.'),
+      kind: z.enum(['BARBELL', 'STACK', 'FREE_WEIGHT']),
+      bar: z.string().trim(),
+      positions: z.string().trim(),
+    })
+    .superRefine((form, context) => {
+      if (form.kind === 'BARBELL' && barKilogramsFrom(form.bar, unit) === 'invalid') {
+        context.addIssue({
+          code: 'custom',
+          path: ['bar'],
+          message: 'Enter a weight above zero, or leave it empty.',
+        })
+      }
+      const positions = Number(form.positions)
+      if (
+        form.kind === 'STACK' &&
+        (!Number.isInteger(positions) || positions < 1 || positions > 100)
+      ) {
+        context.addIssue({
+          code: 'custom',
+          path: ['positions'],
+          message: 'Enter how many pin positions it has.',
+        })
+      }
+    })
 
-type Form = z.output<typeof schema>
+type Form = z.output<ReturnType<typeof schemaFor>>
 
-const toEquipment = (form: Form): NewEquipment => {
+const toEquipment = (form: Form, unit: DisplayUnit): NewEquipment => {
   switch (form.kind) {
-    case 'BARBELL':
-      return { name: form.name, kind: 'BARBELL', barKilograms: Number(form.bar) }
+    case 'BARBELL': {
+      const bar = barKilogramsFrom(form.bar, unit)
+      return typeof bar === 'number'
+        ? { name: form.name, kind: 'BARBELL', barKilograms: bar }
+        : { name: form.name, kind: 'BARBELL' }
+    }
     case 'STACK':
       return { name: form.name, kind: 'STACK', stackPositions: Number(form.positions) }
     case 'FREE_WEIGHT':
@@ -62,6 +80,8 @@ const toEquipment = (form: Form): NewEquipment => {
 export interface NewEquipmentFormProps {
   /** Only the kinds that fit; all three when nothing narrows them. */
   readonly kinds?: readonly EquipmentKindOption[]
+  /** The unit the bar weight is typed in. */
+  readonly unit?: DisplayUnit
   readonly pending: boolean
   readonly failed: boolean
   readonly onSubmit: (equipment: NewEquipment) => void
@@ -69,18 +89,19 @@ export interface NewEquipmentFormProps {
 
 export const NewEquipmentForm = ({
   kinds = ['BARBELL', 'STACK', 'FREE_WEIGHT'],
+  unit = 'KG',
   pending,
   failed,
   onSubmit,
 }: NewEquipmentFormProps) => {
   const form = useForm<Form>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schemaFor(unit)),
     defaultValues: { name: '', kind: kinds[0] ?? 'BARBELL', bar: '', positions: '' },
   })
   const kind = useWatch({ control: form.control, name: 'kind' })
 
   return (
-    <form noValidate onSubmit={form.handleSubmit((values) => onSubmit(toEquipment(values)))}>
+    <form noValidate onSubmit={form.handleSubmit((values) => onSubmit(toEquipment(values, unit)))}>
       <FieldGroup className="gap-4">
         {failed && <FieldError>Couldn't reach the server. Try again.</FieldError>}
         <Controller
@@ -128,13 +149,14 @@ export const NewEquipmentForm = ({
 
         {kind === 'BARBELL' && (
           <Field data-invalid={form.formState.errors.bar !== undefined}>
-            <FieldLabel htmlFor="equipment-bar">Bar weight (kg)</FieldLabel>
+            <FieldLabel htmlFor="equipment-bar">Bar or sled weight ({unitLabel(unit)})</FieldLabel>
             <Input
               {...form.register('bar')}
               id="equipment-bar"
               inputMode="decimal"
               className="h-12 text-base"
             />
+            <FieldDescription>Leave it empty if you don't count it, like a Smith.</FieldDescription>
             <FieldError errors={[form.formState.errors.bar]} />
           </Field>
         )}

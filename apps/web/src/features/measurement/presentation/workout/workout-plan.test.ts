@@ -37,7 +37,10 @@ const equipment = [
 
 describe('compatibleEquipment', () => {
   it('follows what each kind can measure', () => {
-    expect(compatibleEquipment('PER_SIDE', equipment).map((item) => item.id)).toEqual(['bar'])
+    expect(compatibleEquipment('PER_SIDE', equipment).map((item) => item.id)).toEqual([
+      'bar',
+      'dumbbells',
+    ])
     expect(compatibleEquipment('STACK_POSITION', equipment).map((item) => item.id)).toEqual([
       'stack',
     ])
@@ -68,9 +71,9 @@ describe('defaultEquipmentId', () => {
       defaultEquipmentId({
         planned: null,
         usedEarlier: null,
-        compatible: compatibleEquipment('PER_SIDE', equipment),
+        compatible: compatibleEquipment('STACK_POSITION', equipment),
       }),
-    ).toBe('bar')
+    ).toBe('stack')
   })
 
   it('leaves the choice to the user when several fit', () => {
@@ -131,7 +134,7 @@ describe('lastTimeState', () => {
 
 describe('kindsFor', () => {
   it('names the kinds of equipment that can measure each mode', () => {
-    expect(kindsFor('PER_SIDE')).toEqual(['BARBELL'])
+    expect(kindsFor('PER_SIDE')).toEqual(['BARBELL', 'FREE_WEIGHT'])
     expect(kindsFor('STACK_POSITION')).toEqual(['STACK'])
     expect(kindsFor('TOTAL')).toEqual(['BARBELL', 'FREE_WEIGHT'])
   })

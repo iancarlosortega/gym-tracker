@@ -1,14 +1,18 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { QueryState } from '@/components/query-state'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
+import { useDisplayUnit } from '../../../auth/presentation/queries'
+import { BarWeightForm } from '../components/bar-weight-form'
 import { EquipmentDetails, EquipmentList } from '../components/equipment-views'
 import { EditCatalogItemForm } from '../components/exercise-forms'
 import { NewEquipmentForm } from '../components/new-equipment-form'
 import {
   useArchiveEquipment,
   useCatalogEquipment,
+  useCorrectBarWeight,
   useCreateEquipment,
   useEquipmentUsage,
   useRenameEquipment,
@@ -16,6 +20,7 @@ import {
 
 export const EquipmentListContainer = () => {
   const create = useCreateEquipment()
+  const unit = useDisplayUnit()
   const [creating, setCreating] = useState(false)
 
   return (
@@ -25,7 +30,9 @@ export const EquipmentListContainer = () => {
         pending={<p>Reading your equipment…</p>}
         failed={<p role="alert">Could not reach the server, so your equipment cannot be shown.</p>}
       >
-        {(equipment) => <EquipmentList equipment={equipment} onNew={() => setCreating(true)} />}
+        {(equipment) => (
+          <EquipmentList equipment={equipment} unit={unit} onNew={() => setCreating(true)} />
+        )}
       </QueryState>
 
       <Drawer
@@ -41,6 +48,7 @@ export const EquipmentListContainer = () => {
           </DrawerHeader>
           <div className="px-4 pb-6">
             <NewEquipmentForm
+              unit={unit}
               pending={create.isPending}
               failed={create.isError}
               onSubmit={(equipment) =>
@@ -60,12 +68,16 @@ export const EquipmentDetailContainer = ({ equipmentId }: { readonly equipmentId
   const usage = useEquipmentUsage(equipmentId).data ?? null
   const rename = useRenameEquipment()
   const archive = useArchiveEquipment()
-  const [editing, setEditing] = useState(false)
+  const correctBar = useCorrectBarWeight()
+  const unit = useDisplayUnit()
+  const router = useRouter()
+  const [sheet, setSheet] = useState<'edit' | 'bar' | null>(null)
 
   const close = () => {
-    setEditing(false)
+    setSheet(null)
     rename.reset()
     archive.reset()
+    correctBar.reset()
   }
 
   return (
@@ -84,21 +96,46 @@ export const EquipmentDetailContainer = ({ equipmentId }: { readonly equipmentId
         return (
           <>
             <h1 className="font-bold text-2xl">{item.name}</h1>
-            <EquipmentDetails equipment={item} usage={usage} onEdit={() => setEditing(true)} />
+            <EquipmentDetails
+              equipment={item}
+              usage={usage}
+              unit={unit}
+              onEdit={() => setSheet('edit')}
+              onChangeBar={() => setSheet('bar')}
+            />
 
-            <Drawer open={editing} onOpenChange={(open) => !open && close()}>
+            <Drawer open={sheet !== null} onOpenChange={(open) => !open && close()}>
               <DrawerContent>
                 <DrawerHeader>
-                  <DrawerTitle>{item.name}</DrawerTitle>
+                  <DrawerTitle>{sheet === 'bar' ? 'Bar or sled weight' : item.name}</DrawerTitle>
                 </DrawerHeader>
                 <div className="px-4 pb-6">
-                  <EditCatalogItemForm
-                    name={item.name}
-                    pending={rename.isPending || archive.isPending}
-                    failed={rename.isError || archive.isError}
-                    onRename={(name) => rename.mutate({ id: item.id, name }, { onSuccess: close })}
-                    onArchive={() => archive.mutate(item.id, { onSuccess: close })}
-                  />
+                  {sheet === 'bar' && (
+                    <BarWeightForm
+                      barKilograms={item.barKilograms}
+                      unit={unit}
+                      pending={correctBar.isPending}
+                      failed={correctBar.isError}
+                      onSave={(barKilograms) =>
+                        correctBar.mutate(
+                          { id: item.id, barKilograms },
+                          // Past sets change only after the preview is applied.
+                          { onSuccess: () => router.push(`/equipment/${item.id}/recompute`) },
+                        )
+                      }
+                    />
+                  )}
+                  {sheet === 'edit' && (
+                    <EditCatalogItemForm
+                      name={item.name}
+                      pending={rename.isPending || archive.isPending}
+                      failed={rename.isError || archive.isError}
+                      onRename={(name) =>
+                        rename.mutate({ id: item.id, name }, { onSuccess: close })
+                      }
+                      onArchive={() => archive.mutate(item.id, { onSuccess: close })}
+                    />
+                  )}
                 </div>
               </DrawerContent>
             </Drawer>

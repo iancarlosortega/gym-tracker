@@ -43,7 +43,8 @@ export const archiveEquipment = async (
 }
 
 export type NewEquipment =
-  | { readonly name: string; readonly kind: 'BARBELL'; readonly barKilograms: number }
+  /** No bar weight is a bar or sled that is not counted, as on a Smith. */
+  | { readonly name: string; readonly kind: 'BARBELL'; readonly barKilograms?: number }
   | { readonly name: string; readonly kind: 'STACK'; readonly stackPositions: number }
   | { readonly name: string; readonly kind: 'FREE_WEIGHT' }
 
@@ -52,5 +53,17 @@ export const createEquipment = async (
   client: AxiosInstance = apiClient,
 ): Promise<EquipmentResponse> => {
   const { data } = await client.post<EquipmentResponse>('/equipment', equipment)
+  return data
+}
+
+/** A new bar weight in kilograms, or null to stop counting the bar. Past sets follow only through recompute. */
+export const correctBarWeight = async (
+  equipmentId: string,
+  barKilograms: number | null,
+  client: AxiosInstance = apiClient,
+): Promise<EquipmentResponse> => {
+  const { data } = await client.put<EquipmentResponse>(`/equipment/${equipmentId}/bar-weight`, {
+    barKilograms,
+  })
   return data
 }

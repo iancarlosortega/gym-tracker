@@ -3,6 +3,7 @@ import { createApiClient } from '@/lib/api-client'
 import { type StubAnswer, stubAdapter } from '@/lib/testing/stub-adapter'
 import {
   archiveEquipment,
+  correctBarWeight,
   createEquipment,
   getCatalogEquipment,
   getEquipmentUsage,
@@ -90,5 +91,28 @@ describe('createEquipment', () => {
       kind: 'BARBELL',
       barKilograms: 15,
     })
+  })
+})
+
+describe('plate-loaded equipment and its bar', () => {
+  it('creates plate-loaded equipment whose bar is not counted', async () => {
+    const { client, stub } = clientAnswering(() => ({ status: 201, data: smith }))
+
+    await createEquipment({ name: 'Smith machine', kind: 'BARBELL' }, client)
+
+    expect(JSON.parse(String(stub.calls[0]?.data))).toEqual({
+      name: 'Smith machine',
+      kind: 'BARBELL',
+    })
+  })
+
+  it('changes the bar weight, or clears it with null', async () => {
+    const { client, stub } = clientAnswering(() => ({ status: 200, data: smith }))
+
+    await correctBarWeight('q-1', null, client)
+
+    expect(stub.calls[0]?.method).toBe('put')
+    expect(stub.calls[0]?.url).toBe('/equipment/q-1/bar-weight')
+    expect(JSON.parse(String(stub.calls[0]?.data))).toEqual({ barKilograms: null })
   })
 })

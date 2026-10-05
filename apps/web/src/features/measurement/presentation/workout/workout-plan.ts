@@ -10,7 +10,8 @@ const supports = (kind: string, mode: MeasurementMode): boolean => {
     case 'STACK':
       return mode === 'STACK_POSITION'
     case 'FREE_WEIGHT':
-      return mode === 'TOTAL'
+      // Per side on dumbbells is per hand.
+      return mode === 'PER_SIDE' || mode === 'TOTAL'
     default:
       return false
   }

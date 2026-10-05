@@ -40,8 +40,15 @@ describe('equipmentSummary', () => {
     [smith, 'bar 15 kg'],
     [legPress, 'stack · 20 positions'],
     [dumbbells, 'free weight'],
+    [{ ...smith, barKilograms: null }, 'plates · bar not counted'],
   ])('describes $name as "%s"', (equipment, summary) => {
     expect(equipmentSummary(equipment)).toBe(summary)
+  })
+})
+
+describe('equipmentSummary in pounds', () => {
+  it('reads the bar in the user unit', () => {
+    expect(equipmentSummary({ ...smith, barKilograms: 20 }, 'LB')).toBe('bar 44.1 lb')
   })
 })
 
@@ -86,31 +93,48 @@ describe('EquipmentList', () => {
 describe('EquipmentDetails', () => {
   it('reads the bar weight and how much it is used', () => {
     render(
-      <EquipmentDetails equipment={smith} usage={{ exercises: 3, sets: 46 }} onEdit={vi.fn()} />,
+      <EquipmentDetails
+        equipment={smith}
+        usage={{ exercises: 3, sets: 46 }}
+        onEdit={vi.fn()}
+        onChangeBar={vi.fn()}
+      />,
     )
 
     expect(screen.getByText('15 kg')).toBeDefined()
     expect(screen.getByText('3 exercises · 46 logged sets')).toBeDefined()
   })
 
-  it('leads a bar-weight correction to the preview', () => {
-    render(<EquipmentDetails equipment={smith} usage={null} onEdit={vi.fn()} />)
-
-    expect(screen.getByRole('link', { name: 'Correct the bar weight…' }).getAttribute('href')).toBe(
-      '/equipment/q-1/recompute',
-    )
-  })
-
   it('offers no bar correction for a stack', () => {
-    render(<EquipmentDetails equipment={legPress} usage={null} onEdit={vi.fn()} />)
+    render(
+      <EquipmentDetails equipment={legPress} usage={null} onEdit={vi.fn()} onChangeBar={vi.fn()} />,
+    )
 
     expect(screen.getByText('20 positions')).toBeDefined()
-    expect(screen.queryByRole('link', { name: /correct the bar weight/i })).toBeNull()
+    expect(screen.queryByRole('button', { name: /change the bar weight/i })).toBeNull()
+  })
+
+  it('says the bar is not counted, and offers to change it', async () => {
+    const onChangeBar = vi.fn()
+    render(
+      <EquipmentDetails
+        equipment={{ ...smith, barKilograms: null }}
+        usage={null}
+        onEdit={vi.fn()}
+        onChangeBar={onChangeBar}
+      />,
+    )
+
+    expect(screen.getByText('Not counted')).toBeDefined()
+    await userEvent.click(screen.getByRole('button', { name: 'Change the bar weight' }))
+    expect(onChangeBar).toHaveBeenCalledOnce()
   })
 
   it('opens rename and archive', async () => {
     const onEdit = vi.fn()
-    render(<EquipmentDetails equipment={smith} usage={null} onEdit={onEdit} />)
+    render(
+      <EquipmentDetails equipment={smith} usage={null} onEdit={onEdit} onChangeBar={vi.fn()} />,
+    )
 
     await userEvent.click(screen.getByRole('button', { name: 'Rename or archive' }))
 

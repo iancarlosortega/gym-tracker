@@ -2,13 +2,21 @@ import { ChevronRight, Pencil, Plus, Scale } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { type DisplayUnit, kilogramsToDisplay, unitLabel } from '@/lib/units'
 import type { EquipmentResponse } from '../../../workouts/infrastructure/workouts.api'
 import type { EquipmentUsageResponse } from '../../infrastructure/equipment.api'
 
 const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`
 
-export const equipmentSummary = (equipment: EquipmentResponse): string => {
-  if (equipment.barKilograms !== null) return `bar ${equipment.barKilograms} kg`
+export const equipmentSummary = (
+  equipment: EquipmentResponse,
+  unit: DisplayUnit = 'KG',
+): string => {
+  if (equipment.kind === 'BARBELL') {
+    return equipment.barKilograms === null
+      ? 'plates · bar not counted'
+      : `bar ${kilogramsToDisplay(equipment.barKilograms, unit)} ${unitLabel(unit)}`
+  }
   if (equipment.stackPositions !== null) return `stack · ${equipment.stackPositions} positions`
   return 'free weight'
 }
@@ -20,9 +28,11 @@ export const usageLabel = (usage: EquipmentUsageResponse): string =>
 
 export const EquipmentList = ({
   equipment,
+  unit = 'KG',
   onNew,
 }: {
   readonly equipment: readonly EquipmentResponse[]
+  readonly unit?: DisplayUnit
   readonly onNew: () => void
 }) => {
   const active = equipment.filter((item) => !item.archived)
@@ -54,7 +64,7 @@ export const EquipmentList = ({
             >
               <span>{item.name}</span>
               <span className="flex items-center gap-2 text-muted-foreground text-sm">
-                {equipmentSummary(item)}
+                {equipmentSummary(item, unit)}
                 <ChevronRight className="size-4" />
               </span>
             </Link>
@@ -69,27 +79,42 @@ export interface EquipmentDetailsProps {
   readonly equipment: EquipmentResponse
   /** Null while it is being read, or when it could not be. */
   readonly usage: EquipmentUsageResponse | null
+  readonly unit?: DisplayUnit
   readonly onEdit: () => void
+  readonly onChangeBar: () => void
 }
 
-export const EquipmentDetails = ({ equipment, usage, onEdit }: EquipmentDetailsProps) => (
+export const EquipmentDetails = ({
+  equipment,
+  usage,
+  unit = 'KG',
+  onEdit,
+  onChangeBar,
+}: EquipmentDetailsProps) => (
   <div className="grid gap-4">
     <Card>
       <CardContent className="grid gap-3">
-        {equipment.barKilograms !== null && (
+        {equipment.kind === 'BARBELL' && (
           <div className="grid gap-1">
-            <span className="text-muted-foreground text-sm">Bar weight</span>
-            <strong className="text-2xl">{equipment.barKilograms} kg</strong>
+            <span className="text-muted-foreground text-sm">Bar or sled weight</span>
+            <strong className="text-2xl">
+              {equipment.barKilograms === null
+                ? 'Not counted'
+                : `${kilogramsToDisplay(equipment.barKilograms, unit)} ${unitLabel(unit)}`}
+            </strong>
             <span className="text-muted-foreground text-sm">
-              Counted in every set logged per side on it.
+              {equipment.barKilograms === null
+                ? 'Sets on it count only the plates.'
+                : 'Counted in every set logged per side on it.'}
             </span>
-            <Link
-              href={`/equipment/${equipment.id}/recompute`}
-              className="flex min-h-touch items-center gap-2 font-medium text-primary"
+            <Button
+              variant="ghost"
+              className="min-h-touch justify-self-start px-0 font-medium text-primary"
+              onClick={onChangeBar}
             >
               <Scale className="size-4" />
-              Correct the bar weight…
-            </Link>
+              Change the bar weight
+            </Button>
           </div>
         )}
         {equipment.stackPositions !== null && (

@@ -9,13 +9,13 @@ afterEach(cleanup)
 const props = { pending: false, failed: false }
 
 describe('NewEquipmentForm', () => {
-  it('creates a barbell with its bar weight', async () => {
+  it('creates plate-loaded equipment with its bar weight', async () => {
     const onSubmit = vi.fn()
     render(<NewEquipmentForm {...props} onSubmit={onSubmit} />)
 
     await userEvent.type(screen.getByLabelText('Name'), 'Olympic bar')
-    await userEvent.click(screen.getByRole('radio', { name: /barbell/i }))
-    await userEvent.type(screen.getByLabelText('Bar weight (kg)'), '20')
+    await userEvent.click(screen.getByRole('radio', { name: /plate-loaded/i }))
+    await userEvent.type(screen.getByLabelText('Bar or sled weight (kg)'), '20')
     await userEvent.click(screen.getByRole('button', { name: 'Add equipment' }))
 
     expect(onSubmit).toHaveBeenCalledWith({
@@ -23,6 +23,29 @@ describe('NewEquipmentForm', () => {
       kind: 'BARBELL',
       barKilograms: 20,
     })
+  })
+
+  it('leaves the bar out when it is not counted, like a Smith', async () => {
+    const onSubmit = vi.fn()
+    render(<NewEquipmentForm {...props} onSubmit={onSubmit} />)
+
+    await userEvent.type(screen.getByLabelText('Name'), 'Smith machine')
+    await userEvent.click(screen.getByRole('radio', { name: /plate-loaded/i }))
+    await userEvent.click(screen.getByRole('button', { name: 'Add equipment' }))
+
+    expect(onSubmit).toHaveBeenCalledWith({ name: 'Smith machine', kind: 'BARBELL' })
+  })
+
+  it('takes the bar weight in pounds when the user weighs in pounds', async () => {
+    const onSubmit = vi.fn()
+    render(<NewEquipmentForm {...props} unit="LB" onSubmit={onSubmit} />)
+
+    await userEvent.type(screen.getByLabelText('Name'), 'Olympic bar')
+    await userEvent.click(screen.getByRole('radio', { name: /plate-loaded/i }))
+    await userEvent.type(screen.getByLabelText('Bar or sled weight (lb)'), '45')
+    await userEvent.click(screen.getByRole('button', { name: 'Add equipment' }))
+
+    expect(onSubmit.mock.calls[0]?.[0].barKilograms).toBeCloseTo(20.41, 2)
   })
 
   it('creates a weight stack with its positions', async () => {
@@ -46,18 +69,6 @@ describe('NewEquipmentForm', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Add equipment' }))
 
     expect(onSubmit).toHaveBeenCalledWith({ name: 'Dumbbells', kind: 'FREE_WEIGHT' })
-  })
-
-  it('refuses a barbell without its bar weight', async () => {
-    const onSubmit = vi.fn()
-    render(<NewEquipmentForm {...props} onSubmit={onSubmit} />)
-
-    await userEvent.type(screen.getByLabelText('Name'), 'Mystery bar')
-    await userEvent.click(screen.getByRole('radio', { name: /barbell/i }))
-    await userEvent.click(screen.getByRole('button', { name: 'Add equipment' }))
-
-    expect(onSubmit).not.toHaveBeenCalled()
-    expect(screen.getByText('Enter what the bar weighs.')).toBeDefined()
   })
 
   it('offers only the kinds that fit, starting on the first', () => {

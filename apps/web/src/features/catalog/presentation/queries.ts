@@ -2,6 +2,7 @@ import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/r
 import { workoutsKeys } from '../../workouts/presentation/queries'
 import {
   archiveEquipment,
+  correctBarWeight,
   createEquipment,
   getCatalogEquipment,
   getEquipmentUsage,
@@ -81,3 +82,10 @@ export const useArchiveEquipment = () =>
 
 export const useCreateEquipment = () =>
   useCatalogMutation((equipment: NewEquipment) => createEquipment(equipment), equipmentLists)
+
+export const useCorrectBarWeight = () =>
+  useCatalogMutation(
+    ({ id, barKilograms }: { id: string; barKilograms: number | null }) =>
+      correctBarWeight(id, barKilograms),
+    equipmentLists,
+  )
