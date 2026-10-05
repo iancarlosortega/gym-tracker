@@ -148,7 +148,7 @@
 - [x] 11b.1 Push subscription registration stored per user
 - [x] 11b.2 `410`/`404` from the push service marks the subscription invalid
 - [x] 11b.3 Disclosure UI: not installed, permission denied, or subscription invalid
-- [x] 11b.4 **Physical iPhone test: rest alert arrives with the app backgrounded and the phone locked.** → deferred to **Device verification**, below. This slice does not close until it is recorded. — **Waived at archive** (Ian, 2026-10-04). Code shipped; the device test is a backlog item.
+- [x] 11b.4 **Physical iPhone test: rest alert arrives with the app backgrounded and the phone locked.** → deferred to **Device verification**, below. This slice does not close until it is recorded. — **Confirmed on the device** (Ian, 2026-10-04): the push arrived with the phone locked, and the Apple Watch showed it too.
 
 ## Device verification — deferred to the end ⚠️ nothing here closes on unit tests
 
@@ -156,7 +156,7 @@ Everything that can only be proven on real hardware, collected here by the
 user's decision rather than blocking the slice that produced it. Each item
 names the slice it belongs to and what has to be true before it can be run.
 
-- [x] DV.1 (11b.4) **Rest alert arrives with the app backgrounded and the iPhone locked.** Needs: VAPID keys generated (`npx web-push generate-vapid-keys`), `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` set on an API served over HTTPS, the app added to the home screen, then a real rest started and the phone locked. Record the result here. — **Waived at archive** (Ian, 2026-10-04).
+- [x] DV.1 (11b.4) **Rest alert arrives with the app backgrounded and the iPhone locked.** Needs: VAPID keys generated (`npx web-push generate-vapid-keys`), `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` set on an API served over HTTPS, the app added to the home screen, then a real rest started and the phone locked. Record the result here. — **Confirmed on the device** (Ian, 2026-10-04): the rest alert arrived as a push with the iPhone locked, and the Apple Watch caught it.
 - [x] DV.2 (9.2) **Home-screen install shows the app icon and opens standalone.** The SVG icons are placeholders; a designed PNG set and an `apple-touch-icon` are still outstanding. Install and standalone launch confirmed on the device by web-usable-app DV-U1; the PNG icon set is waived to the backlog (Ian, 2026-10-04).
 - [x] DV.3 (10.3) **The screen stays awake for a full rest on the device**, and dims again once the countdown ends. — **Waived at archive** (Ian, 2026-10-04).
 - [x] DV.5 (14.6) **End-to-end from the iPhone against the deployed subdomains.** Needs the stack running on the box with real DNS and certificates. Locally the whole chain is already proven in containers — migrations, sign-in, an authorised read, a 401 without a session, every web route, and the account seed — so this is confirming the deployment rather than the code. — **Waived at archive** (Ian, 2026-10-04).
