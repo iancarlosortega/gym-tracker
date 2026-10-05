@@ -14,9 +14,9 @@ phases:
   tasks: done
   apply: done
   verify: done
-  archive: blocked
+  archive: done
 
-next_recommended: archive
+next_recommended: none
 
 preproposal:
   schema: gentle-ai.sdd-preproposal/v1
