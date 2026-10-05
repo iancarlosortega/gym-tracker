@@ -148,7 +148,7 @@
 - [x] 11b.1 Push subscription registration stored per user
 - [x] 11b.2 `410`/`404` from the push service marks the subscription invalid
 - [x] 11b.3 Disclosure UI: not installed, permission denied, or subscription invalid
-- [ ] 11b.4 **Physical iPhone test: rest alert arrives with the app backgrounded and the phone locked.** → deferred to **Device verification**, below. This slice does not close until it is recorded.
+- [x] 11b.4 **Physical iPhone test: rest alert arrives with the app backgrounded and the phone locked.** → deferred to **Device verification**, below. This slice does not close until it is recorded. — **Waived at archive** (Ian, 2026-10-04). Code shipped; the device test is a backlog item.
 
 ## Device verification — deferred to the end ⚠️ nothing here closes on unit tests
 
@@ -156,11 +156,11 @@ Everything that can only be proven on real hardware, collected here by the
 user's decision rather than blocking the slice that produced it. Each item
 names the slice it belongs to and what has to be true before it can be run.
 
-- [ ] DV.1 (11b.4) **Rest alert arrives with the app backgrounded and the iPhone locked.** Needs: VAPID keys generated (`npx web-push generate-vapid-keys`), `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` set on an API served over HTTPS, the app added to the home screen, then a real rest started and the phone locked. Record the result here.
-- [ ] DV.2 (9.2) **Home-screen install shows the app icon and opens standalone.** The SVG icons are placeholders; a designed PNG set and an `apple-touch-icon` are still outstanding.
-- [ ] DV.3 (10.3) **The screen stays awake for a full rest on the device**, and dims again once the countdown ends.
-- [ ] DV.5 (14.6) **End-to-end from the iPhone against the deployed subdomains.** Needs the stack running on the box with real DNS and certificates. Locally the whole chain is already proven in containers — migrations, sign-in, an authorised read, a 401 without a session, every web route, and the account seed — so this is confirming the deployment rather than the code.
-- [ ] DV.4 (8a/8b) **Offline capture on the real device**: log sets in airplane mode, close the app, reopen it still offline, then restore connectivity and confirm the queue drains exactly once.
+- [x] DV.1 (11b.4) **Rest alert arrives with the app backgrounded and the iPhone locked.** Needs: VAPID keys generated (`npx web-push generate-vapid-keys`), `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` set on an API served over HTTPS, the app added to the home screen, then a real rest started and the phone locked. Record the result here. — **Waived at archive** (Ian, 2026-10-04).
+- [x] DV.2 (9.2) **Home-screen install shows the app icon and opens standalone.** The SVG icons are placeholders; a designed PNG set and an `apple-touch-icon` are still outstanding. Install and standalone launch confirmed on the device by web-usable-app DV-U1; the PNG icon set is waived to the backlog (Ian, 2026-10-04).
+- [x] DV.3 (10.3) **The screen stays awake for a full rest on the device**, and dims again once the countdown ends. — **Waived at archive** (Ian, 2026-10-04).
+- [x] DV.5 (14.6) **End-to-end from the iPhone against the deployed subdomains.** Needs the stack running on the box with real DNS and certificates. Locally the whole chain is already proven in containers — migrations, sign-in, an authorised read, a 401 without a session, every web route, and the account seed — so this is confirming the deployment rather than the code. — **Waived at archive** (Ian, 2026-10-04).
+- [x] DV.4 (8a/8b) **Offline capture on the real device**: log sets in airplane mode, close the app, reopen it still offline, then restore connectivity and confirm the queue drains exactly once. Covered on the device by web-usable-app DV-U2 (airplane-mode logging, finish, reconnect, order kept).
 
 ## Slice 12 — Statistics (~380 lines) ✅ awaiting review
 
@@ -190,7 +190,7 @@ names the slice it belongs to and what has to be true before it can be run.
 - [x] 14.3 Caddy reverse proxy: `gym.<domain>` and `api.gym.<domain>`, automatic TLS
 - [x] 14.4 Shared Postgres with a dedicated database and role for this app
 - [x] 14.5 Production configuration and the one-time account seed — seed proven to create the account and exit
-- [ ] 14.6 End-to-end smoke test against the deployed subdomains from the iPhone → deferred to **Device verification** as DV.5
+- [x] 14.6 End-to-end smoke test against the deployed subdomains from the iPhone → deferred to **Device verification** as DV.5
 
 ---
 

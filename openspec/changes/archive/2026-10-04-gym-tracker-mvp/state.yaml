@@ -13,11 +13,10 @@ phases:
   spec: done
   design: done
   tasks: done
-  apply: ready
-  verify: blocked
-  archive: blocked
+  apply: done
+  verify: waived # no formal verify; shipped and exercised by later changes
+  archive: done
 
-blocked_reasons:
-  - Slice 0 prerequisite: repository is not under git and has no remote; chained PRs cannot be opened until that exists.
+blocked_reasons: [] # stale blocker cleared at archive: the repository has been under git since slice 0
 
-next_recommended: apply
+next_recommended: none
