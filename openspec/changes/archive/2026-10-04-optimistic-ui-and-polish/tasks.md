@@ -44,11 +44,11 @@ Strict TDD. Each unit is green before it is handed over: tests, typecheck, biome
 - [x] 8.2 Recompute: records and set changes show the unit on both sides.
 
 ## Device verification (Ian, iPhone)
-- [ ] DV.1 The lb/kg switch is instant. Try it in airplane mode: the choice stays, then syncs.
-- [ ] DV.2 Routine drag by the handle works with no text callout, and scrolling a row does not drag. Move up/down works with VoiceOver off and on.
-- [ ] DV.3 On a weak connection, tab switches do not hang. After deploying, the app picks up the new build.
-- [ ] DV.4 Start opens the workout screen at once. With a workout open, Home reads "<routine>, n of m done".
-- [ ] DV.5 Progress and the recompute preview read lb.
+- [x] DV.1 The lb/kg switch is instant. Try it in airplane mode: the choice stays, then syncs. Confirmed by Ian on the iPhone (2026-10-04).
+- [x] DV.2 Routine drag by the handle works with no text callout, and scrolling a row does not drag. Move up/down works with VoiceOver off and on. Confirmed by Ian on the iPhone (2026-10-04).
+- [x] DV.3 On a weak connection, tab switches do not hang. After deploying, the app picks up the new build. Confirmed by Ian on the iPhone (2026-10-04).
+- [x] DV.4 Start opens the workout screen at once. With a workout open, Home reads "<routine>, n of m done". Confirmed by Ian on the iPhone (2026-10-04).
+- [x] DV.5 Progress and the recompute preview read lb. Confirmed by Ian on the iPhone (2026-10-04).
 
 ## Review Workload Forecast
 | Unit | ~Lines |

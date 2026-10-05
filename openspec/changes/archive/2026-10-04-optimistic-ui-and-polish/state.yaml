@@ -13,10 +13,10 @@ phases:
   design: done
   tasks: done
   apply: done
-  verify: ready # waits on the device checks DV.1-DV.5
-  archive: blocked
+  verify: done
+  archive: done
 
-next_recommended: verify
+next_recommended: none
 
 preproposal:
   schema: gentle-ai.sdd-preproposal/v1
