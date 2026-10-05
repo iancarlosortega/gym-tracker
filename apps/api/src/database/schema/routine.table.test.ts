@@ -25,7 +25,8 @@ async function user(database: PGlite, email: string): Promise<string> {
   return rows[0]?.id as string
 }
 
-describe('migration 0002: routine order', () => {
+// Two fresh Postgres instances per test: slow to boot when the workspace runs in parallel.
+describe('migration 0002: routine order', { timeout: 30_000 }, () => {
   it('starts existing routines in alphabetical order, per user', async () => {
     const database = await beforeOrdering()
     const ian = await user(database, 'ian@example.test')
