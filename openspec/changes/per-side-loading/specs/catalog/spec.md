@@ -2,7 +2,7 @@
 
 Capability: what a piece of equipment adds to a per-side load.
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Plate-loaded equipment has an optional base weight
 

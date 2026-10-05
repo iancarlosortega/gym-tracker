@@ -1,6 +1,6 @@
 # Delta Spec — workout-logging
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Per-side values are labelled by the equipment
 
