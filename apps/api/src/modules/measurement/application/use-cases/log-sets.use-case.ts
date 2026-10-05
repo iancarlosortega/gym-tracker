@@ -186,7 +186,8 @@ export class LogSetsUseCase {
     const load = grams(set.grams ?? Number.NaN)
 
     return mode === 'PER_SIDE'
-      ? LoadEntry.perSide(load, equipment.barGrams ?? grams(Number.NaN))
+      ? // A missing bar is one that is not counted: a Smith, a sled, two hands.
+        LoadEntry.perSide(load, equipment.barGrams)
       : LoadEntry.total(load)
   }
 }

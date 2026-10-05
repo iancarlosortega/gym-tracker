@@ -241,7 +241,11 @@ function rawValueOf(state: ReturnType<LoadEntry['toJSON']>): number {
 function entryFromRecord(record: PendingSetRecord): LoadEntry {
   switch (record.mode) {
     case 'PER_SIDE':
-      return LoadEntry.perSide(grams(record.rawValue), grams(record.snapshotBarGrams ?? 0))
+      // Null is a bar that was not counted, never a 0 g bar.
+      return LoadEntry.perSide(
+        grams(record.rawValue),
+        record.snapshotBarGrams == null ? null : grams(record.snapshotBarGrams),
+      )
     case 'STACK_POSITION':
       return LoadEntry.stack(stackPosition(record.rawValue))
     default:

@@ -92,6 +92,18 @@ describe('correcting a bar weight', () => {
     ).rejects.toThrow(EquipmentCannotMeasureThatWayError)
   })
 
+  it('clears the bar weight so it stops counting', async () => {
+    const bar = await olympicBar()
+
+    const cleared = await correctBar.execute({
+      userId,
+      equipmentId: bar.id.value,
+      barKilograms: null,
+    })
+
+    expect(cleared.barGrams).toBeNull()
+  })
+
   it('refuses equipment belonging to someone else', async () => {
     const bar = await olympicBar()
 

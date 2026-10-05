@@ -23,10 +23,6 @@ export const equipment = pgTable(
   },
   (table) => [
     check(
-      'equipment_barbell_has_bar',
-      sql`${table.kind} <> 'BARBELL' OR ${table.barGrams} IS NOT NULL`,
-    ),
-    check(
       'equipment_stack_has_positions',
       sql`${table.kind} <> 'STACK' OR ${table.stackPositions} IS NOT NULL`,
     ),

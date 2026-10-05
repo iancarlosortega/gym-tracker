@@ -38,12 +38,13 @@ export const equipmentMapper = {
 /**
  * The row's two nullable columns become the entity's discriminated union.
  *
- * The database guarantees the pairing with its own check constraints, so a row
- * that reached here already agrees with its kind.
+ * The database guarantees a stack has its positions; a plate-loaded bar may
+ * leave its weight out.
  */
 function specFrom(kind: EquipmentKind, row: EquipmentRow) {
   if (kind === 'BARBELL') {
-    return { kind, barGrams: grams(row.barGrams ?? 0) } as const
+    // Null is a bar that is not counted (a Smith, a sled), not a 0 kg bar.
+    return { kind, barGrams: row.barGrams === null ? null : grams(row.barGrams) } as const
   }
   if (kind === 'STACK') {
     return { kind, positions: row.stackPositions ?? 1 } as const

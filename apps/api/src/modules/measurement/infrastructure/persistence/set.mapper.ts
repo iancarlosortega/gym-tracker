@@ -72,7 +72,11 @@ function entryFromRow(row: LoggedSetRow): LoadEntry {
     case 'TOTAL':
       return LoadEntry.total(grams(row.rawValue))
     case 'PER_SIDE':
-      return LoadEntry.perSide(grams(row.rawValue), grams(row.snapshotBarGrams ?? 0))
+      // Null is a bar that was not counted, never a 0 g bar.
+      return LoadEntry.perSide(
+        grams(row.rawValue),
+        row.snapshotBarGrams === null ? null : grams(row.snapshotBarGrams),
+      )
     case 'STACK_POSITION':
       return LoadEntry.stack(stackPosition(row.stackPosition ?? row.rawValue))
   }

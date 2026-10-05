@@ -8,7 +8,8 @@ import { findOwnedEquipment } from './find-equipment.js'
 export interface CorrectBarWeightInput {
   readonly userId: string
   readonly equipmentId: string
-  readonly barKilograms: number
+  /** Null stops the bar from counting. */
+  readonly barKilograms: number | null
 }
 
 @Injectable()
@@ -24,7 +25,9 @@ export class CorrectBarWeightUseCase {
    */
   async execute(input: CorrectBarWeightInput): Promise<Equipment> {
     const found = await findOwnedEquipment(this.equipment, input.userId, input.equipmentId)
-    const corrected = found.withBarWeight(fromKilograms(input.barKilograms))
+    const corrected = found.withBarWeight(
+      input.barKilograms === null ? null : fromKilograms(input.barKilograms),
+    )
 
     await this.equipment.save(corrected)
     return corrected

@@ -8,8 +8,8 @@ Strict TDD. Each unit is committed when green (tests, typecheck, biome, build).
 - [x] 1.3 Recompute with a cleared base (D5).
 
 ## 2 — API
-- [ ] 2.1 Migration 0001 dropping the two checks (D6); schema; the table test accepts a null-base per-side row.
-- [ ] 2.2 Equipment: create without a base, correct the bar with null (D7). Log-sets per side on any supporting equipment (D8). Tests.
+- [x] 2.1 Migration 0001 dropping the two checks (D6); schema; the table test accepts a null-base per-side row.
+- [x] 2.2 Equipment: create without a base, correct the bar with null (D7). Log-sets per side on any supporting equipment (D8). Tests.
 - [ ] 2.3 `PATCH /auth/me` display unit (D9). Tests.
 
 ## 3 — Web

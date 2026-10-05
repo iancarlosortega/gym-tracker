@@ -116,6 +116,28 @@ export function describeSetRepositoryContract(harness: SetRepositoryHarness): vo
         expect(found?.reps).toBe(8)
       })
 
+      it('restores a per-side set that counts no bar, never as a 0 g bar', async () => {
+        await repository.save(
+          LoggedSet.create({
+            id: ids.third,
+            sessionId: references.sessionId,
+            exerciseId: references.exerciseId,
+            equipmentId: references.barbellId,
+            entry: LoadEntry.perSide(fromKilograms(20), null),
+            reps: reps(8),
+            loggedAt: new Date('2026-09-19T18:05:00.000Z'),
+            snapshot: { barGrams: null, displayUnit: 'KG', equipmentId: references.barbellId },
+          }),
+        )
+
+        const found = await repository.findOne(
+          Criteria.create<SetCriteriaFields>({ id: ids.third }),
+        )
+
+        expect(found?.mass()).toEqual({ kind: 'resolved', grams: 40_000 })
+        expect(found?.snapshot.barGrams).toBeNull()
+      })
+
       it('restores an ordinal set without inventing a mass', async () => {
         await repository.save(machineRow(ids.second))
 

@@ -7,7 +7,7 @@ import {
   ExerciseNotFoundError,
   StackPositionOutOfRangeError,
 } from '@gym/domain/catalog/errors'
-import { fromKilograms } from '@gym/domain/measurement/value-objects/grams.vo'
+import { fromKilograms, fromPounds } from '@gym/domain/measurement/value-objects/grams.vo'
 import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
 import { Id } from '@gym/domain/shared/value-objects/id.vo'
 import { WorkoutSession } from '@gym/domain/workouts/entities/workout-session.entity'
@@ -34,6 +34,7 @@ let users: InMemoryUserRepository
 let logSets: LogSetsUseCase
 
 let userId: string
+let owner: Id
 let session: WorkoutSession
 let sessionId: string
 let benchId: string
@@ -56,6 +57,7 @@ beforeEach(async () => {
   })
   await users.save(user)
   userId = user.id.value
+  owner = user.id
 
   session = WorkoutSession.start({ userId: user.id, startedAt })
   await sessions.save(session)
@@ -90,7 +92,9 @@ beforeEach(async () => {
   stackId = stack.id.value
 })
 
-function perSideSet(overrides: Partial<{ id: string; grams: number; reps: number }> = {}) {
+function perSideSet(
+  overrides: Partial<{ id: string; grams: number; reps: number; equipmentId: string }> = {},
+) {
   return {
     id: Id.create().value,
     exerciseId: benchId,
@@ -115,6 +119,33 @@ describe('logging sets', () => {
 
     expect(logged?.snapshot.barGrams).toBe(fromKilograms(20))
     expect(logged?.snapshot.displayUnit).toBe('KG')
+  })
+
+  it('counts no bar on plate-loaded equipment that leaves it out, like a Smith', async () => {
+    const smith = Equipment.create({ userId: owner, name: 'Smith machine', kind: 'BARBELL' })
+    await equipment.save(smith)
+
+    const [logged] = await logSets.execute({
+      userId,
+      sessionId,
+      sets: [perSideSet({ equipmentId: smith.id.value })],
+    })
+
+    expect(logged?.mass()).toEqual({ kind: 'resolved', grams: fromKilograms(40) })
+    expect(logged?.snapshot.barGrams).toBeNull()
+  })
+
+  it('logs dumbbells per hand: 60 lb a hand is 120 lb', async () => {
+    const dumbbells = Equipment.create({ userId: owner, name: 'Dumbbells', kind: 'FREE_WEIGHT' })
+    await equipment.save(dumbbells)
+
+    const [logged] = await logSets.execute({
+      userId,
+      sessionId,
+      sets: [perSideSet({ equipmentId: dumbbells.id.value, grams: fromPounds(60) })],
+    })
+
+    expect(logged?.mass()).toEqual({ kind: 'resolved', grams: 2 * fromPounds(60) })
   })
 
   it('records an ordinal set without inventing a mass for it', async () => {

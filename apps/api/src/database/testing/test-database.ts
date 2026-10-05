@@ -14,9 +14,15 @@ const migrationsDirectory = join(process.cwd(), 'drizzle')
  */
 export async function createTestDatabase(): Promise<PGlite> {
   const database = new PGlite()
-  const migration = readFileSync(join(migrationsDirectory, '0000_initial.sql'), 'utf8')
+  // Every migration in journal order, exactly as production applies them.
+  const journal = JSON.parse(
+    readFileSync(join(migrationsDirectory, 'meta', '_journal.json'), 'utf8'),
+  ) as { readonly entries: readonly { readonly tag: string }[] }
 
-  await database.exec(migration.replaceAll('--> statement-breakpoint', ''))
+  for (const { tag } of journal.entries) {
+    const migration = readFileSync(join(migrationsDirectory, `${tag}.sql`), 'utf8')
+    await database.exec(migration.replaceAll('--> statement-breakpoint', ''))
+  }
 
   return database
 }

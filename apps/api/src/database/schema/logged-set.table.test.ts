@@ -94,10 +94,17 @@ describe('the logged_set mass/position constraint', () => {
     ).rejects.toThrow(/logged_set_ordinal_has_no_bar/)
   })
 
-  it('rejects a per-side set with no bar weight snapshot', async () => {
-    await expect(insertSet({ snapshot_bar_grams: null })).rejects.toThrow(
-      /logged_set_per_side_has_bar/,
-    )
+  it('accepts a per-side set that counts no bar, like a Smith or dumbbells', async () => {
+    await expect(insertSet({ snapshot_bar_grams: null })).resolves.toBeDefined()
+  })
+
+  it('accepts plate-loaded equipment whose bar is not counted', async () => {
+    await expect(
+      database.query(
+        `INSERT INTO equipment (user_id, name, kind, bar_grams) VALUES ($1, 'Smith machine', 'BARBELL', NULL)`,
+        [references.userId],
+      ),
+    ).resolves.toBeDefined()
   })
 
   it('rejects a non-positive repetition count', async () => {

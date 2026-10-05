@@ -74,11 +74,6 @@ export const loggedSet = pgTable(
       'logged_set_ordinal_has_no_bar',
       sql`${table.mode} <> 'STACK_POSITION' OR ${table.snapshotBarGrams} IS NULL`,
     ),
-    /** A per-side set cannot resolve without the bar weight it was logged against. */
-    check(
-      'logged_set_per_side_has_bar',
-      sql`${table.mode} <> 'PER_SIDE' OR ${table.snapshotBarGrams} IS NOT NULL`,
-    ),
     check('logged_set_reps_positive', sql`${table.reps} >= 1`),
     check('logged_set_revision_non_negative', sql`${table.revision} >= 0`),
     index('logged_set_exercise_logged_at_idx').on(table.exerciseId, table.loggedAt),
