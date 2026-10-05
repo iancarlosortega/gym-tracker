@@ -38,6 +38,8 @@ export interface WeekInput {
   readonly plannedSetsByRoutine: ReadonlyMap<string, number>
   /** The week before, so every figure can be stated against it. */
   readonly previousSets: readonly LoggedSet[]
+  /** The phone's zone, so both weeks are cut at its Mondays. */
+  readonly timeZone?: string | undefined
 }
 
 /**
@@ -51,7 +53,7 @@ export const weekSummary = (input: WeekInput): WeekSummary => ({
   sets: input.sets.length,
   workouts: input.sessions.length,
   plan: planCompletion(input),
-  movements: movements(input.sets, input.previousSets),
+  movements: movements(input.sets, input.previousSets, input.timeZone ?? 'UTC'),
 })
 
 const planCompletion = (input: WeekInput): PlanCompletion | null => {
@@ -90,12 +92,13 @@ const planCompletion = (input: WeekInput): PlanCompletion | null => {
 const movements = (
   sets: readonly LoggedSet[],
   previousSets: readonly LoggedSet[],
+  timeZone: string,
 ): ExerciseMovement[] => {
   const exerciseIds = [...new Set(sets.map((set) => set.exerciseId))]
 
   return exerciseIds.flatMap((exerciseId) => {
-    const current = lastPointOf(exerciseId, sets)
-    const previous = lastPointOf(exerciseId, previousSets)
+    const current = lastPointOf(exerciseId, sets, timeZone)
+    const previous = lastPointOf(exerciseId, previousSets, timeZone)
 
     if (current === undefined || previous === undefined) {
       return []
@@ -123,8 +126,9 @@ const movements = (
 const lastPointOf = (
   exerciseId: string,
   sets: readonly LoggedSet[],
+  timeZone: string,
 ): { readonly point: ProgressionPoint; readonly mode: string } | undefined => {
-  const series = progression(exerciseId, sets).series.at(-1)
+  const series = progression(exerciseId, sets, timeZone).series.at(-1)
   const point = series?.points.at(-1)
 
   return series === undefined || point === undefined ? undefined : { point, mode: series.mode }

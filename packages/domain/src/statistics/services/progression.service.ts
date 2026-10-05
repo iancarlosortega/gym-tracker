@@ -1,6 +1,7 @@
 import type { LoggedSet } from '@domain/measurement/entities/logged-set.entity.js'
 import type { MeasurementMode } from '@domain/measurement/value-objects/load-entry.vo.js'
 import { isResolved } from '@domain/measurement/value-objects/mass-resolution.vo.js'
+import { startOfLocalWeek } from '@domain/shared/services/local-calendar.js'
 
 export interface ProgressionPoint {
   /** The first instant of the period this point covers. */
@@ -69,15 +70,8 @@ export interface ModeChange {
 }
 
 /** Monday, so a week is the week a lifter thinks in rather than a rolling seven days. */
-export const startOfWeek = (instant: Date): Date => {
-  const start = new Date(
-    Date.UTC(instant.getUTCFullYear(), instant.getUTCMonth(), instant.getUTCDate()),
-  )
-  const weekday = (start.getUTCDay() + 6) % 7
-
-  start.setUTCDate(start.getUTCDate() - weekday)
-  return start
-}
+export const startOfWeek = (instant: Date, timeZone = 'UTC'): Date =>
+  startOfLocalWeek(instant, timeZone)
 
 /**
  * Build one exercise's progression from its sets.
@@ -89,6 +83,8 @@ export const startOfWeek = (instant: Date): Date => {
 export const progression = (
   exerciseId: string,
   sets: readonly LoggedSet[],
+  /** Weeks start on the Monday of this zone: the phone's, so an evening set stays in its week. */
+  timeZone = 'UTC',
 ): ExerciseProgression => {
   const ordered = [...sets]
     .filter((set) => set.exerciseId === exerciseId)
@@ -109,7 +105,7 @@ export const progression = (
 
   return {
     exerciseId,
-    series: [...byMode].map(([mode, modeSets]) => toSeries(exerciseId, mode, modeSets)),
+    series: [...byMode].map(([mode, modeSets]) => toSeries(exerciseId, mode, modeSets, timeZone)),
     modeChanges: changesBetweenModes(ordered),
   }
 }
@@ -118,11 +114,12 @@ const toSeries = (
   exerciseId: string,
   mode: MeasurementMode,
   sets: readonly LoggedSet[],
+  timeZone: string,
 ): ProgressionSeries => {
   const weeks = new Map<number, LoggedSet[]>()
 
   for (const set of sets) {
-    const week = startOfWeek(set.loggedAt).getTime()
+    const week = startOfWeek(set.loggedAt, timeZone).getTime()
     const existing = weeks.get(week)
 
     if (existing === undefined) {

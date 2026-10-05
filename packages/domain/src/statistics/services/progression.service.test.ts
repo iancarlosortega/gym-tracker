@@ -188,3 +188,16 @@ describe('progress measured in repetitions', () => {
     expect(weekOverWeek(undefined, asPoint(series?.points[0]))).toEqual({ kind: 'held' })
   })
 })
+
+describe("progression in the phone's time zone", () => {
+  it('keeps a Sunday-evening set in its local week', () => {
+    // 21:00 on Sunday 4 October in Guayaquil is 02:00 UTC on Monday.
+    const [series] = progression(
+      'pulldown',
+      [barAt(60, new Date('2026-10-05T02:00:00.000Z'))],
+      'America/Guayaquil',
+    ).series
+
+    expect(series?.points[0]?.periodStart.toISOString()).toBe('2026-09-28T05:00:00.000Z')
+  })
+})
