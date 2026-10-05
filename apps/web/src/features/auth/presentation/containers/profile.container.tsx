@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import { ListSkeleton } from '@/components/loading-skeletons'
 import { QueryState } from '@/components/query-state'
 import { EnablePocketedAlertsUseCase } from '../../../push/application/enable-pocketed-alerts.use-case'
 import { PushSubscriber } from '../../../push/infrastructure/browser-push.subscriber'
@@ -41,7 +42,7 @@ export const ProfileContainer = () => {
     <div className="grid gap-6">
       <QueryState
         query={me}
-        pending={<p>Reading your account…</p>}
+        pending={<ListSkeleton label="Loading your account" rows={2} />}
         failed={<p role="alert">Could not reach the server, so your account cannot be shown.</p>}
       >
         {(account) => (

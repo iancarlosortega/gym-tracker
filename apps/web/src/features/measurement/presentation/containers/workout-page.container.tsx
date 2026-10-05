@@ -3,6 +3,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
+import { PlanSkeleton } from '@/components/loading-skeletons'
 import { EnablePocketedAlertsUseCase } from '../../../push/application/enable-pocketed-alerts.use-case'
 import { PushSubscriber } from '../../../push/infrastructure/browser-push.subscriber'
 import { pushApi } from '../../../push/infrastructure/push.api'
@@ -113,7 +114,7 @@ export const WorkoutPageContainer = () => {
   }
 
   if (context === null) {
-    return <p>Loading your workout…</p>
+    return <PlanSkeleton />
   }
 
   if (context.session === null) {

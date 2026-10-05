@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { ListSkeleton } from '@/components/loading-skeletons'
 import { QueryState } from '@/components/query-state'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import type { ExerciseResponse } from '../../../workouts/infrastructure/workouts.api'
@@ -35,7 +36,7 @@ export const ExercisesContainer = () => {
     <>
       <QueryState
         query={exercises}
-        pending={<p>Reading your exercises…</p>}
+        pending={<ListSkeleton label="Loading your exercises" rows={4} />}
         failed={<p role="alert">Could not reach the server, so your exercises cannot be shown.</p>}
       >
         {(list) => (

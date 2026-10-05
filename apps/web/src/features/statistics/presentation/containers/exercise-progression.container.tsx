@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { ListSkeleton } from '@/components/loading-skeletons'
 import { isWaitingForNetwork, OfflineNotice } from '@/components/query-state'
 import { Button } from '@/components/ui/button'
 import { useExercises } from '../../../workouts/presentation/queries'
@@ -41,7 +42,7 @@ export const ExerciseProgressionContainer = ({ exerciseId }: ExerciseProgression
   }
 
   if (progressionQuery.isPending) {
-    return <p>Reading your progression…</p>
+    return <ListSkeleton label="Loading your progression" />
   }
 
   const progression = progressionQuery.data

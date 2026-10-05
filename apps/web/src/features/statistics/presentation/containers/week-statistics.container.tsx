@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { ListSkeleton } from '@/components/loading-skeletons'
 import { QueryState } from '@/components/query-state'
 import { Card } from '@/components/ui/card'
 import { useExercises } from '../../../workouts/presentation/queries'
@@ -17,7 +18,7 @@ export const WeekStatisticsContainer = () => {
   return (
     <QueryState
       query={weekQuery}
-      pending={<p>Reading your week…</p>}
+      pending={<ListSkeleton label="Loading your week" />}
       failed={<p role="alert">Could not reach the server, so this week cannot be summarised.</p>}
     >
       {(week) => (

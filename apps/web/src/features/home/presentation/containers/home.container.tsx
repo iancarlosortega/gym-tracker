@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { HomeSkeleton } from '@/components/loading-skeletons'
 import { QueryState } from '@/components/query-state'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import { RoutineStartChoices } from '../../../routines/presentation/components/start-sheets'
@@ -30,7 +31,7 @@ export const HomeContainer = () => {
   return (
     <QueryState
       query={routines}
-      pending={<p>Reading your routines…</p>}
+      pending={<HomeSkeleton />}
       failed={<p role="alert">Could not reach the server, so your routines cannot be shown.</p>}
     >
       {({ routines: list, upNextRoutineId }) => {

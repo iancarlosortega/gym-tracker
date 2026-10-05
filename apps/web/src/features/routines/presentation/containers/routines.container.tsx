@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
+import { ListSkeleton, PlanSkeleton } from '@/components/loading-skeletons'
 import { QueryState } from '@/components/query-state'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import { EditCatalogItemForm } from '../../../catalog/presentation/components/exercise-forms'
@@ -45,7 +46,7 @@ export const RoutinesContainer = () => {
     <>
       <QueryState
         query={routines}
-        pending={<p>Reading your routines…</p>}
+        pending={<ListSkeleton label="Loading your routines" />}
         failed={<p role="alert">Could not reach the server, so your routines cannot be shown.</p>}
       >
         {(listing) => (
@@ -113,7 +114,7 @@ export const RoutinePlanContainer = ({ routineId }: { readonly routineId: string
   return (
     <QueryState
       query={routine}
-      pending={<p>Reading this routine…</p>}
+      pending={<PlanSkeleton />}
       failed={<p role="alert">Could not reach the server, so this routine cannot be shown.</p>}
     >
       {(plan) => (

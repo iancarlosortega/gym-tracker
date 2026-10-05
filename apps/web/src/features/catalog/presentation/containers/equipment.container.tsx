@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { ListSkeleton } from '@/components/loading-skeletons'
 import { QueryState } from '@/components/query-state'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import { useDisplayUnit } from '../../../auth/presentation/queries'
@@ -27,7 +28,7 @@ export const EquipmentListContainer = () => {
     <>
       <QueryState
         query={useCatalogEquipment()}
-        pending={<p>Reading your equipment…</p>}
+        pending={<ListSkeleton label="Loading your equipment" />}
         failed={<p role="alert">Could not reach the server, so your equipment cannot be shown.</p>}
       >
         {(equipment) => (
@@ -83,7 +84,7 @@ export const EquipmentDetailContainer = ({ equipmentId }: { readonly equipmentId
   return (
     <QueryState
       query={equipment}
-      pending={<p>Reading this equipment…</p>}
+      pending={<ListSkeleton label="Loading this equipment" rows={2} />}
       failed={<p role="alert">Could not reach the server, so this equipment cannot be shown.</p>}
     >
       {(list) => {
