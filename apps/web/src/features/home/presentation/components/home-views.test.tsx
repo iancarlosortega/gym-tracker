@@ -60,6 +60,29 @@ describe('HomeHeadline', () => {
   })
 })
 
+describe("lastDoneLabel in the phone's time zone", () => {
+  it('reads a workout from this evening in Ecuador as today, not tomorrow', () => {
+    // 20:24 and 21:37 on Sunday 4 October in Guayaquil, both already Monday in UTC.
+    expect(
+      lastDoneLabel(
+        '2026-10-05T01:24:20.089Z',
+        new Date('2026-10-05T02:37:00Z'),
+        'America/Guayaquil',
+      ),
+    ).toBe('Last done today')
+  })
+
+  it('names the local weekday', () => {
+    expect(
+      lastDoneLabel(
+        '2026-10-05T01:24:20.089Z',
+        new Date('2026-10-07T15:00:00Z'),
+        'America/Guayaquil',
+      ),
+    ).toBe('Last done Sunday')
+  })
+})
+
 describe('WeekStrip', () => {
   it('marks the days trained this week', () => {
     render(<WeekStrip weekStart="2026-09-28" trainedOn={['2026-09-29', '2026-10-01']} />)

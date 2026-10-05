@@ -1,11 +1,13 @@
 'use client'
 
+import { localDate } from '@gym/domain/shared/services/local-calendar'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { HomeSkeleton } from '@/components/loading-skeletons'
 import { QueryState } from '@/components/query-state'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
+import { localTimeZone } from '@/lib/local-time'
 import { sessionSetsQuery } from '../../../measurement/presentation/session-sets.queries'
 import { RoutineStartChoices } from '../../../routines/presentation/components/start-sheets'
 import { useRoutines } from '../../../routines/presentation/queries'
@@ -25,7 +27,8 @@ import { sessionProgress } from '../session-progress'
 export const HomeContainer = () => {
   const router = useRouter()
   const now = new Date()
-  const weekStart = startOfWeek(now)
+  const timeZone = localTimeZone()
+  const weekStart = startOfWeek(now, timeZone)
   const routines = useRoutines()
   const week = useWeekComparison(weekStart).data ?? null
   const openWorkout = useOpenWorkout().data ?? null
@@ -54,14 +57,11 @@ export const HomeContainer = () => {
 
         return (
           <div className="grid gap-6">
-            <HomeHeadline upNext={upNext} open={open} now={now} />
+            <HomeHeadline upNext={upNext} open={open} now={now} timeZone={timeZone} />
 
             {week !== null && (
               <section className="grid gap-3">
-                <WeekStrip
-                  weekStart={weekStart.toISOString().slice(0, 10)}
-                  trainedOn={week.trainedOn}
-                />
+                <WeekStrip weekStart={localDate(weekStart, timeZone)} trainedOn={week.trainedOn} />
                 <WeekHeadline current={week.current} previous={week.previous} />
               </section>
             )}
@@ -72,6 +72,7 @@ export const HomeContainer = () => {
                 upNextId={upNextRoutineId}
                 workoutOpen={workoutOpen}
                 now={now}
+                timeZone={timeZone}
                 onPick={setPicked}
               />
             )}

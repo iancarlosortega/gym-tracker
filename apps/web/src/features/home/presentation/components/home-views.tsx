@@ -1,3 +1,4 @@
+import { localDate } from '@gym/domain/shared/services/local-calendar'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -8,18 +9,19 @@ const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satur
 /** Spelled out rather than taken from Intl, whose short months differ between runtimes. */
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-const dayNumber = (instant: Date) => Math.floor(instant.getTime() / DAY_MS)
+const dayNumber = (date: string) => Math.floor(Date.parse(`${date}T00:00:00Z`) / DAY_MS)
 
-/** Today, yesterday, a weekday within the week, then a short date. */
-export const lastDoneLabel = (lastDoneAt: string | null, now: Date): string => {
+/** Today, yesterday, a weekday within the week, then a short date — all in the phone's days. */
+export const lastDoneLabel = (lastDoneAt: string | null, now: Date, timeZone = 'UTC'): string => {
   if (lastDoneAt === null) return 'Never done'
 
-  const done = new Date(lastDoneAt)
-  const daysAgo = dayNumber(now) - dayNumber(done)
+  const done = localDate(new Date(lastDoneAt), timeZone)
+  const daysAgo = dayNumber(localDate(now, timeZone)) - dayNumber(done)
+  const doneDay = new Date(`${done}T00:00:00Z`)
   if (daysAgo <= 0) return 'Last done today'
   if (daysAgo === 1) return 'Last done yesterday'
-  if (daysAgo < 7) return `Last done ${WEEKDAYS[(done.getUTCDay() + 6) % 7]}`
-  return `Last done ${done.getUTCDate()} ${MONTHS[done.getUTCMonth()]}`
+  if (daysAgo < 7) return `Last done ${WEEKDAYS[(doneDay.getUTCDay() + 6) % 7]}`
+  return `Last done ${doneDay.getUTCDate()} ${MONTHS[doneDay.getUTCMonth()]}`
 }
 
 export interface HomeRoutine {
@@ -48,11 +50,14 @@ export const HomeHeadline = ({
   upNext,
   open = null,
   now,
+  timeZone = 'UTC',
 }: {
   readonly upNext: Omit<HomeRoutine, 'id'> | null
   /** While a workout is open, it is the headline, and the way back to it. */
   readonly open?: OpenWorkoutProgress | null
   readonly now: Date
+  /** The phone's zone, so "today" is the phone's today. */
+  readonly timeZone?: string
 }) =>
   open !== null ? (
     <Link href="/workout" className="group grid gap-2">
@@ -72,7 +77,7 @@ export const HomeHeadline = ({
   ) : (
     <div className="grid gap-2">
       <h1 className={headlineClass}>{upNext.name} is up next.</h1>
-      <p className="text-muted-foreground">{lastDoneLabel(upNext.lastDoneAt, now)}</p>
+      <p className="text-muted-foreground">{lastDoneLabel(upNext.lastDoneAt, now, timeZone)}</p>
     </div>
   )
 
@@ -116,6 +121,7 @@ export interface HomeRoutineListProps {
   readonly upNextId: string | null
   readonly workoutOpen: boolean
   readonly now: Date
+  readonly timeZone?: string
   readonly onPick: (routine: HomeRoutine) => void
 }
 
@@ -124,6 +130,7 @@ export const HomeRoutineList = ({
   upNextId,
   workoutOpen,
   now,
+  timeZone = 'UTC',
   onPick,
 }: HomeRoutineListProps) => (
   <section className="grid gap-2">
@@ -144,7 +151,7 @@ export const HomeRoutineList = ({
                 {routine.id === upNextId && <UpNextTag />}
               </span>
               <span className="text-muted-foreground text-sm">
-                {lastDoneLabel(routine.lastDoneAt, now)}
+                {lastDoneLabel(routine.lastDoneAt, now, timeZone)}
               </span>
             </span>
             <ChevronRight className="size-4 text-muted-foreground" />

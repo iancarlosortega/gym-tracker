@@ -7,15 +7,15 @@ import { invalidateAfterRecompute } from './queries.ts'
 describe('invalidateAfterRecompute', () => {
   it('marks every statistic stale, because a recompute rewrites historic loads', async () => {
     const client = new QueryClient()
-    client.setQueryData(statisticsKeys.week('2026-09-28T00:00:00.000Z'), {})
-    client.setQueryData(statisticsKeys.progression('e-1', 'a', 'b'), {})
+    client.setQueryData(statisticsKeys.week('2026-09-28T00:00:00.000Z', 'UTC'), {})
+    client.setQueryData(statisticsKeys.progression('e-1', 'a', 'b', 'UTC'), {})
     client.setQueryData(workoutsKeys.exercises(), [])
 
     await invalidateAfterRecompute(client)
 
     const state = (key: readonly unknown[]) => client.getQueryState(key)?.isInvalidated
-    expect(state(statisticsKeys.week('2026-09-28T00:00:00.000Z'))).toBe(true)
-    expect(state(statisticsKeys.progression('e-1', 'a', 'b'))).toBe(true)
+    expect(state(statisticsKeys.week('2026-09-28T00:00:00.000Z', 'UTC'))).toBe(true)
+    expect(state(statisticsKeys.progression('e-1', 'a', 'b', 'UTC'))).toBe(true)
     expect(state(workoutsKeys.exercises())).toBe(false)
   })
 })

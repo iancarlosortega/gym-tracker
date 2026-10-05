@@ -44,12 +44,14 @@ export interface ExerciseProgressionResponse {
 
 /* Statistics are read-only; nothing here writes. */
 
+/** `timeZone` is the phone's: the server cuts days and weeks where its clocks turn over. */
 export const getWeekComparison = async (
   weekStart: Date,
+  timeZone: string,
   client: AxiosInstance = apiClient,
 ): Promise<WeekComparisonResponse> => {
   const { data } = await client.get<WeekComparisonResponse>('/statistics/week', {
-    params: { weekStart: weekStart.toISOString() },
+    params: { weekStart: weekStart.toISOString(), timeZone },
   })
   return data
 }
@@ -58,11 +60,12 @@ export const getExerciseProgression = async (
   exerciseId: string,
   from: Date,
   to: Date,
+  timeZone: string,
   client: AxiosInstance = apiClient,
 ): Promise<ExerciseProgressionResponse> => {
   const { data } = await client.get<ExerciseProgressionResponse>(
     `/statistics/exercises/${exerciseId}/progression`,
-    { params: { from: from.toISOString(), to: to.toISOString() } },
+    { params: { from: from.toISOString(), to: to.toISOString(), timeZone } },
   )
   return data
 }

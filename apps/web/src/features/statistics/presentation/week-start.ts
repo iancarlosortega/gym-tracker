@@ -1,9 +1,6 @@
-/** Monday, so a week is the week a lifter thinks in. */
-export const startOfWeek = (instant: Date): Date => {
-  const start = new Date(
-    Date.UTC(instant.getUTCFullYear(), instant.getUTCMonth(), instant.getUTCDate()),
-  )
-  start.setUTCDate(start.getUTCDate() - ((start.getUTCDay() + 6) % 7))
+import { startOfLocalWeek } from '@gym/domain/shared/services/local-calendar'
+import { localTimeZone } from '@/lib/local-time'
 
-  return start
-}
+/** Monday 00:00 on the phone's clock, so a week is the week a lifter thinks in. */
+export const startOfWeek = (instant: Date, timeZone = localTimeZone()): Date =>
+  startOfLocalWeek(instant, timeZone)

@@ -12,8 +12,8 @@ Strict TDD. Commit each unit once its tests, typecheck, biome and build are gree
 - [x] 1.3 `timeZone` query param with validation, added to the week and progression endpoints. The week bounds and `trainedOn` are computed in the zone (D3). Use-case and DTO tests.
 
 ## S2 — Web
-- [ ] 2.1 `localTimeZone()`. The api and queries send the zone and key on it.
-- [ ] 2.2 `startOfWeek` in local time. The week strip and today use local dates. `lastDoneLabel` uses local days.
+- [x] 2.1 `localTimeZone()`. The api and queries send the zone and key on it.
+- [x] 2.2 `startOfWeek` in local time. The week strip and today use local dates. `lastDoneLabel` uses local days.
 
 ## Device verification
 - [ ] DV.1 On a Sunday evening in Ecuador, a workout shows on Sunday, Home reads "Last done today", and the week has not rolled over.
