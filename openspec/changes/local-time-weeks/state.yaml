@@ -1,0 +1,28 @@
+change: local-time-weeks
+created: 2026-10-04
+artifact_store: hybrid
+execution_mode: auto
+delivery_strategy: auto-chain
+delivery_note: Sole developer. Commits to main; no PRs.
+
+phases:
+  explore: done
+  research: skipped
+  proposal: done
+  spec: done
+  design: done
+  tasks: done
+  apply: ready
+  verify: blocked
+  archive: blocked
+
+next_recommended: apply
+
+preproposal:
+  schema: gentle-ai.sdd-preproposal/v1
+  revision: 1
+  exploration: exploration.md (done)
+  research: unselected
+  decisions:
+    zone_source: confirmed # the phone's IANA zone per request; no stored setting (owner, 2026-10-04)
+  proposal_ready: true
