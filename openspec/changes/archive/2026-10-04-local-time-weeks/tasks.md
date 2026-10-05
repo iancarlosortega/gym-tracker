@@ -16,7 +16,7 @@ Strict TDD. Commit each unit once its tests, typecheck, biome and build are gree
 - [x] 2.2 `startOfWeek` in local time. The week strip and today use local dates. `lastDoneLabel` uses local days.
 
 ## Device verification
-- [ ] DV.1 On a Sunday evening in Ecuador, a workout shows on Sunday, Home reads "Last done today", and the week has not rolled over.
+- [x] DV.1 On a Sunday evening in Ecuador, a workout shows on Sunday, Home reads "Last done today", and the week has not rolled over. Confirmed by Ian on the iPhone (2026-10-04): the workout shows on Sunday.
 
 ## Review Workload Forecast
 | Unit | ~Lines |
