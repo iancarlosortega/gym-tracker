@@ -35,9 +35,9 @@ Strict TDD. Each unit is green before it is handed over: tests, typecheck, biome
 - [x] 6.4 `PUT /routines/order` returns 204, or 409 on an id mismatch. The view exposes `position`. Covered by API tests.
 
 ## S7 — Routine order: web
-- [ ] 7.1 `reorderRoutines` api function and the optimistic `useReorderRoutines` (scope `routine-order`).
-- [ ] 7.2 Add `@dnd-kit/core` + `@dnd-kit/sortable`. Make `RoutineCards` sortable from the handle: touch delay 250 ms / tolerance 5, keyboard sensor, announcements (D6).
-- [ ] 7.3 Move up and Move down per row. Tests cover the move actions and that the order persists in the cache.
+- [x] 7.1 `reorderRoutines` api function and the optimistic `useReorderRoutines` (scope `routine-order`).
+- [x] 7.2 Add `@dnd-kit/core` + `@dnd-kit/sortable`. Make `RoutineCards` sortable from the handle: touch delay 250 ms / tolerance 5, keyboard sensor, announcements (D6).
+- [x] 7.3 Move up and Move down per row. Tests cover the move actions and that the order persists in the cache.
 
 ## S8 — Units in Progress + Recompute
 - [ ] 8.1 Progression container and chart: values converted, unit in the label, caption and weekly list (D7).

@@ -132,3 +132,57 @@ describe('RoutineCards up next', () => {
     expect(screen.getByRole('link', { name: /legs/i }).textContent).not.toMatch(/Up next/)
   })
 })
+
+describe("RoutineCards in the user's order", () => {
+  const push = { ...legs, id: 'r-2', name: 'Push day' }
+  const pull = { ...legs, id: 'r-3', name: 'Pull day' }
+
+  it('moves a routine up or down one place without dragging', async () => {
+    const onReorder = vi.fn()
+    render(
+      <RoutineCards
+        routines={[legs, pull, push]}
+        exerciseNames={names}
+        onNew={vi.fn()}
+        onReorder={onReorder}
+      />,
+    )
+
+    await userEvent.click(screen.getByRole('button', { name: 'Move Push day up' }))
+    expect(onReorder).toHaveBeenLastCalledWith(['r-1', 'r-2', 'r-3'])
+
+    await userEvent.click(screen.getByRole('button', { name: 'Move Legs down' }))
+    expect(onReorder).toHaveBeenLastCalledWith(['r-3', 'r-1', 'r-2'])
+  })
+
+  it('cannot move the first routine up or the last one down', () => {
+    render(
+      <RoutineCards
+        routines={[legs, push]}
+        exerciseNames={names}
+        onNew={vi.fn()}
+        onReorder={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'Move Legs up' }).hasAttribute('disabled')).toBe(true)
+    expect(
+      screen.getByRole('button', { name: 'Move Push day down' }).hasAttribute('disabled'),
+    ).toBe(true)
+  })
+
+  it('drags only from the handle, so the rest of the row still scrolls and opens', () => {
+    render(
+      <RoutineCards
+        routines={[legs, push]}
+        exerciseNames={names}
+        onNew={vi.fn()}
+        onReorder={vi.fn()}
+      />,
+    )
+
+    const handle = screen.getByRole('button', { name: 'Drag Legs to reorder' })
+    expect(handle.className).toMatch(/touch-none/)
+    expect(screen.getByRole('link', { name: /legs/i }).className).not.toMatch(/touch-none/)
+  })
+})

@@ -22,6 +22,7 @@ import {
   useRemoveRoutineEntry,
   useRenameRoutine,
   useReorderRoutine,
+  useReorderRoutines,
   useRoutine,
   useRoutines,
 } from '../queries'
@@ -41,6 +42,7 @@ export const RoutinesContainer = () => {
   const routines = useRoutines()
   const exerciseNames = useExerciseNames()
   const create = useCreateRoutine()
+  const reorder = useReorderRoutines()
   const [creating, setCreating] = useState(false)
 
   return (
@@ -56,9 +58,11 @@ export const RoutinesContainer = () => {
             upNextId={listing.upNextRoutineId}
             exerciseNames={exerciseNames}
             onNew={() => setCreating(true)}
+            onReorder={(routineIds) => reorder.mutate(routineIds)}
           />
         )}
       </QueryState>
+      <RollbackNotice mutation={reorder} />
 
       <Drawer
         open={creating}

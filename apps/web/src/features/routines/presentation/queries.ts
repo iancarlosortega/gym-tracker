@@ -13,6 +13,7 @@ import {
   removeRoutineEntry,
   renameRoutine,
   reorderRoutine,
+  reorderRoutines,
 } from '../infrastructure/routines.api'
 
 export const routinesKeys = {
@@ -149,4 +150,28 @@ export const useReorderRoutine = (routineId: string) =>
           return entry === undefined ? [] : [{ ...entry, position }]
         }),
       })),
+  )
+
+/**
+ * The user's own routine order, shown on the tap or the drop.
+ *
+ * `routineIds` names every active routine; archived ones keep their place
+ * after them, out of sight.
+ */
+export const useReorderRoutines = () =>
+  useInstantRoutineWrite<readonly string[]>(
+    'routine-order',
+    (routineIds) => reorderRoutines(routineIds),
+    (routineIds) => [
+      patch<RoutineListing>(routinesKeys.list(), (listing) => ({
+        ...listing,
+        routines: [
+          ...routineIds.flatMap((id, position) => {
+            const routine = listing.routines.find((candidate) => candidate.id === id)
+            return routine === undefined ? [] : [{ ...routine, position }]
+          }),
+          ...listing.routines.filter((routine) => !routineIds.includes(routine.id)),
+        ],
+      })),
+    ],
   )

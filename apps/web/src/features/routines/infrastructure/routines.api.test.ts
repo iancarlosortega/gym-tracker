@@ -11,6 +11,7 @@ import {
   removeRoutineEntry,
   renameRoutine,
   reorderRoutine,
+  reorderRoutines,
 } from './routines.api.ts'
 
 const clientAnswering = (answer: () => StubAnswer) => {
@@ -129,5 +130,17 @@ describe('editing a routine’s entries', () => {
     expect(stub.calls[0]?.method).toBe('put')
     expect(stub.calls[0]?.url).toBe('/routines/r-1/order')
     expect(body(stub.calls[0])).toEqual({ entryIds: ['n-2', 'n-1'] })
+  })
+})
+
+describe('ordering routines', () => {
+  it('sends every active routine in the order the user put them', async () => {
+    const { client, stub } = clientAnswering(() => ({ status: 204, data: '' }))
+
+    await reorderRoutines(['r-2', 'r-1'], client)
+
+    expect(stub.calls[0]?.method).toBe('put')
+    expect(stub.calls[0]?.url).toBe('/routines/order')
+    expect(body(stub.calls[0])).toEqual({ routineIds: ['r-2', 'r-1'] })
   })
 })

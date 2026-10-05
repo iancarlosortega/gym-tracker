@@ -2,6 +2,7 @@ import { ChevronRight, Pencil, Play, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import type { RoutineEntryResponse, RoutineResponse } from '../../infrastructure/routines.api'
+import { SortableRoutineList } from './sortable-routine-list'
 
 export const restLabel = (seconds: number): string =>
   `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
@@ -28,9 +29,53 @@ export interface RoutineCardsProps {
   readonly exerciseNames: ReadonlyMap<string, string>
   readonly upNextId?: string | null
   readonly onNew: () => void
+  /** Given, the user can put the routines in their own order: every active routine id, in order. */
+  readonly onReorder?: (routineIds: string[]) => void
 }
 
-export const RoutineCards = ({ routines, exerciseNames, upNextId, onNew }: RoutineCardsProps) => {
+/** One routine as a card that opens its plan. */
+export const RoutineCard = ({
+  routine,
+  exerciseNames,
+  upNext,
+}: {
+  readonly routine: RoutineResponse
+  readonly exerciseNames: ReadonlyMap<string, string>
+  readonly upNext: boolean
+}) => {
+  const entries = inOrder(routine.entries)
+
+  return (
+    <Link
+      href={`/routines/${routine.id}`}
+      className="flex min-h-touch min-w-0 flex-1 items-center justify-between gap-3 rounded-xl bg-card px-4 py-3"
+    >
+      <span className="grid min-w-0 gap-0.5">
+        <span className="flex items-center gap-2">
+          <strong>{routine.name}</strong>
+          {upNext && <UpNextTag />}
+        </span>
+        <span className="truncate text-muted-foreground text-sm">
+          {entries.length === 0
+            ? 'No exercises yet'
+            : entries.map((entry) => nameOf(exerciseNames, entry.exerciseId)).join(' · ')}
+        </span>
+      </span>
+      <span className="flex shrink-0 items-center gap-2 text-muted-foreground text-sm">
+        {entries.length} {entries.length === 1 ? 'exercise' : 'exercises'}
+        <ChevronRight className="size-4" />
+      </span>
+    </Link>
+  )
+}
+
+export const RoutineCards = ({
+  routines,
+  exerciseNames,
+  upNextId,
+  onNew,
+  onReorder,
+}: RoutineCardsProps) => {
   const active = routines.filter((routine) => !routine.archived)
 
   if (active.length === 0) {
@@ -51,36 +96,31 @@ export const RoutineCards = ({ routines, exerciseNames, upNextId, onNew }: Routi
         <Plus className="size-5" />
         New routine
       </Button>
-      <ul className="grid gap-2">
-        {active.map((routine) => {
-          const entries = inOrder(routine.entries)
-
-          return (
-            <li key={routine.id}>
-              <Link
-                href={`/routines/${routine.id}`}
-                className="flex min-h-touch items-center justify-between gap-3 rounded-xl bg-card px-4 py-3"
-              >
-                <span className="grid gap-0.5">
-                  <span className="flex items-center gap-2">
-                    <strong>{routine.name}</strong>
-                    {routine.id === upNextId && <UpNextTag />}
-                  </span>
-                  <span className="text-muted-foreground text-sm">
-                    {entries.length === 0
-                      ? 'No exercises yet'
-                      : entries.map((entry) => nameOf(exerciseNames, entry.exerciseId)).join(' · ')}
-                  </span>
-                </span>
-                <span className="flex shrink-0 items-center gap-2 text-muted-foreground text-sm">
-                  {entries.length} {entries.length === 1 ? 'exercise' : 'exercises'}
-                  <ChevronRight className="size-4" />
-                </span>
-              </Link>
+      {onReorder === undefined ? (
+        <ul className="grid gap-2">
+          {active.map((routine) => (
+            <li key={routine.id} className="flex">
+              <RoutineCard
+                routine={routine}
+                exerciseNames={exerciseNames}
+                upNext={routine.id === upNextId}
+              />
             </li>
-          )
-        })}
-      </ul>
+          ))}
+        </ul>
+      ) : (
+        <SortableRoutineList
+          routines={active}
+          card={(routine) => (
+            <RoutineCard
+              routine={routine}
+              exerciseNames={exerciseNames}
+              upNext={routine.id === upNextId}
+            />
+          )}
+          onReorder={onReorder}
+        />
+      )}
     </div>
   )
 }

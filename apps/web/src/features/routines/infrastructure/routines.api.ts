@@ -16,6 +16,8 @@ export interface RoutineEntryResponse {
 export interface RoutineResponse {
   readonly id: string
   readonly name: string
+  /** The user's routine order; zero is first. */
+  readonly position?: number
   readonly archived: boolean
   readonly entries: readonly RoutineEntryResponse[]
 }
@@ -120,4 +122,12 @@ export const reorderRoutine = async (
 ): Promise<RoutineResponse> => {
   const { data } = await client.put<RoutineResponse>(`/routines/${routineId}/order`, { entryIds })
   return data
+}
+
+/** Every active routine, exactly once: the API refuses an order that leaves one out. */
+export const reorderRoutines = async (
+  routineIds: readonly string[],
+  client: AxiosInstance = apiClient,
+): Promise<void> => {
+  await client.put('/routines/order', { routineIds })
 }

@@ -10,6 +10,7 @@ import {
   useChangeRoutineEntry,
   useRenameRoutine,
   useReorderRoutine,
+  useReorderRoutines,
 } from './queries'
 
 const server = vi.hoisted(() => ({
@@ -29,6 +30,10 @@ vi.mock('../infrastructure/routines.api', () => ({
   getRoutine: async () => ({ id: 'r-1', name: 'Push day', archived: false, entries: [] }),
   renameRoutine: () => hold(() => ({})),
   changeRoutineEntry: () => hold(() => ({})),
+  reorderRoutines: (routineIds: string[]) =>
+    hold(() => {
+      server.order.push(routineIds)
+    }),
   reorderRoutine: (_routineId: string, entryIds: string[]) =>
     hold(() => {
       server.order.push(entryIds)
@@ -156,6 +161,29 @@ describe('instant routine writes', () => {
       }),
     )
     await answerAll()
+  })
+})
+
+describe('the routine order', () => {
+  it('moves routines at once, archived ones kept after them', async () => {
+    const { client, wrapper } = setup()
+    const legs = { ...pushDay, id: 'r-2', name: 'Legs', lastDoneAt: null }
+    const old = { ...pushDay, id: 'r-3', name: 'Old', archived: true, lastDoneAt: null }
+    client.setQueryData<RoutineListing>(routinesKeys.list(), {
+      routines: [{ ...pushDay, lastDoneAt: null }, legs, old],
+      upNextRoutineId: 'r-1',
+    })
+    const { result } = renderHook(() => useReorderRoutines(), { wrapper })
+
+    act(() => result.current.mutate(['r-2', 'r-1']))
+
+    await waitFor(() =>
+      expect(
+        client.getQueryData<RoutineListing>(routinesKeys.list())?.routines.map((r) => r.id),
+      ).toEqual(['r-2', 'r-1', 'r-3']),
+    )
+    await answerAll()
+    expect(server.order).toEqual([['r-2', 'r-1']])
   })
 })
 
