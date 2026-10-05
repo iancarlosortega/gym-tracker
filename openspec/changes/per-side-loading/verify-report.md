@@ -1,3 +1,19 @@
+```yaml
+schema: gentle-ai.verify-result/v1
+evidence_revision: sha256:519f2582466ed32850125d176d1ebf813fee18fe74c434aa625f192487c878a8
+verdict: pass_with_warnings
+blockers: 0
+critical_findings: 0
+requirements: 6/6
+scenarios: 10/10
+test_command: pnpm test
+test_exit_code: 0
+test_output_hash: sha256:f3908d4a4e1e1204652b4b262fb1f36c1dde666bd18b54e2e586fa48e117ed14
+build_command: cd apps/web && NEXT_PUBLIC_API_URL=http://localhost:3001 pnpm build
+build_exit_code: 0
+build_output_hash: sha256:0beb75089228777121554957c001ec056c4050790e24dfaed688bf0a33e45784
+```
+
 # Verify report — per-side-loading
 
 **Verdict: PASS with warnings.** All 9 tasks are complete, and every spec scenario has executed test evidence. The warnings are about coverage depth, not failures.
