@@ -1,0 +1,30 @@
+change: optimistic-ui-and-polish
+created: 2026-10-04
+artifact_store: hybrid
+execution_mode: auto
+delivery_strategy: auto-chain
+delivery_note: Sole developer. Slices committed straight to main; no PRs.
+
+phases:
+  explore: done
+  research: done
+  proposal: done
+  spec: done
+  design: done
+  tasks: done
+  apply: ready
+  verify: blocked
+  archive: blocked
+
+next_recommended: apply
+
+preproposal:
+  schema: gentle-ai.sdd-preproposal/v1
+  revision: 1
+  exploration: exploration.md (done)
+  research: research.md (revision 1, done)
+  decisions:
+    routine_reorder_ux: confirmed # drag handle (owner, 2026-10-04); Move up/down kept as accessible fallback
+    headline_done_rule: confirmed # done when sets >= targetSets; no target -> 1 set; off-plan excluded
+    create_ids: confirmed # keep server ids; creates show a pending state
+  proposal_ready: true
