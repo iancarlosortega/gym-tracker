@@ -14,13 +14,14 @@ const WHOLE_WORKOUT = Pagination.create({ limit: 200 })
  * phone still holds. Read with no network too, so the server's part is simply
  * left out when it cannot be reached.
  */
-export const sessionSetsQuery = (sessionId: string, queue: SetRepository = offlineWork().sets) =>
+/** The queue defaults to the phone's, looked up only when read, so rendering on the server never opens IndexedDB. */
+export const sessionSetsQuery = (sessionId: string, queue?: SetRepository) =>
   queryOptions({
     queryKey: workoutsKeys.sessionSets(sessionId),
     queryFn: async (): Promise<readonly DoneSet[]> => {
       const [server, queued] = await Promise.all([
         getSessionSets(sessionId).catch(() => []),
-        queue.findMany(Criteria.create({ sessionId }), WHOLE_WORKOUT),
+        (queue ?? offlineWork().sets).findMany(Criteria.create({ sessionId }), WHOLE_WORKOUT),
       ])
       return mergeDone(server.map(fromServer), queued.items.map(fromQueue))
     },

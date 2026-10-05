@@ -25,8 +25,8 @@ Strict TDD. Each unit is green before it is handed over: tests, typecheck, biome
 - [x] 4.4 Start navigates first. The workout page has a starting state, plus a failed state with Try again. The raw `startWorkout()` is replaced (D3).
 
 ## S5 — Home headline
-- [ ] 5.1 `sessionProgress` pure function, tested on target, no target, extra exercises and queued sets.
-- [ ] 5.2 `HomeHeadline` gets an open variant ("Push day, 3 of 5 done" / "Workout in progress") linking to `/workout`. The container is wired up, with view tests.
+- [x] 5.1 `sessionProgress` pure function, tested on target, no target, extra exercises and queued sets.
+- [x] 5.2 `HomeHeadline` gets an open variant ("Push day, 3 of 5 done" / "Workout in progress") linking to `/workout`. The container is wired up, with view tests.
 
 ## S6 — Routine order: domain, migration, API
 - [ ] 6.1 Domain: `position` on Routine, the `reorderRoutines` rule, and `RoutineOrderMismatchError` (D6).

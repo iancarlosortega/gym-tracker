@@ -28,6 +28,29 @@ describe('HomeHeadline', () => {
     expect(screen.getByText('Last done Monday')).toBeDefined()
   })
 
+  it('shows the open workout and how much of its plan is done', () => {
+    render(
+      <HomeHeadline
+        upNext={{ name: 'Legs', lastDoneAt: null }}
+        open={{ routineName: 'Push day', done: 3, planned: 5 }}
+        now={now}
+      />,
+    )
+
+    const link = screen.getByRole('link', { name: /Push day, 3 of 5 done/ })
+    expect(link.getAttribute('href')).toBe('/workout')
+  })
+
+  it('names an open workout that follows no routine', () => {
+    render(
+      <HomeHeadline upNext={null} open={{ routineName: null, done: 0, planned: 0 }} now={now} />,
+    )
+
+    expect(screen.getByRole('link', { name: /Workout in progress/ }).getAttribute('href')).toBe(
+      '/workout',
+    )
+  })
+
   it('offers making the first routine when there is none', () => {
     render(<HomeHeadline upNext={null} now={now} />)
 

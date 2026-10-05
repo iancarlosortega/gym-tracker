@@ -30,14 +30,39 @@ export interface HomeRoutine {
 
 const headlineClass = 'font-extrabold text-[40px] leading-[1.02] tracking-tight'
 
+/** The workout in progress, as Home leads with it. */
+export interface OpenWorkoutProgress {
+  /** Null for a workout that follows no routine. */
+  readonly routineName: string | null
+  readonly done: number
+  readonly planned: number
+}
+
+export const openWorkoutHeadline = ({ routineName, done, planned }: OpenWorkoutProgress) => {
+  if (routineName === null) return 'Workout in progress'
+  if (planned === 0) return `${routineName} in progress`
+  return `${routineName}, ${done} of ${planned} done`
+}
+
 export const HomeHeadline = ({
   upNext,
+  open = null,
   now,
 }: {
   readonly upNext: Omit<HomeRoutine, 'id'> | null
+  /** While a workout is open, it is the headline, and the way back to it. */
+  readonly open?: OpenWorkoutProgress | null
   readonly now: Date
 }) =>
-  upNext === null ? (
+  open !== null ? (
+    <Link href="/workout" className="group grid gap-2">
+      <h1 className={headlineClass}>{openWorkoutHeadline(open)}</h1>
+      <span className="flex items-center gap-1 font-semibold text-lg text-primary">
+        Back to the workout
+        <ChevronRight className="size-5" />
+      </span>
+    </Link>
+  ) : upNext === null ? (
     <div className="grid gap-3">
       <h1 className={headlineClass}>Nothing planned yet.</h1>
       <Link href="/routines" className="font-semibold text-primary text-lg">
