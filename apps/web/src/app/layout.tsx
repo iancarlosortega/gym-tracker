@@ -24,7 +24,12 @@ export const viewport = {
 
 const RootLayout = ({ children }: { children: ReactNode }) => (
   <html lang="en" className={cn('dark font-sans', geist.variable)}>
-    <body className="bg-background text-foreground">
+    {/*
+      The app draws under a translucent status bar (viewportFit cover), so the
+      one place that clears it is here: every route, signed in or not, inherits
+      it, and the background fills behind the clock.
+    */}
+    <body className="flex min-h-dvh flex-col bg-background pt-[env(safe-area-inset-top)] text-foreground">
       <Providers>{children}</Providers>
     </body>
   </html>

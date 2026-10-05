@@ -9,8 +9,8 @@ const SignInPage = async ({
   const { next } = await searchParams
 
   return (
-    // Padding follows the safe-area insets, so the form clears the home bar.
-    <main className="mx-auto flex min-h-dvh max-w-screen-sm flex-col justify-between gap-10 px-6 pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+    // The root layout clears the status bar; the bottom inset keeps the form off the home bar.
+    <main className="mx-auto flex max-w-screen-sm flex-1 flex-col justify-between gap-10 px-6 pt-10 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       <header className="grid gap-5">
         <div className="flex size-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
           <Dumbbell className="size-7" aria-hidden="true" />

@@ -105,8 +105,8 @@
 ## 7 — Device-verification fixes, round 2 (Ian, 2026-10-04)
 
 - [x] 7.1 The service worker served every page and script cache-first forever, so the phone never saw new builds (no lb switch, old padding). Pages and RSC are now network-first with an offline fallback; hashed `/_next/static` stays cache-first; the cache name is bumped.
-- [ ] 7.2 Safe area and background are set once in the root layout; the per-page top paddings are removed.
-- [ ] 7.3 The bottom navigation is fixed to the bottom regardless of the iOS viewport height; content reserves its height.
+- [x] 7.2 Safe area and background are set once in the root layout; the per-page top paddings are removed.
+- [x] 7.3 The bottom navigation is fixed to the bottom regardless of the iOS viewport height; content reserves its height.
 - [ ] 7.4 Skeletons replace the "Reading your…" loading texts.
 - [ ] 7.5 Pull to refresh on the tab screens refetches what is shown and drains pending work.
 
