@@ -15,9 +15,9 @@ phases:
   tasks: done
   apply: done
   verify: done
-  archive: blocked
+  archive: done
 
-next_recommended: archive
+next_recommended: none
 review_decision: per-unit review (owner, 2026-10-04); each unit reviewed locally and committed separately
 
 preproposal:
