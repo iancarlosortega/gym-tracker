@@ -44,4 +44,16 @@ describe('LastTimeCard', () => {
 
     expect(screen.getByText('Offline · last time unavailable')).toBeDefined()
   })
+
+  it('reads last time in pounds, per hand on dumbbells', () => {
+    render(
+      <LastTimeCard
+        state={{ kind: 'value', set: { setNumber: 1, mode: 'PER_SIDE', value: 27.2155, reps: 8 } }}
+        unit="LB"
+        perHand
+      />,
+    )
+
+    expect(screen.getByText('60 lb/hand × 8')).toBeDefined()
+  })
 })

@@ -32,13 +32,13 @@ describe('done sets', () => {
       ),
     )
 
-    expect(set).toMatchObject({ id: 's-1', label: '60 kg × 8', pending: true })
+    expect(set).toMatchObject({ id: 's-1', grams: 60_000, position: null, pending: true })
   })
 
   it('reads a pin as a position', () => {
     const set = fromQueue(queued('s-1', LoadEntry.stack(stackPosition(7)), '2026-10-04T09:05:00Z'))
 
-    expect(set.label).toBe('Pin 7 × 8')
+    expect(set).toMatchObject({ grams: null, position: 7 })
   })
 
   it('reads a synced set from the server the same way', () => {
@@ -54,7 +54,7 @@ describe('done sets', () => {
       stackPosition: null,
     })
 
-    expect(set).toMatchObject({ label: '62.5 kg × 5', pending: false })
+    expect(set).toMatchObject({ grams: 62_500, pending: false })
   })
 
   it('merges server and queue, the queue winning while a set is still in it', () => {
@@ -83,9 +83,25 @@ describe('done sets', () => {
       fromQueue(queued('a', LoadEntry.total(fromKilograms(55)), '2026-10-04T09:05:00Z')),
     ]
 
-    expect(doneRowsFor('e-1', sets).map((row) => [row.id, row.setNumber])).toEqual([
+    expect(doneRowsFor('e-1', sets, 'KG').map((row) => [row.id, row.setNumber])).toEqual([
       ['a', 1],
       ['b', 2],
+    ])
+  })
+
+  it('labels each set in the unit the user weighs in', () => {
+    const sets = [
+      fromQueue(queued('a', LoadEntry.total(fromKilograms(60)), '2026-10-04T09:05:00Z')),
+      fromQueue(queued('b', LoadEntry.stack(stackPosition(7)), '2026-10-04T09:06:00Z')),
+    ]
+
+    expect(doneRowsFor('e-1', sets, 'KG').map((row) => row.label)).toEqual([
+      '60 kg × 8',
+      'Pin 7 × 8',
+    ])
+    expect(doneRowsFor('e-1', sets, 'LB').map((row) => row.label)).toEqual([
+      '132.3 lb × 8',
+      'Pin 7 × 8',
     ])
   })
 })

@@ -17,6 +17,14 @@ import { Plus } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
+import {
+  type DisplayUnit,
+  fromDisplay,
+  kilogramsToDisplay,
+  spokenUnit,
+  unitLabel,
+} from '@/lib/units'
+import { useDisplayUnit } from '../../../auth/presentation/queries'
 import { NewEquipmentForm } from '../../../catalog/presentation/components/new-equipment-form'
 import { useCreateEquipment } from '../../../catalog/presentation/queries'
 import type { PushApi } from '../../../push/infrastructure/push.api'
@@ -38,7 +46,14 @@ import { SyncStatus } from '../components/sync-status'
 import { keypadReducer, keypadValues, openKeypad } from '../keypad/keypad.reducer'
 import { SetKeypad, ValueTile } from '../keypad/set-keypad'
 import { useLastSets } from '../last-sets.queries'
-import { type DoneSet, doneRowsFor, fromQueue, fromServer, mergeDone } from '../workout/done-sets'
+import {
+  type DoneSet,
+  doneLabel,
+  doneRowsFor,
+  fromQueue,
+  fromServer,
+  mergeDone,
+} from '../workout/done-sets'
 import { LastTimeCard, lastSetLabel } from '../workout/last-time-card'
 import {
   compatibleEquipment,
@@ -81,25 +96,35 @@ interface Resting {
   readonly setId: string
 }
 
-const weightTile = (mode: MeasurementMode) => {
+const weightTile = (mode: MeasurementMode, perHand: boolean, unit: DisplayUnit) => {
+  const reading = { unit: unitLabel(unit), spokenUnit: spokenUnit(unit) }
   switch (mode) {
     case 'PER_SIDE':
-      return { label: 'Weight per side', unit: 'kg', spokenUnit: 'kilograms' }
+      return { label: perHand ? 'Weight per hand' : 'Weight per side', ...reading }
     case 'STACK_POSITION':
       return { label: 'Pin position', unit: undefined, spokenUnit: undefined }
     case 'TOTAL':
-      return { label: 'Weight', unit: 'kg', spokenUnit: 'kilograms' }
+      return { label: 'Weight', ...reading }
   }
 }
 
-const entryFor = (mode: MeasurementMode, value: number, barKilograms: number | null): LoadEntry => {
+/** Typed in the user's unit; a bar that is not counted stays null, never 0 kg. */
+const entryFor = (
+  mode: MeasurementMode,
+  value: number,
+  barKilograms: number | null,
+  unit: DisplayUnit,
+): LoadEntry => {
   switch (mode) {
     case 'PER_SIDE':
-      return LoadEntry.perSide(fromKilograms(value), fromKilograms(barKilograms ?? 0))
+      return LoadEntry.perSide(
+        fromDisplay(value, unit),
+        barKilograms === null ? null : fromKilograms(barKilograms),
+      )
     case 'STACK_POSITION':
       return LoadEntry.stack(stackPosition(value))
     case 'TOTAL':
-      return LoadEntry.total(fromKilograms(value))
+      return LoadEntry.total(fromDisplay(value, unit))
   }
 }
 
@@ -141,6 +166,7 @@ export const WorkoutScreenContainer = ({
   onFinish,
 }: WorkoutScreenProps) => {
   const now = useNow()
+  const unit = useDisplayUnit()
   const [done, setDone] = useState<readonly DoneSet[]>([])
   const [added, setAdded] = useState<readonly string[]>([])
   const [index, setIndex] = useState(0)
@@ -193,7 +219,7 @@ export const WorkoutScreenContainer = ({
   const exerciseId = order[Math.min(index, order.length - 1)] ?? null
   const exercise = exercises.find((candidate) => candidate.id === exerciseId) ?? null
   const planned = routine?.entries.find((candidate) => candidate.exerciseId === exerciseId) ?? null
-  const rows = exerciseId === null ? [] : doneRowsFor(exerciseId, done)
+  const rows = exerciseId === null ? [] : doneRowsFor(exerciseId, done, unit)
   const setNumber = rows.length + 1
 
   const compatible = useMemo(
@@ -209,6 +235,7 @@ export const WorkoutScreenContainer = ({
       compatible,
     })
   const chosen = compatible.find((item) => item.id === equipmentId) ?? null
+  const perHand = exercise?.defaultMode === 'PER_SIDE' && chosen?.kind === 'FREE_WEIGHT'
 
   const lastRead = useLastSets(exerciseId ?? '', sessionId)
   const lastTime = lastTimeState(
@@ -252,7 +279,7 @@ export const WorkoutScreenContainer = ({
         sessionId,
         exerciseId: exercise.id,
         equipmentId: chosen.id,
-        entry: entryFor(exercise.defaultMode, values.weight, chosen.barKilograms),
+        entry: entryFor(exercise.defaultMode, values.weight, chosen.barKilograms, unit),
         reps: values.reps ?? 0,
         loggedAt: new Date(),
         snapshot: {
@@ -260,7 +287,7 @@ export const WorkoutScreenContainer = ({
             exercise.defaultMode === 'PER_SIDE' && chosen.barKilograms !== null
               ? fromKilograms(chosen.barKilograms)
               : null,
-          displayUnit: 'KG',
+          displayUnit: unit,
           equipmentId: chosen.id,
         },
       })
@@ -272,7 +299,12 @@ export const WorkoutScreenContainer = ({
 
       // Rest begins the moment the set is down, not when the user asks.
       const interval = await startRest.execute({ seconds: restSecondsFor(exercise.id) })
-      setResting({ interval, exerciseName: exercise.name, lastSet: row.label, setId: set.id })
+      setResting({
+        interval,
+        exerciseName: exercise.name,
+        lastSet: doneLabel(row, unit),
+        setId: set.id,
+      })
       void push?.scheduleRestAlert(set.id, interval.endsAt).catch(() => undefined)
     } catch (failure) {
       if (failure instanceof QueueWriteFailedError) {
@@ -313,7 +345,7 @@ export const WorkoutScreenContainer = ({
     )
   }
 
-  const tile = exercise === null ? null : weightTile(exercise.defaultMode)
+  const tile = exercise === null ? null : weightTile(exercise.defaultMode, perHand, unit)
   const offered = exercises.filter(
     (candidate) => !candidate.archived && !order.includes(candidate.id),
   )
@@ -353,7 +385,7 @@ export const WorkoutScreenContainer = ({
             onPickEquipment={() => setSheet('equipment')}
           />
 
-          {!keypadOpen && <LastTimeCard state={lastTime} />}
+          {!keypadOpen && <LastTimeCard state={lastTime} unit={unit} perHand={perHand} />}
 
           <div className="grid grid-cols-2 gap-3">
             <ValueTile
@@ -444,6 +476,7 @@ export const WorkoutScreenContainer = ({
                 {(compatible.length === 0 || addingEquipment) && (
                   <NewEquipmentForm
                     kinds={kindsFor(exercise.defaultMode)}
+                    unit={unit}
                     pending={createEquipment.isPending}
                     failed={createEquipment.isError}
                     onSubmit={(fresh) =>

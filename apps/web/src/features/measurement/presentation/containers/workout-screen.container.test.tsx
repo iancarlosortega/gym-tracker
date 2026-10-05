@@ -1,12 +1,14 @@
 /** @vitest-environment jsdom */
 import { LoggedSet } from '@gym/domain/measurement/entities/logged-set.entity'
 import type { SetRepository } from '@gym/domain/measurement/repositories/set.repository'
+import { fromPounds } from '@gym/domain/measurement/value-objects/grams.vo'
 import { reps } from '@gym/domain/measurement/value-objects/reps.vo'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { StartRestUseCase } from '../../../rest-timer/application/start-rest.use-case'
+import type { EquipmentResponse } from '../../../workouts/infrastructure/workouts.api'
 import type { CountPendingSetsUseCase } from '../../application/count-pending-sets.use-case'
 import type {
   LogSetOfflineInput,
@@ -16,6 +18,10 @@ import type { SyncPendingSetsUseCase } from '../../application/sync-pending-sets
 import { WorkoutScreenContainer } from './workout-screen.container.tsx'
 
 vi.mock('../../infrastructure/session-sets.api', () => ({ getSessionSets: async () => [] }))
+const me = { unit: 'KG' }
+vi.mock('../../../auth/infrastructure/auth.api', () => ({
+  getMe: async () => ({ id: 'u-1', email: 'ian@example.com', displayUnit: me.unit }),
+}))
 vi.mock('../../../catalog/infrastructure/equipment.api', () => ({
   createEquipment: async (equipment: { name: string }) => ({
     id: 'q-new',
@@ -33,7 +39,10 @@ vi.mock('../../infrastructure/last-sets.api', () => ({
   }),
 }))
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  me.unit = 'KG'
+})
 
 const clock = { now: () => new Date() }
 const wakeLock = { acquire: async () => {}, release: async () => {} }
@@ -59,7 +68,7 @@ const legPress = {
 }
 
 const renderScreen = ({
-  equipment = [bar] as (typeof bar | typeof legPress)[],
+  equipment = [bar] as readonly EquipmentResponse[],
   extraExercise = false,
 } = {}) => {
   const logged: LogSetOfflineInput[] = []
@@ -193,5 +202,32 @@ describe('the workout screen, wired', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Previous exercise' }))
     expect(screen.getByRole('button', { name: 'Weight per side, 30 kilograms' })).toBeDefined()
+  })
+
+  it('logs dumbbells per hand in pounds, counting no bar', async () => {
+    me.unit = 'LB'
+    const dumbbells = {
+      ...bar,
+      id: 'q-3',
+      name: 'Dumbbells',
+      kind: 'FREE_WEIGHT',
+      barKilograms: null,
+    }
+    const { logged } = renderScreen({ equipment: [dumbbells] })
+
+    const tile = await screen.findByRole('button', { name: /weight per hand/i })
+    await userEvent.click(tile)
+    for (const key of ['6', '0', 'Reps ›', '8']) {
+      await userEvent.click(screen.getByRole('button', { name: key }))
+    }
+    await userEvent.click(screen.getByRole('button', { name: 'Log set 1' }))
+
+    await waitFor(() => expect(logged).toHaveLength(1))
+    expect(logged[0]?.entry.toJSON()).toEqual({
+      mode: 'PER_SIDE',
+      perSideGrams: fromPounds(60),
+      barGrams: null,
+    })
+    expect(logged[0]?.snapshot).toMatchObject({ barGrams: null, displayUnit: 'LB' })
   })
 })
