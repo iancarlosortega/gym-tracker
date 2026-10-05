@@ -12,11 +12,11 @@ phases:
   spec: done
   design: done
   tasks: done
-  apply: ready
-  verify: blocked
+  apply: done
+  verify: done
   archive: blocked
 
-next_recommended: apply
+next_recommended: archive
 
 preproposal:
   schema: gentle-ai.sdd-preproposal/v1
