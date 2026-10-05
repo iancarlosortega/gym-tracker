@@ -22,6 +22,8 @@ describe('ProfileDetails', () => {
     pendingSets: 3,
     signingOut: false,
     signOutFailed: false,
+    displayUnit: 'KG' as const,
+    onChangeUnit: vi.fn(),
   }
 
   it('shows who is signed in and what this phone still has to sync', () => {
@@ -50,5 +52,15 @@ describe('ProfileDetails', () => {
     render(<ProfileDetails {...props} signOutFailed onSignOut={vi.fn()} />)
 
     expect(screen.getByRole('alert').textContent).toMatch(/still signed in/i)
+  })
+
+  it('switches between kilograms and pounds', async () => {
+    const onChangeUnit = vi.fn()
+    render(<ProfileDetails {...props} onChangeUnit={onChangeUnit} onSignOut={vi.fn()} />)
+
+    expect((screen.getByRole('radio', { name: 'kg' }) as HTMLInputElement).checked).toBe(true)
+    await userEvent.click(screen.getByRole('radio', { name: 'lb' }))
+
+    expect(onChangeUnit).toHaveBeenCalledWith('LB')
   })
 })

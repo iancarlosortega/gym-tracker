@@ -30,3 +30,12 @@ export const signOut = async (client: AxiosInstance = apiClient): Promise<void> 
     throw error
   }
 }
+
+/** Pounds or kilograms, remembered on the server. */
+export const changeDisplayUnit = async (
+  displayUnit: 'KG' | 'LB',
+  client: AxiosInstance = apiClient,
+): Promise<MeResponse> => {
+  const { data } = await client.patch<MeResponse>('/auth/me', { displayUnit })
+  return data
+}

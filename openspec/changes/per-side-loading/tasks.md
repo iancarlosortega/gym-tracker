@@ -13,7 +13,7 @@ Strict TDD. Each unit is committed when green (tests, typecheck, biome, build).
 - [x] 2.3 `PATCH /auth/me` display unit (D9). Tests.
 
 ## 3 — Web
-- [ ] 3.1 `lib/units.ts` + `useDisplayUnit` (D10); the Profile lb | kg toggle (D13).
+- [x] 3.1 `lib/units.ts` + `useDisplayUnit` (D10); the Profile lb | kg toggle (D13).
 - [ ] 3.2 Equipment form, views and `supports` mirror (D12).
 - [ ] 3.3 Workout screen: entry in the unit, per hand / per side labels, last time and done in the unit (D10, D11).
 

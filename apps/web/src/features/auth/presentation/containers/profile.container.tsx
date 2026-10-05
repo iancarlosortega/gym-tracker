@@ -12,12 +12,14 @@ import { SIGN_IN_PATH } from '../../application/sign-in-redirect'
 import { SignOutUseCase } from '../../application/sign-out.use-case'
 import { signOut } from '../../infrastructure/auth.api'
 import { ProfileDetails } from '../components/profile-details'
-import { useMe } from '../queries'
+import { useChangeDisplayUnit, useDisplayUnit, useMe } from '../queries'
 
 export const ProfileContainer = () => {
   const client = useQueryClient()
   const me = useMe()
   const pendingSets = usePendingSetCount().data ?? 0
+  const displayUnit = useDisplayUnit()
+  const changeUnit = useChangeDisplayUnit()
   const enableAlerts = useMemo(
     () => new EnablePocketedAlertsUseCase(new PushSubscriber(), pushApi),
     [],
@@ -48,6 +50,8 @@ export const ProfileContainer = () => {
             pendingSets={pendingSets}
             signingOut={signOutOfThisPhone.isPending}
             signOutFailed={signOutOfThisPhone.isError}
+            displayUnit={displayUnit}
+            onChangeUnit={(unit) => changeUnit.mutate(unit)}
             onSignOut={() => signOutOfThisPhone.mutate()}
           />
         )}
