@@ -1,11 +1,12 @@
 'use client'
 
-import { ArrowDown, ArrowUp, Check, Pencil, Plus } from 'lucide-react'
+import { Pencil, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import type { ExerciseResponse } from '../../../workouts/infrastructure/workouts.api'
 import type { RoutineEntryResponse, RoutineResponse } from '../../infrastructure/routines.api'
 import { restLabel, targetLabel } from './routine-views'
+import { SortableList } from './sortable-list'
 
 /** The order after moving one entry a step; an entry at either end stays put. */
 export const moved = (ids: readonly string[], id: string, step: -1 | 1): string[] => {
@@ -39,9 +40,9 @@ export interface RoutineEditorProps {
   readonly onAdd: (exerciseId: string) => void
   readonly onRename: () => void
   readonly onDone: () => void
+  /** Open with the exercise picker already showing, as an empty routine asks. */
+  readonly initiallyAdding?: boolean
 }
-
-const moveClass = 'size-12 rounded-xl'
 
 export const RoutineEditor = ({
   routine,
@@ -53,10 +54,12 @@ export const RoutineEditor = ({
   onAdd,
   onRename,
   onDone,
+  initiallyAdding = false,
 }: RoutineEditorProps) => {
-  const [adding, setAdding] = useState(false)
+  const [adding, setAdding] = useState(initiallyAdding)
   const entries = [...routine.entries].sort((a, b) => a.position - b.position)
-  const ids = entries.map((entry) => entry.id)
+  const nameOf = (entry: RoutineEntryResponse) =>
+    exerciseNames.get(entry.exerciseId) ?? 'Unknown exercise'
   // An exercise appears once in a plan; more sets are a target, not a second entry.
   const planned = new Set(entries.map((entry) => entry.exerciseId))
   const offered = exercises.filter((exercise) => !exercise.archived && !planned.has(exercise.id))
@@ -65,54 +68,35 @@ export const RoutineEditor = ({
     <div className="grid gap-5">
       <div className="flex items-center justify-between gap-3">
         <h1 className="font-bold text-2xl">{routine.name}</h1>
-        <Button className="min-h-touch" onClick={onDone}>
-          <Check className="size-4" />
+        {/* Plain text, the way iOS ends an edit: the title keeps the width. */}
+        <Button
+          variant="ghost"
+          className="min-h-touch px-2 font-semibold text-base text-primary"
+          onClick={onDone}
+        >
           Done
         </Button>
       </div>
 
-      <ol className="grid gap-2">
-        {entries.map((entry, index) => {
-          const name = exerciseNames.get(entry.exerciseId) ?? 'Unknown exercise'
-
-          return (
-            <li key={entry.id} className="flex items-center gap-2 rounded-xl bg-card p-2">
-              <div className="grid gap-1">
-                <Button
-                  variant="outline"
-                  className={moveClass}
-                  aria-label={`Move ${name} up`}
-                  disabled={index === 0}
-                  onClick={() => onReorder(moved(ids, entry.id, -1))}
-                >
-                  <ArrowUp className="size-5" />
-                </Button>
-                <Button
-                  variant="outline"
-                  className={moveClass}
-                  aria-label={`Move ${name} down`}
-                  disabled={index === entries.length - 1}
-                  onClick={() => onReorder(moved(ids, entry.id, 1))}
-                >
-                  <ArrowDown className="size-5" />
-                </Button>
-              </div>
-              <button
-                type="button"
-                aria-label={`Edit ${name}`}
-                onClick={() => onEditEntry(entry)}
-                className="grid min-h-touch grow px-2 text-left"
-              >
-                <span className="font-medium">{name}</span>
-                <span className="text-muted-foreground text-sm">
-                  {targetLabel(entry.targetSets, entry.targetReps)} · rest{' '}
-                  {restLabel(entry.restSeconds)}
-                </span>
-              </button>
-            </li>
-          )
-        })}
-      </ol>
+      <SortableList
+        items={entries}
+        label={nameOf}
+        card={(entry) => (
+          <button
+            type="button"
+            aria-label={`Edit ${nameOf(entry)}`}
+            onClick={() => onEditEntry(entry)}
+            className="grid min-h-touch min-w-0 flex-1 rounded-xl bg-card px-4 py-3 text-left"
+          >
+            <span className="font-medium">{nameOf(entry)}</span>
+            <span className="text-muted-foreground text-sm">
+              {targetLabel(entry.targetSets, entry.targetReps)} · rest{' '}
+              {restLabel(entry.restSeconds)}
+            </span>
+          </button>
+        )}
+        onReorder={onReorder}
+      />
 
       {adding ? (
         <section className="grid gap-2">

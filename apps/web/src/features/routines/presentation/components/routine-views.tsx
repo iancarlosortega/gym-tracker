@@ -2,7 +2,7 @@ import { ChevronRight, Pencil, Play, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import type { RoutineEntryResponse, RoutineResponse } from '../../infrastructure/routines.api'
-import { SortableRoutineList } from './sortable-routine-list'
+import { SortableList } from './sortable-list'
 
 export const restLabel = (seconds: number): string =>
   `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
@@ -109,8 +109,9 @@ export const RoutineCards = ({
           ))}
         </ul>
       ) : (
-        <SortableRoutineList
-          routines={active}
+        <SortableList
+          items={active}
+          label={(routine) => routine.name}
           card={(routine) => (
             <RoutineCard
               routine={routine}
@@ -132,6 +133,8 @@ export interface RoutinePlanProps {
   readonly startFailed: boolean
   readonly onStart: () => void
   readonly onEdit: () => void
+  /** Straight to the exercise picker, for a routine with nothing in it yet. */
+  readonly onAddExercises: () => void
 }
 
 export const RoutinePlan = ({
@@ -141,6 +144,7 @@ export const RoutinePlan = ({
   startFailed,
   onStart,
   onEdit,
+  onAddExercises,
 }: RoutinePlanProps) => (
   <div className="grid gap-5">
     <div className="flex items-center justify-between gap-3">
@@ -152,7 +156,13 @@ export const RoutinePlan = ({
     </div>
 
     {routine.entries.length === 0 ? (
-      <p className="text-muted-foreground">No exercises in this routine yet.</p>
+      <div className="grid justify-items-start gap-3">
+        <p className="text-muted-foreground">No exercises yet.</p>
+        <Button variant="outline" className="min-h-touch" onClick={onAddExercises}>
+          <Plus className="size-5" />
+          Add exercises
+        </Button>
+      </div>
     ) : (
       <ol className="grid gap-2">
         {inOrder(routine.entries).map((entry, index) => (

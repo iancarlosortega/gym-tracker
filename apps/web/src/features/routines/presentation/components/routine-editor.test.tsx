@@ -56,7 +56,7 @@ describe('moved', () => {
 describe('RoutineEditor', () => {
   const props = { routine: legs, exerciseNames: names, exercises: catalog, pending: false }
 
-  it('reorders with large up and down buttons', async () => {
+  it('reorders with one-step moves', async () => {
     const on = handlers()
     render(<RoutineEditor {...props} {...on} />)
 
@@ -89,13 +89,30 @@ describe('RoutineEditor', () => {
     expect(on.onAdd).toHaveBeenCalledWith('e-4')
   })
 
-  it('finishes editing', async () => {
+  it('finishes editing from a plain Done at the top', async () => {
     const on = handlers()
     render(<RoutineEditor {...props} {...on} />)
 
-    await userEvent.click(screen.getByRole('button', { name: 'Done' }))
+    const done = screen.getByRole('button', { name: 'Done' })
+    expect(done.querySelector('svg')).toBeNull()
+    await userEvent.click(done)
 
     expect(on.onDone).toHaveBeenCalledOnce()
+  })
+
+  it('drags an exercise only from its handle, so tapping the row still opens it', () => {
+    render(<RoutineEditor {...props} {...handlers()} />)
+
+    expect(screen.getByRole('button', { name: 'Drag Squat to reorder' }).className).toMatch(
+      /touch-none/,
+    )
+    expect(screen.getByRole('button', { name: 'Edit Squat' }).className).not.toMatch(/touch-none/)
+  })
+
+  it('can open with the exercise picker already showing', () => {
+    render(<RoutineEditor {...props} {...handlers()} initiallyAdding />)
+
+    expect(screen.getByRole('button', { name: 'Add Lunge' })).toBeDefined()
   })
 })
 

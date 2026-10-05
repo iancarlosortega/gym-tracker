@@ -89,7 +89,7 @@ describe('RoutinePlan', () => {
   const props = { routine: legs, exerciseNames: names, starting: false, startFailed: false }
 
   it('reads each exercise in order with its sets, reps and rest', () => {
-    render(<RoutinePlan {...props} onStart={vi.fn()} onEdit={vi.fn()} />)
+    render(<RoutinePlan {...props} onStart={vi.fn()} onEdit={vi.fn()} onAddExercises={vi.fn()} />)
 
     const rows = screen.getAllByRole('listitem').map((row) => row.textContent)
     expect(rows[0]).toMatch(/1.*Squat.*4 × 6–8.*rest 3:00/)
@@ -98,7 +98,7 @@ describe('RoutinePlan', () => {
 
   it('starts the routine', async () => {
     const onStart = vi.fn()
-    render(<RoutinePlan {...props} onStart={onStart} onEdit={vi.fn()} />)
+    render(<RoutinePlan {...props} onStart={onStart} onEdit={vi.fn()} onAddExercises={vi.fn()} />)
 
     await userEvent.click(screen.getByRole('button', { name: 'Start Legs' }))
 
@@ -106,18 +106,47 @@ describe('RoutinePlan', () => {
   })
 
   it('says why a start did not go through', () => {
-    render(<RoutinePlan {...props} startFailed onStart={vi.fn()} onEdit={vi.fn()} />)
+    render(
+      <RoutinePlan
+        {...props}
+        startFailed
+        onStart={vi.fn()}
+        onEdit={vi.fn()}
+        onAddExercises={vi.fn()}
+      />,
+    )
 
     expect(screen.getByRole('alert')).toBeDefined()
   })
 
   it('opens editing', async () => {
     const onEdit = vi.fn()
-    render(<RoutinePlan {...props} onStart={vi.fn()} onEdit={onEdit} />)
+    render(<RoutinePlan {...props} onStart={vi.fn()} onEdit={onEdit} onAddExercises={vi.fn()} />)
 
     await userEvent.click(screen.getByRole('button', { name: 'Edit' }))
 
     expect(onEdit).toHaveBeenCalledOnce()
+  })
+})
+
+describe('RoutinePlan without exercises', () => {
+  it('offers adding exercises straight away', async () => {
+    const onAddExercises = vi.fn()
+    render(
+      <RoutinePlan
+        routine={{ ...legs, entries: [] }}
+        exerciseNames={names}
+        starting={false}
+        startFailed={false}
+        onStart={vi.fn()}
+        onEdit={vi.fn()}
+        onAddExercises={onAddExercises}
+      />,
+    )
+
+    expect(screen.getByText('No exercises yet.')).toBeDefined()
+    await userEvent.click(screen.getByRole('button', { name: 'Add exercises' }))
+    expect(onAddExercises).toHaveBeenCalledOnce()
   })
 })
 

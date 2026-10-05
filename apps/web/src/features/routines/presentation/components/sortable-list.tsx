@@ -21,26 +21,30 @@ import { CSS } from '@dnd-kit/utilities'
 import { ChevronDown, ChevronUp, GripVertical } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
-import type { RoutineResponse } from '../../infrastructure/routines.api'
 
-export interface SortableRoutineListProps {
-  readonly routines: readonly RoutineResponse[]
+export interface SortableListProps<T extends { readonly id: string }> {
+  readonly items: readonly T[]
+  /** How a row is named to VoiceOver: "Drag Push day to reorder", "Move Squat up". */
+  readonly label: (item: T) => string
   /** The card each row shows between its handle and its arrows. */
-  readonly card: (routine: RoutineResponse) => ReactNode
-  readonly onReorder: (routineIds: string[]) => void
+  readonly card: (item: T) => ReactNode
+  /** Every item id, in the new order. */
+  readonly onReorder: (ids: string[]) => void
 }
 
 const moveButton =
   'flex flex-1 items-center justify-center rounded-lg text-muted-foreground disabled:opacity-30'
 
-const SortableRoutineRow = ({
-  routine,
+const SortableRow = ({
+  id,
+  name,
   index,
   count,
   card,
   onMove,
 }: {
-  readonly routine: RoutineResponse
+  readonly id: string
+  readonly name: string
   readonly index: number
   readonly count: number
   readonly card: ReactNode
@@ -54,7 +58,7 @@ const SortableRoutineRow = ({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: routine.id })
+  } = useSortable({ id })
 
   return (
     <li
@@ -65,7 +69,7 @@ const SortableRoutineRow = ({
       <button
         ref={setActivatorNodeRef}
         type="button"
-        aria-label={`Drag ${routine.name} to reorder`}
+        aria-label={`Drag ${name} to reorder`}
         // The handle alone takes the gesture, so a swipe anywhere else on the row scrolls.
         className="flex w-10 shrink-0 cursor-grab touch-none select-none items-center justify-center text-muted-foreground [-webkit-touch-callout:none]"
         {...attributes}
@@ -77,7 +81,7 @@ const SortableRoutineRow = ({
       <div className="flex w-10 shrink-0 flex-col gap-1">
         <button
           type="button"
-          aria-label={`Move ${routine.name} up`}
+          aria-label={`Move ${name} up`}
           className={moveButton}
           disabled={index === 0}
           onClick={() => onMove(index, index - 1)}
@@ -86,7 +90,7 @@ const SortableRoutineRow = ({
         </button>
         <button
           type="button"
-          aria-label={`Move ${routine.name} down`}
+          aria-label={`Move ${name} down`}
           className={moveButton}
           disabled={index === count - 1}
           onClick={() => onMove(index, index + 1)}
@@ -99,21 +103,28 @@ const SortableRoutineRow = ({
 }
 
 /**
- * The routines in the user's own order: drag a row by its handle, or move it
- * one place with its arrows, which also serve VoiceOver.
+ * A list in the user's own order: drag a row by its handle, or move it one
+ * place with its arrows, which also serve VoiceOver.
  *
  * A finger has to rest on the handle briefly before it drags, so a quick
  * swipe still scrolls the list; a mouse drags after a few pixels.
  */
-export const SortableRoutineList = ({ routines, card, onReorder }: SortableRoutineListProps) => {
+export const SortableList = <T extends { readonly id: string }>({
+  items,
+  label,
+  card,
+  onReorder,
+}: SortableListProps<T>) => {
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
-  const ids = routines.map((routine) => routine.id)
-  const nameOf = (id: string | number) =>
-    routines.find((routine) => routine.id === id)?.name ?? 'Routine'
+  const ids = items.map((item) => item.id)
+  const nameOf = (id: string | number) => {
+    const item = items.find((candidate) => candidate.id === id)
+    return item === undefined ? 'Item' : label(item)
+  }
   const placeOf = (id: string | number) => ids.indexOf(String(id)) + 1
 
   const move = (from: number, to: number) => onReorder(arrayMove(ids, from, to))
@@ -145,13 +156,14 @@ export const SortableRoutineList = ({ routines, card, onReorder }: SortableRouti
     >
       <SortableContext items={ids} strategy={verticalListSortingStrategy}>
         <ul className="grid gap-2">
-          {routines.map((routine, index) => (
-            <SortableRoutineRow
-              key={routine.id}
-              routine={routine}
+          {items.map((item, index) => (
+            <SortableRow
+              key={item.id}
+              id={item.id}
+              name={label(item)}
               index={index}
-              count={routines.length}
-              card={card(routine)}
+              count={items.length}
+              card={card(item)}
               onMove={move}
             />
           ))}

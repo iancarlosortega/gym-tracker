@@ -108,7 +108,8 @@ export const RoutinePlanContainer = ({ routineId }: { readonly routineId: string
   const change = useChangeRoutineEntry(routineId)
   const remove = useRemoveRoutineEntry(routineId)
   const reorder = useReorderRoutine(routineId)
-  const [editing, setEditing] = useState(false)
+  // Adding opens the editor with its exercise picker already showing.
+  const [editing, setEditing] = useState<false | 'plan' | 'adding'>(false)
   const [sheet, setSheet] = useState<Sheet | null>(null)
 
   const close = () => {
@@ -150,6 +151,7 @@ export const RoutinePlanContainer = ({ routineId }: { readonly routineId: string
               }
               onRename={() => setSheet({ kind: 'rename' })}
               onDone={() => setEditing(false)}
+              initiallyAdding={editing === 'adding'}
             />
           ) : (
             <RoutinePlan
@@ -161,7 +163,8 @@ export const RoutinePlanContainer = ({ routineId }: { readonly routineId: string
                 start.mutate(plan.id)
                 router.push('/workout')
               }}
-              onEdit={() => setEditing(true)}
+              onEdit={() => setEditing('plan')}
+              onAddExercises={() => setEditing('adding')}
             />
           )}
 
