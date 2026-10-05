@@ -13,7 +13,7 @@ export interface RoutineCriteriaFields {
 
 export type RoutineCriteria = Criteria<RoutineCriteriaFields>
 
-export type RoutineSortField = 'name' | 'createdAt'
+export type RoutineSortField = 'name' | 'createdAt' | 'position'
 
 export type RoutineQueryOptions = QueryOptions<RoutineSortField>
 
@@ -26,6 +26,8 @@ export type RoutineQueryOptions = QueryOptions<RoutineSortField>
  */
 export interface RoutineRepository {
   save(routine: Routine): Promise<void>
+  /** Several routines at once, all or none: a new order is only an order as a whole. */
+  saveAll(routines: readonly Routine[]): Promise<void>
   findOne(criteria: RoutineCriteria): Promise<Routine | null>
   /** Pagination is required, so an unbounded read cannot be expressed here. */
   findMany(

@@ -10,6 +10,8 @@ import { Id } from '@domain/shared/value-objects/id.vo.js'
 export interface CreateRoutineInput {
   readonly userId: Id
   readonly name: string
+  /** Where it sits in the user's routine order; zero is first. */
+  readonly position?: number | undefined
   readonly createdAt?: Date | undefined
 }
 
@@ -17,6 +19,8 @@ export interface RoutineProps {
   readonly id: Id
   readonly userId: Id
   readonly name: RoutineName
+  /** Where it sits in the user's routine order; zero is first. */
+  readonly position: number
   readonly entries: readonly RoutineEntry[]
   readonly archivedOn: Date | null
   readonly createdAt: Date
@@ -43,6 +47,7 @@ export class Routine {
       id: Id.create(),
       userId: input.userId,
       name: RoutineName.create(input.name),
+      position: input.position ?? 0,
       entries: [],
       archivedOn: null,
       createdAt: new Date(input.createdAt ?? Date.now()),
@@ -68,6 +73,10 @@ export class Routine {
 
   get name(): RoutineName {
     return this.props.name
+  }
+
+  get position(): number {
+    return this.props.position
   }
 
   get entries(): readonly RoutineEntry[] {
@@ -130,6 +139,10 @@ export class Routine {
         entry.id.equals(target.id) ? entry.changed(change) : entry,
       ),
     })
+  }
+
+  atPosition(position: number): Routine {
+    return new Routine({ ...this.props, position })
   }
 
   renamedTo(name: string): Routine {

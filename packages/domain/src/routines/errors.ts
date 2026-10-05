@@ -24,3 +24,11 @@ export class InvalidTargetRepsError extends DomainError {
 export class InvalidRoutineOrderError extends DomainError {
   readonly errorCode: RoutineErrorCode = 'INVALID_ROUTINE_ORDER'
 }
+
+/**
+ * Raised when an order for the user's routines does not name exactly their
+ * active routines: usually the list changed on another device in between.
+ */
+export class RoutinesOrderMismatchError extends DomainError {
+  readonly errorCode: RoutineErrorCode = 'ROUTINES_ORDER_MISMATCH'
+}

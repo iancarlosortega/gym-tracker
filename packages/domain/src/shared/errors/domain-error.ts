@@ -60,6 +60,7 @@ export const ROUTINE_ERROR_CODES = [
   'INVALID_REST_DURATION',
   'INVALID_TARGET_REPS',
   'INVALID_ROUTINE_ORDER',
+  'ROUTINES_ORDER_MISMATCH',
 ] as const
 
 export type RoutineErrorCode = (typeof ROUTINE_ERROR_CODES)[number]
