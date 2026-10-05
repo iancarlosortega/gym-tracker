@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { ListSkeleton } from '@/components/loading-skeletons'
 import { QueryState } from '@/components/query-state'
+import { RollbackNotice } from '@/components/rollback-notice'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import { useDisplayUnit } from '../../../auth/presentation/queries'
 import { BarWeightForm } from '../components/bar-weight-form'
@@ -76,9 +77,15 @@ export const EquipmentDetailContainer = ({ equipmentId }: { readonly equipmentId
 
   const close = () => {
     setSheet(null)
+    correctBar.reset()
+  }
+
+  /** Renames and archives show at once, so their sheet closes on the tap. */
+  const closeAfter = (change: () => void) => {
     rename.reset()
     archive.reset()
-    correctBar.reset()
+    change()
+    setSheet(null)
   }
 
   return (
@@ -97,6 +104,8 @@ export const EquipmentDetailContainer = ({ equipmentId }: { readonly equipmentId
         return (
           <>
             <h1 className="font-bold text-2xl">{item.name}</h1>
+            <RollbackNotice mutation={rename} />
+            <RollbackNotice mutation={archive} />
             <EquipmentDetails
               equipment={item}
               usage={usage}
@@ -129,12 +138,10 @@ export const EquipmentDetailContainer = ({ equipmentId }: { readonly equipmentId
                   {sheet === 'edit' && (
                     <EditCatalogItemForm
                       name={item.name}
-                      pending={rename.isPending || archive.isPending}
-                      failed={rename.isError || archive.isError}
-                      onRename={(name) =>
-                        rename.mutate({ id: item.id, name }, { onSuccess: close })
-                      }
-                      onArchive={() => archive.mutate(item.id, { onSuccess: close })}
+                      pending={false}
+                      failed={false}
+                      onRename={(name) => closeAfter(() => rename.mutate({ id: item.id, name }))}
+                      onArchive={() => closeAfter(() => archive.mutate({ id: item.id }))}
                     />
                   )}
                 </div>

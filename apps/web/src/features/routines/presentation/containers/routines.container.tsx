@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { ListSkeleton, PlanSkeleton } from '@/components/loading-skeletons'
 import { QueryState } from '@/components/query-state'
+import { RollbackNotice } from '@/components/rollback-notice'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import { EditCatalogItemForm } from '../../../catalog/presentation/components/exercise-forms'
 import { useCatalogExercises } from '../../../catalog/presentation/queries'
@@ -108,7 +109,14 @@ export const RoutinePlanContainer = ({ routineId }: { readonly routineId: string
 
   const close = () => {
     setSheet(null)
-    for (const mutation of [rename, archive, change, remove]) mutation.reset()
+    archive.reset()
+  }
+
+  /** Edits show at once, so their sheet closes on the tap. */
+  const closeAfter = (edit: () => void) => {
+    for (const mutation of [rename, change, remove]) mutation.reset()
+    edit()
+    setSheet(null)
   }
 
   return (
@@ -124,7 +132,7 @@ export const RoutinePlanContainer = ({ routineId }: { readonly routineId: string
               routine={plan}
               exerciseNames={exerciseNames}
               exercises={catalog}
-              pending={add.isPending || reorder.isPending}
+              pending={add.isPending}
               onReorder={(entryIds) => reorder.mutate(entryIds)}
               onEditEntry={(entry) => setSheet({ kind: 'entry', entry })}
               onAdd={(exerciseId) =>
@@ -150,11 +158,15 @@ export const RoutinePlanContainer = ({ routineId }: { readonly routineId: string
             />
           )}
 
-          {(add.isError || reorder.isError) && (
+          {add.isError && (
             <p role="alert" className="text-destructive text-sm">
               Couldn't reach the server, so that change was not saved.
             </p>
           )}
+          <RollbackNotice mutation={rename} />
+          <RollbackNotice mutation={reorder} />
+          <RollbackNotice mutation={change} />
+          <RollbackNotice mutation={remove} />
 
           <Drawer open={sheet !== null} onOpenChange={(open) => !open && close()}>
             <DrawerContent>
@@ -170,20 +182,20 @@ export const RoutinePlanContainer = ({ routineId }: { readonly routineId: string
                   <EntryEditor
                     key={sheet.entry.id}
                     entry={sheet.entry}
-                    pending={change.isPending || remove.isPending}
-                    failed={change.isError || remove.isError}
+                    pending={false}
+                    failed={false}
                     onSave={(targets) =>
-                      change.mutate({ entryId: sheet.entry.id, targets }, { onSuccess: close })
+                      closeAfter(() => change.mutate({ entryId: sheet.entry.id, targets }))
                     }
-                    onRemove={() => remove.mutate(sheet.entry.id, { onSuccess: close })}
+                    onRemove={() => closeAfter(() => remove.mutate(sheet.entry.id))}
                   />
                 )}
                 {sheet?.kind === 'rename' && (
                   <EditCatalogItemForm
                     name={plan.name}
-                    pending={rename.isPending || archive.isPending}
-                    failed={rename.isError || archive.isError}
-                    onRename={(name) => rename.mutate({ id: plan.id, name }, { onSuccess: close })}
+                    pending={archive.isPending}
+                    failed={archive.isError}
+                    onRename={(name) => closeAfter(() => rename.mutate({ id: plan.id, name }))}
                     onArchive={() =>
                       archive.mutate(plan.id, { onSuccess: () => router.push('/routines') })
                     }

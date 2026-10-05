@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ListSkeleton } from '@/components/loading-skeletons'
 import { QueryState } from '@/components/query-state'
+import { RollbackNotice } from '@/components/rollback-notice'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import type { ExerciseResponse } from '../../../workouts/infrastructure/workouts.api'
 import { EditCatalogItemForm, NewExerciseForm } from '../components/exercise-forms'
@@ -28,8 +29,14 @@ export const ExercisesContainer = () => {
   const close = () => {
     setEditing(null)
     create.reset()
+  }
+
+  /** Renames and archives show at once, so their sheet closes on the tap. */
+  const closeAfter = (change: () => void) => {
     rename.reset()
     archive.reset()
+    change()
+    setEditing(null)
   }
 
   return (
@@ -47,6 +54,8 @@ export const ExercisesContainer = () => {
           />
         )}
       </QueryState>
+      <RollbackNotice mutation={rename} />
+      <RollbackNotice mutation={archive} />
 
       <Drawer open={editing !== null} onOpenChange={(open) => !open && close()}>
         <DrawerContent>
@@ -68,12 +77,12 @@ export const ExercisesContainer = () => {
                 // A fresh form per exercise, so the name field starts from the right value.
                 key={editing.exercise.id}
                 name={editing.exercise.name}
-                pending={rename.isPending || archive.isPending}
-                failed={rename.isError || archive.isError}
+                pending={false}
+                failed={false}
                 onRename={(name) =>
-                  rename.mutate({ id: editing.exercise.id, name }, { onSuccess: close })
+                  closeAfter(() => rename.mutate({ id: editing.exercise.id, name }))
                 }
-                onArchive={() => archive.mutate(editing.exercise.id, { onSuccess: close })}
+                onArchive={() => closeAfter(() => archive.mutate({ id: editing.exercise.id }))}
               />
             )}
           </div>

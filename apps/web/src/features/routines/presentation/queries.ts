@@ -1,4 +1,5 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { type CachePatch, optimisticMutation, patch } from '@/lib/optimistic'
 import {
   addRoutineExercise,
   archiveRoutine,
@@ -7,6 +8,8 @@ import {
   type EntryTargets,
   getRoutine,
   getRoutines,
+  type RoutineListing,
+  type RoutineResponse,
   removeRoutineEntry,
   renameRoutine,
   reorderRoutine,
@@ -38,23 +41,112 @@ const useRoutineMutation = <TVariables, TResult>(
   })
 }
 
+/** Shared by every instant routine write, so only the last one pending refetches. */
+const ROUTINE_WRITE = [...routinesKeys.all, 'write'] as const
+
+/** One routine rewritten the same way in its plan and in the list. */
+const patchRoutine = (
+  routineId: string,
+  update: <T extends RoutineResponse>(routine: T) => T,
+): readonly CachePatch[] => [
+  patch<RoutineResponse>(routinesKeys.detail(routineId), update),
+  patch<RoutineListing>(routinesKeys.list(), (listing) => ({
+    ...listing,
+    routines: listing.routines.map((routine) =>
+      routine.id === routineId ? update(routine) : routine,
+    ),
+  })),
+]
+
+/** A write shown at once in the plan and the list, then confirmed by a refetch of both. */
+const useInstantRoutineWrite = <TVariables>(
+  scope: string,
+  write: (variables: TVariables) => Promise<unknown>,
+  patches: (variables: TVariables) => readonly CachePatch[],
+) =>
+  useMutation(
+    optimisticMutation<TVariables, unknown>({
+      mutationKey: ROUTINE_WRITE,
+      scope,
+      mutationFn: write,
+      patches,
+      invalidates: [routinesKeys.all],
+    }),
+  )
+
+/** How the API spells a target: "8-12" for a range, "8" for an exact count. */
+export const targetRepsText = (min: number | undefined, max: number | undefined): string | null => {
+  if (min === undefined && max === undefined) {
+    return null
+  }
+  if (min === undefined || max === undefined || min === max) {
+    return String(min ?? max)
+  }
+  return `${min}-${max}`
+}
+
 export const useCreateRoutine = () => useRoutineMutation((name: string) => createRoutine(name))
 
 export const useRenameRoutine = () =>
-  useRoutineMutation(({ id, name }: { id: string; name: string }) => renameRoutine(id, name))
+  useInstantRoutineWrite<{ id: string; name: string }>(
+    'routine',
+    ({ id, name }) => renameRoutine(id, name),
+    ({ id, name }) => patchRoutine(id, (routine) => ({ ...routine, name })),
+  )
 
-export const useArchiveRoutine = () => useRoutineMutation((id: string) => archiveRoutine(id))
+export const useArchiveRoutine = () =>
+  useInstantRoutineWrite<string>(
+    'routine',
+    (id) => archiveRoutine(id),
+    (id) => patchRoutine(id, (routine) => ({ ...routine, archived: true })),
+  )
 
+/** Adding needs the entry id the server issues, so it waits for the answer. */
 export const useAddRoutineExercise = (routineId: string) =>
   useRoutineMutation((exerciseId: string) => addRoutineExercise(routineId, { exerciseId }))
 
 export const useChangeRoutineEntry = (routineId: string) =>
-  useRoutineMutation(({ entryId, targets }: { entryId: string; targets: EntryTargets }) =>
-    changeRoutineEntry(routineId, entryId, targets),
+  useInstantRoutineWrite<{ entryId: string; targets: EntryTargets }>(
+    `routine-entries:${routineId}`,
+    ({ entryId, targets }) => changeRoutineEntry(routineId, entryId, targets),
+    ({ entryId, targets }) =>
+      patchRoutine(routineId, (routine) => ({
+        ...routine,
+        entries: routine.entries.map((entry) =>
+          entry.id === entryId
+            ? {
+                ...entry,
+                targetSets: targets.targetSets ?? entry.targetSets,
+                targetReps:
+                  targetRepsText(targets.targetRepsMin, targets.targetRepsMax) ?? entry.targetReps,
+                restSeconds: targets.restSeconds ?? entry.restSeconds,
+              }
+            : entry,
+        ),
+      })),
   )
 
 export const useRemoveRoutineEntry = (routineId: string) =>
-  useRoutineMutation((entryId: string) => removeRoutineEntry(routineId, entryId))
+  useInstantRoutineWrite<string>(
+    `routine-entries:${routineId}`,
+    (entryId) => removeRoutineEntry(routineId, entryId),
+    (entryId) =>
+      patchRoutine(routineId, (routine) => ({
+        ...routine,
+        entries: routine.entries.filter((entry) => entry.id !== entryId),
+      })),
+  )
 
 export const useReorderRoutine = (routineId: string) =>
-  useRoutineMutation((entryIds: readonly string[]) => reorderRoutine(routineId, entryIds))
+  useInstantRoutineWrite<readonly string[]>(
+    `routine-entries:${routineId}`,
+    (entryIds) => reorderRoutine(routineId, entryIds),
+    (entryIds) =>
+      patchRoutine(routineId, (routine) => ({
+        ...routine,
+        entries: entryIds.flatMap((id, position) => {
+          const entry = routine.entries.find((candidate) => candidate.id === id)
+          return entry === undefined ? [] : [{ ...entry, position }]
+        }),
+      })),
+  )

@@ -82,7 +82,7 @@ export const RoutineEditor = ({
                   variant="outline"
                   className={moveClass}
                   aria-label={`Move ${name} up`}
-                  disabled={pending || index === 0}
+                  disabled={index === 0}
                   onClick={() => onReorder(moved(ids, entry.id, -1))}
                 >
                   <ArrowUp className="size-5" />
@@ -91,7 +91,7 @@ export const RoutineEditor = ({
                   variant="outline"
                   className={moveClass}
                   aria-label={`Move ${name} down`}
-                  disabled={pending || index === entries.length - 1}
+                  disabled={index === entries.length - 1}
                   onClick={() => onReorder(moved(ids, entry.id, 1))}
                 >
                   <ArrowDown className="size-5" />

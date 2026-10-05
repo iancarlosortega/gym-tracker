@@ -9,10 +9,10 @@ Strict TDD. Each unit is green before it is handed over: tests, typecheck, biome
 - [x] 1.3 `useChangeDisplayUnit` built on the helper (scope `display-unit`). Profile shows the change at once and shows the notice on failure. Tests: the radio moves before the server answers, and lb→kg quickly ends on kg.
 
 ## S2 — Optimistic routines + catalog
-- [ ] 2.1 Routine rename and archive (D2).
-- [ ] 2.2 Entry change, remove and reorder. The up/down buttons are no longer disabled while pending, and rapid moves keep their order.
-- [ ] 2.3 Catalog exercise and equipment rename and archive.
-- [ ] 2.4 Creates show pending and block double submits. Check every create form for this, and add it where it is missing.
+- [x] 2.1 Routine rename and archive (D2).
+- [x] 2.2 Entry change, remove and reorder. The up/down buttons are no longer disabled while pending, and rapid moves keep their order.
+- [x] 2.3 Catalog exercise and equipment rename and archive.
+- [x] 2.4 Creates show pending and block double submits. Check every create form for this, and add it where it is missing.
 
 ## S3 — Service worker v4
 - [ ] 3.1 Cross-origin requests are not handled. Navigation preload is enabled. The cache is `gym-shell-v4` and `v3` is deleted (D8). Covered by `sw.test.ts`.
