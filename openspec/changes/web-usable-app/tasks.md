@@ -108,7 +108,7 @@
 - [x] 7.2 Safe area and background are set once in the root layout; the per-page top paddings are removed.
 - [x] 7.3 The bottom navigation is fixed to the bottom regardless of the iOS viewport height; content reserves its height.
 - [x] 7.4 Skeletons replace the "Reading your…" loading texts.
-- [ ] 7.5 Pull to refresh on the tab screens refetches what is shown and drains pending work.
+- [x] 7.5 Pull to refresh on the tab screens refetches what is shown and drains pending work.
 
 ## Device verification (manual, Ian, after 5c)
 
