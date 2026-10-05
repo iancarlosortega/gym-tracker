@@ -50,6 +50,7 @@ export class DrizzleRoutineRepository
   protected readonly sortColumns: SortColumns<RoutineSortField> = {
     name: routine.name,
     createdAt: routine.createdAt,
+    position: routine.position,
   }
 
   protected toDomain(row: RoutineRow): Routine {
@@ -98,22 +99,30 @@ export class DrizzleRoutineRepository
    * routine with two exercises at position one or a gap where one was removed.
    */
   async save(model: Routine): Promise<void> {
-    const row = routineMapper.toRow(model)
-    const entries = routineMapper.entriesToRows(model)
+    await this.saveAll([model])
+  }
 
+  async saveAll(models: readonly Routine[]): Promise<void> {
     await this.database.transaction(async (transaction) => {
-      await transaction
-        .insert(routine)
-        .values(row)
-        .onConflictDoUpdate({
-          target: routine.id,
-          set: { name: row.name, archivedAt: row.archivedAt ?? null },
-        })
+      for (const model of models) {
+        const row = routineMapper.toRow(model)
+        const entries = routineMapper.entriesToRows(model)
 
-      await transaction.delete(routineExercise).where(eq(routineExercise.routineId, model.id.value))
+        await transaction
+          .insert(routine)
+          .values(row)
+          .onConflictDoUpdate({
+            target: routine.id,
+            set: { name: row.name, position: row.position, archivedAt: row.archivedAt ?? null },
+          })
 
-      if (entries.length > 0) {
-        await transaction.insert(routineExercise).values(entries)
+        await transaction
+          .delete(routineExercise)
+          .where(eq(routineExercise.routineId, model.id.value))
+
+        if (entries.length > 0) {
+          await transaction.insert(routineExercise).values(entries)
+        }
       }
     })
   }

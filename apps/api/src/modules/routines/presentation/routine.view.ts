@@ -16,6 +16,8 @@ export interface RoutineEntryView {
 export interface RoutineView {
   readonly id: string
   readonly name: string
+  /** The user's routine order; zero is first. */
+  readonly position: number
   readonly archived: boolean
   readonly entries: readonly RoutineEntryView[]
 }
@@ -24,6 +26,7 @@ export function toRoutineView(model: Routine): RoutineView {
   return {
     id: model.id.value,
     name: model.name.value,
+    position: model.position,
     archived: model.isArchived,
     entries: model.entries.map(toEntryView),
   }

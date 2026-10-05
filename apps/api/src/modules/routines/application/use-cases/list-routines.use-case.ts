@@ -33,7 +33,7 @@ export interface RoutineListing {
 /**
  * The routines, when each was last done, and which one comes next.
  *
- * The routine order that breaks ties is the order this list is shown in.
+ * The list follows the user's routine order, which also breaks up-next ties.
  */
 @Injectable()
 export class ListRoutinesUseCase {
@@ -50,15 +50,15 @@ export class ListRoutinesUseCase {
           archived: input.includeArchived === true ? undefined : false,
         }),
         Pagination.create({ limit: input.limit, offset: input.offset }),
-        QueryOptions.none<RoutineSortField>().orderedBy('name'),
+        QueryOptions.none<RoutineSortField>().orderedBy('position'),
       ),
       this.history.lastDoneAt(input.userId),
     ])
 
     const upNextRoutineId = upNext(
-      page.items.map((routine, position) => ({
+      page.items.map((routine) => ({
         id: routine.id.value,
-        position,
+        position: routine.position,
         archived: routine.isArchived,
         lastDoneAt: lastDoneAt.get(routine.id.value) ?? null,
       })),

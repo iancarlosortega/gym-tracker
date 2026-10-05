@@ -10,6 +10,8 @@ export const routine = pgTable('routine', {
     .notNull()
     .references(() => appUser.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
+  /** The user's routine order; zero is first. */
+  position: integer('position').notNull(),
   archivedAt: timestamp('archived_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })

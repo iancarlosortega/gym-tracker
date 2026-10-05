@@ -1,6 +1,6 @@
 import type { HttpErrorMapping } from '@api/common/http/http-error-mapping.js'
 import type { RoutineErrorCode } from '@gym/domain/shared/errors/domain-error'
-import { BadRequestException, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common'
 
 export const routinesHttpErrors: HttpErrorMapping<RoutineErrorCode> = {
   INVALID_ROUTINE_NAME: () =>
@@ -13,4 +13,7 @@ export const routinesHttpErrors: HttpErrorMapping<RoutineErrorCode> = {
     new BadRequestException('A repetition target must be a whole number between 1 and 100.'),
   INVALID_ROUTINE_ORDER: () =>
     new BadRequestException('A reorder must name every exercise in the routine exactly once.'),
+  // Usually the list changed on another device: the client refetches and tries again.
+  ROUTINES_ORDER_MISMATCH: () =>
+    new ConflictException('An order must name every active routine exactly once.'),
 }

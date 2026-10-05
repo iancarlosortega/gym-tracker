@@ -17,6 +17,7 @@ export const routineMapper = {
       id: Id.restore(row.id),
       userId: Id.restore(row.userId),
       name: RoutineName.create(row.name),
+      position: row.position,
       entries: entryRows.map(entryToDomain),
       archivedOn: row.archivedAt,
       createdAt: row.createdAt,
@@ -28,6 +29,7 @@ export const routineMapper = {
       id: model.id.value,
       userId: model.userId.value,
       name: model.name.value,
+      position: model.position,
       archivedAt: model.archivedOn,
       createdAt: model.createdAt,
     }

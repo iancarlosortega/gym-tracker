@@ -5,7 +5,7 @@ import {
   ExerciseNotFoundError,
 } from '@gym/domain/catalog/errors'
 import { fromKilograms } from '@gym/domain/measurement/value-objects/grams.vo'
-import { RoutineNotFoundError } from '@gym/domain/routines/errors'
+import { RoutineNotFoundError, RoutinesOrderMismatchError } from '@gym/domain/routines/errors'
 import { Id } from '@gym/domain/shared/value-objects/id.vo'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { FixedClock } from '../../../auth/testing/in-memory-auth.ts'
@@ -18,6 +18,7 @@ import { CreateRoutineUseCase } from './create-routine.use-case.ts'
 import { ListRoutinesUseCase } from './list-routines.use-case.ts'
 import { RemoveRoutineEntryUseCase } from './remove-routine-entry.use-case.ts'
 import { ReorderRoutineUseCase } from './reorder-routine.use-case.ts'
+import { ReorderRoutinesUseCase } from './reorder-routines.use-case.ts'
 
 const userId = Id.create()
 const otherUserId = Id.create().value
@@ -31,6 +32,7 @@ let removeEntry: RemoveRoutineEntryUseCase
 let reorder: ReorderRoutineUseCase
 let archive: ArchiveRoutineUseCase
 let list: ListRoutinesUseCase
+let reorderRoutines: ReorderRoutinesUseCase
 let history: Map<string, Date>
 
 let benchId: string
@@ -50,6 +52,7 @@ beforeEach(async () => {
   archive = new ArchiveRoutineUseCase(routines, new FixedClock(new Date('2026-09-19T12:00:00Z')))
   history = new Map()
   list = new ListRoutinesUseCase(routines, { lastDoneAt: async () => history })
+  reorderRoutines = new ReorderRoutinesUseCase(routines)
 
   const bench = Exercise.create({ userId, name: 'Bench Press', defaultMode: 'PER_SIDE' })
   const row = Exercise.create({ userId, name: 'Seated Row', defaultMode: 'STACK_POSITION' })
@@ -249,17 +252,63 @@ describe('listing routines', () => {
     expect(listing.upNextRoutineId).toBe(pull.id.value)
   })
 
-  it('puts a never-done routine up next, breaking ties by the order the list shows', async () => {
-    await pushDay()
-    const legs = await createRoutine.execute({ userId: userId.value, name: 'Legs' })
-    await createRoutine.execute({ userId: userId.value, name: 'Pull Day' })
+  it("puts a never-done routine up next, breaking ties by the user's order", async () => {
+    const push = await pushDay()
+    await createRoutine.execute({ userId: userId.value, name: 'Legs' })
 
     const listing = await list.execute({ userId: userId.value })
 
-    expect(listing.upNextRoutineId).toBe(legs.id.value)
+    expect(listing.upNextRoutineId).toBe(push.id.value)
   })
 
   it('has nothing up next without routines', async () => {
     expect((await list.execute({ userId: userId.value })).upNextRoutineId).toBeNull()
+  })
+})
+
+describe('ordering routines', () => {
+  const names = async () =>
+    (await list.execute({ userId: userId.value })).page.items.map((item) => item.name.value)
+
+  it('lists routines in the order they were made, each new one last', async () => {
+    await pushDay()
+    await createRoutine.execute({ userId: userId.value, name: 'Legs' })
+    await createRoutine.execute({ userId: userId.value, name: 'Arms' })
+
+    expect(await names()).toEqual(['Push Day', 'Legs', 'Arms'])
+  })
+
+  it('keeps the order the user puts them in, and up next follows it on a tie', async () => {
+    const push = await pushDay()
+    const legs = await createRoutine.execute({ userId: userId.value, name: 'Legs' })
+
+    await reorderRoutines.execute({
+      userId: userId.value,
+      routineIds: [legs.id.value, push.id.value],
+    })
+
+    expect(await names()).toEqual(['Legs', 'Push Day'])
+    expect((await list.execute({ userId: userId.value })).upNextRoutineId).toBe(legs.id.value)
+  })
+
+  it('refuses an order that does not name exactly the active routines', async () => {
+    const push = await pushDay()
+    await createRoutine.execute({ userId: userId.value, name: 'Legs' })
+
+    await expect(
+      reorderRoutines.execute({ userId: userId.value, routineIds: [push.id.value] }),
+    ).rejects.toThrow(RoutinesOrderMismatchError)
+  })
+
+  it("cannot place another user's routine", async () => {
+    const push = await pushDay()
+    const theirs = await createRoutine.execute({ userId: otherUserId, name: 'Theirs' })
+
+    await expect(
+      reorderRoutines.execute({
+        userId: userId.value,
+        routineIds: [theirs.id.value, push.id.value],
+      }),
+    ).rejects.toThrow(RoutinesOrderMismatchError)
   })
 })

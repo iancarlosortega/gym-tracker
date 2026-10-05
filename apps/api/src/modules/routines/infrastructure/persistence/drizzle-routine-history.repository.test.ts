@@ -17,7 +17,10 @@ const firstId = async (query: string, params: unknown[]): Promise<string> =>
   (await client.query<{ id: string }>(query, params)).rows[0]?.id ?? ''
 
 const routineFor = (userId: string, name: string) =>
-  firstId(`INSERT INTO routine (user_id, name) VALUES ($1, $2) RETURNING id`, [userId, name])
+  firstId(`INSERT INTO routine (user_id, name, position) VALUES ($1, $2, 0) RETURNING id`, [
+    userId,
+    name,
+  ])
 
 const workout = (userId: string, routineId: string | null, startedAt: string) =>
   client.query(

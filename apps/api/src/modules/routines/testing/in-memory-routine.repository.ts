@@ -14,6 +14,10 @@ export class InMemoryRoutineRepository implements RoutineRepository {
     this.routines.set(routine.id.value, routine)
   }
 
+  async saveAll(routines: readonly Routine[]): Promise<void> {
+    for (const routine of routines) this.routines.set(routine.id.value, routine)
+  }
+
   async findOne(criteria: RoutineCriteria): Promise<Routine | null> {
     return this.matching(criteria)[0] ?? null
   }
@@ -27,6 +31,9 @@ export class InMemoryRoutineRepository implements RoutineRepository {
 
     if (options?.orderBy === 'name') {
       found.sort((left, right) => left.name.value.localeCompare(right.name.value))
+    }
+    if (options?.orderBy === 'position') {
+      found.sort((left, right) => left.position - right.position)
     }
 
     return Page.create(

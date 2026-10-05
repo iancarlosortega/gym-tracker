@@ -29,10 +29,10 @@ Strict TDD. Each unit is green before it is handed over: tests, typecheck, biome
 - [x] 5.2 `HomeHeadline` gets an open variant ("Push day, 3 of 5 done" / "Workout in progress") linking to `/workout`. The container is wired up, with view tests.
 
 ## S6 — Routine order: domain, migration, API
-- [ ] 6.1 Domain: `position` on Routine, the `reorderRoutines` rule, and `RoutineOrderMismatchError` (D6).
-- [ ] 6.2 Migration `0002_routine_position.sql` with an alphabetical backfill per user. Update the schema. The SQL test covers the backfill order and `NOT NULL`.
-- [ ] 6.3 Create puts the new routine last. The list sorts by position. Up-next uses the real position.
-- [ ] 6.4 `PUT /routines/order` returns 204, or 409 on an id mismatch. The view exposes `position`. Covered by API tests.
+- [x] 6.1 Domain: `position` on Routine, the `reorderRoutines` rule, and `RoutineOrderMismatchError` (D6).
+- [x] 6.2 Migration `0002_routine_position.sql` with an alphabetical backfill per user. Update the schema. The SQL test covers the backfill order and `NOT NULL`.
+- [x] 6.3 Create puts the new routine last. The list sorts by position. Up-next uses the real position.
+- [x] 6.4 `PUT /routines/order` returns 204, or 409 on an id mismatch. The view exposes `position`. Covered by API tests.
 
 ## S7 — Routine order: web
 - [ ] 7.1 `reorderRoutines` api function and the optimistic `useReorderRoutines` (scope `routine-order`).

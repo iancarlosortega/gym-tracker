@@ -9,6 +9,7 @@ import { ListRoutinesUseCase } from '@api/modules/routines/application/use-cases
 import { RemoveRoutineEntryUseCase } from '@api/modules/routines/application/use-cases/remove-routine-entry.use-case.js'
 import { RenameRoutineUseCase } from '@api/modules/routines/application/use-cases/rename-routine.use-case.js'
 import { ReorderRoutineUseCase } from '@api/modules/routines/application/use-cases/reorder-routine.use-case.js'
+import { ReorderRoutinesUseCase } from '@api/modules/routines/application/use-cases/reorder-routines.use-case.js'
 import { DrizzleRoutineRepository } from '@api/modules/routines/infrastructure/persistence/drizzle-routine.repository.js'
 import { DrizzleRoutineHistoryRepository } from '@api/modules/routines/infrastructure/persistence/drizzle-routine-history.repository.js'
 import { AddRoutineExerciseController } from '@api/modules/routines/presentation/add-routine-exercise/add-routine-exercise.controller.js'
@@ -20,6 +21,7 @@ import { ListRoutinesController } from '@api/modules/routines/presentation/list-
 import { RemoveRoutineEntryController } from '@api/modules/routines/presentation/remove-routine-entry/remove-routine-entry.controller.js'
 import { RenameRoutineController } from '@api/modules/routines/presentation/rename-routine/rename-routine.controller.js'
 import { ReorderRoutineController } from '@api/modules/routines/presentation/reorder-routine/reorder-routine.controller.js'
+import { ReorderRoutinesController } from '@api/modules/routines/presentation/reorder-routines/reorder-routines.controller.js'
 import {
   CLOCK,
   ROUTINE_HISTORY_REPOSITORY,
@@ -39,6 +41,8 @@ import { Module } from '@nestjs/common'
 @Module({
   imports: [CatalogModule],
   controllers: [
+    // Before the :id routes, so PUT /routines/order is never read as a routine id.
+    ReorderRoutinesController,
     CreateRoutineController,
     RenameRoutineController,
     ArchiveRoutineController,
@@ -61,6 +65,7 @@ import { Module } from '@nestjs/common'
     AddRoutineExerciseUseCase,
     RemoveRoutineEntryUseCase,
     ReorderRoutineUseCase,
+    ReorderRoutinesUseCase,
     ChangeRoutineEntryUseCase,
   ],
   exports: [ROUTINE_REPOSITORY],
