@@ -17,6 +17,17 @@ Mode: Strict TDD. Delivery: auto-chain; each review unit is a slice that Ian rev
 - UI: the `openWorkout` rule, `offlineWork()` singletons, `useOpenWorkout` and `useFinishWorkout`, `WorkoutMiniBar`, the timer tab slot, `AppShellContainer` background sync, and the Finish button on the workout page.
 - Gap: the mini bar has no routine name or set count yet (3a/4b).
 
+## Unit 7 — device-verification fixes, round 2 (Ian, 2026-10-04)
+
+DV-U2 passed: sets logged in airplane mode synced on reconnect.
+
+- [x] 7.1 (2f74e9a) **Root cause of "no lb switch" and the old Profile padding.** `sw.js` served every same-origin GET cache-first forever, under an unchanged file, so installed phones stayed on the first build they cached. Pages and RSC are now network-first (refreshing the cache, with an offline fallback); `/_next/static` stays cache-first; `gym-shell-v3` drops v2. Tested by loading `public/sw.js` in a `node:vm` with fake caches and network.
+- [x] 7.2 + 7.3 (cd5f44d) The safe area, background and full-height column are set once on the root `<body>`; per-page insets are removed. The tab bar moved from sticky to `FixedBottom` (`position: fixed` plus a measured spacer), because iOS standalone reports `100dvh` short until the first scroll.
+- [x] 7.4 (f8503a4) Skeletons (`ListSkeleton`, `HomeSkeleton`, `PlanSkeleton`, each with a `role="status"` label) replace the "Reading your…" texts. Test and implementation were written together, without a separate RED.
+- [x] 7.5 (1ba4635) `PullToRefresh` on the tab screens drains the queue, then refetches the active queries. A fast-flick stale-state bug was caught by the test and fixed with a ref.
+
+Evidence: web 384 tests; typecheck, biome, `next build` OK.
+
 ## Unit 6 — device-verification fixes (Ian's iPhone pass, 2026-10-04)
 
 DV-U1 passed (installed app opens on Home); the keypad never raised the iOS keyboard. Ian found these bugs:
