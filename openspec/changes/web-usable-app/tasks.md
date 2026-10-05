@@ -112,10 +112,10 @@
 
 ## Device verification (manual, Ian, after 5c)
 
-- [ ] DV-U1 Install the PWA and confirm it opens on Home.
+- [x] DV-U1 Install the PWA and confirm it opens on Home.
 - [x] DV-U2 Log sets in airplane mode, finish the workout, reconnect, and confirm the sets and the finish appear in the right order.
-- [ ] DV-U3 Edit weight and reps with VoiceOver on.
-- [ ] DV-U4 Confirm the "last time" card goes offline mid-session without losing what was already read.
+- [x] DV-U3 Edit weight and reps with VoiceOver on. (Keypad confirmed on device without the iOS keyboard; VoiceOver itself not tested — owner's choice, 2026-10-04.)
+- [x] DV-U4 Confirm the "last time" card goes offline mid-session without losing what was already read.
 
 ## Review Workload Forecast
 
