@@ -2,7 +2,7 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import type { RecomputePreviewResponse } from '../../infrastructure/recompute.api'
-import { RecomputeConsequences } from './recompute-consequences.tsx'
+import { RecomputeConsequences, SetChangeList } from './recompute-consequences.tsx'
 
 const names = new Map([['bench', 'Bench press']])
 
@@ -22,7 +22,7 @@ describe('RecomputeConsequences', () => {
     render(<RecomputeConsequences exerciseNames={names} preview={preview()} />)
 
     expect(screen.getByText('Your Bench press record')).toBeDefined()
-    expect(screen.getByText('100')).toBeDefined()
+    expect(screen.getByText('100 kg')).toBeDefined()
     expect(screen.getByText('95 kg')).toBeDefined()
   })
 
@@ -55,5 +55,36 @@ describe('RecomputeConsequences', () => {
     render(<RecomputeConsequences exerciseNames={names} preview={preview()} />)
 
     expect(screen.getByText(/exercise shows lower numbers/)).toBeDefined()
+  })
+})
+
+describe('recompute in pounds', () => {
+  it('reads the record in pounds on both sides', () => {
+    render(<RecomputeConsequences exerciseNames={names} preview={preview()} unit="LB" />)
+
+    expect(screen.getByText('220.5 lb')).toBeDefined()
+    expect(screen.getByText('209.4 lb')).toBeDefined()
+    expect(screen.getByText(/It was never 220\.5 lb/)).toBeDefined()
+  })
+
+  it('names the unit on both sides of every changed set', () => {
+    render(
+      <SetChangeList
+        exerciseNames={names}
+        unit="LB"
+        changes={[
+          {
+            setId: 's-1',
+            exerciseId: 'bench',
+            loggedAt: '2026-09-28T09:00:00.000Z',
+            fromKilograms: 60,
+            toKilograms: 55,
+          },
+        ]}
+      />,
+    )
+
+    expect(screen.getByText('132.3 lb')).toBeDefined()
+    expect(screen.getByText('121.3 lb')).toBeDefined()
   })
 })

@@ -4,10 +4,13 @@ import { useState } from 'react'
 import { ListSkeleton } from '@/components/loading-skeletons'
 import { isWaitingForNetwork, OfflineNotice } from '@/components/query-state'
 import { Button } from '@/components/ui/button'
+import { unitLabel } from '@/lib/units'
+import { useDisplayUnit } from '../../../auth/presentation/queries'
 import { useExercises } from '../../../workouts/presentation/queries'
 import type { ExerciseProgressionResponse } from '../../infrastructure/statistics.api'
 import { ModeChangeNotice } from '../components/mode-change-notice'
 import { ProgressionChart } from '../components/progression-chart'
+import { inDisplayUnit } from '../progression-unit'
 import { useExerciseProgression } from '../queries'
 
 export interface ExerciseProgressionContainerProps {
@@ -32,6 +35,7 @@ export const ExerciseProgressionContainer = ({ exerciseId }: ExerciseProgression
   const exerciseName =
     useExercises().data?.find((candidate) => candidate.id === exerciseId)?.name ?? 'This exercise'
   const [metric, setMetric] = useState<Metric>('load')
+  const unit = useDisplayUnit()
 
   if (progressionQuery.isError) {
     return <p role="alert">Could not reach the server, so this progression cannot be shown.</p>
@@ -74,35 +78,42 @@ export const ExerciseProgressionContainer = ({ exerciseId }: ExerciseProgression
       {progression.series.length === 0 ? (
         <p className="text-muted-foreground">Nothing logged for this exercise yet.</p>
       ) : (
-        progression.series.map((series) => (
-          <section className="grid gap-3" key={series.mode}>
-            <h2 className="font-semibold text-base">
-              {series.unit === 'position' ? 'Pin position' : 'Weight'}
-            </h2>
-            <ProgressionChart series={metric === 'reps' ? asRepsSeries(series) : series} />
+        progression.series
+          .map((fromApi) => inDisplayUnit(fromApi, unit))
+          .map((series) => (
+            <section className="grid gap-3" key={series.mode}>
+              <h2 className="font-semibold text-base">
+                {series.unit === 'position' ? 'Pin position' : `Weight (${unitLabel(unit)})`}
+              </h2>
+              <ProgressionChart
+                series={metric === 'reps' ? asRepsSeries(series) : series}
+                unit={unit}
+              />
 
-            <ul className="m-0 grid list-none gap-2 p-0">
-              {[...series.points].reverse().map((point) => (
-                <li
-                  className="flex min-h-11 items-center gap-3 rounded-md border border-border px-4 py-2"
-                  key={point.periodStart}
-                >
-                  <span className="grow text-muted-foreground text-sm">
-                    {new Date(point.periodStart).toLocaleDateString(undefined, {
-                      day: 'numeric',
-                      month: 'short',
-                    })}
-                  </span>
-                  <span className="font-bold tabular-nums">
-                    {series.unit === 'position' ? `position ${point.value}` : `${point.value} kg`} ·{' '}
-                    {point.reps}
-                  </span>
-                  <span className="w-24 text-right text-xs">{changeLabel(point.change)}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))
+              <ul className="m-0 grid list-none gap-2 p-0">
+                {[...series.points].reverse().map((point) => (
+                  <li
+                    className="flex min-h-11 items-center gap-3 rounded-md border border-border px-4 py-2"
+                    key={point.periodStart}
+                  >
+                    <span className="grow text-muted-foreground text-sm">
+                      {new Date(point.periodStart).toLocaleDateString(undefined, {
+                        day: 'numeric',
+                        month: 'short',
+                      })}
+                    </span>
+                    <span className="font-bold tabular-nums">
+                      {series.unit === 'position'
+                        ? `position ${point.value}`
+                        : `${point.value} ${unitLabel(unit)}`}{' '}
+                      · {point.reps}
+                    </span>
+                    <span className="w-24 text-right text-xs">{changeLabel(point.change)}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
       )}
     </div>
   )

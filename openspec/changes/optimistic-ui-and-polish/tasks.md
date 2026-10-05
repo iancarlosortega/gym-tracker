@@ -40,8 +40,8 @@ Strict TDD. Each unit is green before it is handed over: tests, typecheck, biome
 - [x] 7.3 Move up and Move down per row. Tests cover the move actions and that the order persists in the cache.
 
 ## S8 — Units in Progress + Recompute
-- [ ] 8.1 Progression container and chart: values converted, unit in the label, caption and weekly list (D7).
-- [ ] 8.2 Recompute: records and set changes show the unit on both sides.
+- [x] 8.1 Progression container and chart: values converted, unit in the label, caption and weekly list (D7).
+- [x] 8.2 Recompute: records and set changes show the unit on both sides.
 
 ## Device verification (Ian, iPhone)
 - [ ] DV.1 The lb/kg switch is instant. Try it in airplane mode: the choice stays, then syncs.

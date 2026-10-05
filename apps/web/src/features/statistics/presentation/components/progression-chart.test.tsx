@@ -27,6 +27,12 @@ const ordinalSeries: ProgressionSeriesResponse = {
 afterEach(cleanup)
 
 describe('ProgressionChart', () => {
+  it('says which unit its weights are in', () => {
+    render(<ProgressionChart series={massSeries} unit="LB" />)
+
+    expect(screen.getByRole('img').getAttribute('aria-label')).toBe('Weight in lb by week')
+  })
+
   it('draws a mass series as a line, because kilograms are continuous', () => {
     const { container } = render(<ProgressionChart series={massSeries} />)
 

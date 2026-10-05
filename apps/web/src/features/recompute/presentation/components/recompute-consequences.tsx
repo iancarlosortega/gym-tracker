@@ -1,5 +1,6 @@
 import { ArrowRight } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
+import { type DisplayUnit, kilogramsToDisplay, unitLabel } from '@/lib/units'
 import type {
   RecomputePreviewResponse,
   SetChangeResponse,
@@ -8,7 +9,12 @@ import type {
 export interface RecomputeConsequencesProps {
   readonly preview: RecomputePreviewResponse
   readonly exerciseNames: ReadonlyMap<string, string>
+  readonly unit?: DisplayUnit
 }
+
+/** The API answers in kilograms; both sides of every change read in the user's unit. */
+const weight = (kilograms: number, unit: DisplayUnit) =>
+  `${kilogramsToDisplay(kilograms, unit)} ${unitLabel(unit)}`
 
 /**
  * What this correction would do, in the order that matters.
@@ -18,7 +24,11 @@ export interface RecomputeConsequencesProps {
  * never a hundred" means everything. The counts follow as reassurance, and
  * the one that reassures most is the one that says nothing is deleted.
  */
-export const RecomputeConsequences = ({ preview, exerciseNames }: RecomputeConsequencesProps) => {
+export const RecomputeConsequences = ({
+  preview,
+  exerciseNames,
+  unit = 'KG',
+}: RecomputeConsequencesProps) => {
   const record = preview.records[0]
 
   return (
@@ -40,15 +50,16 @@ export const RecomputeConsequences = ({ preview, exerciseNames }: RecomputeConse
             </span>
             <div className="flex items-baseline gap-3">
               <span className="font-bold text-3xl text-muted-foreground line-through tabular-nums">
-                {record.fromKilograms}
+                {weight(record.fromKilograms, unit)}
               </span>
               <ArrowRight aria-hidden="true" className="size-5 text-destructive" />
               <span className="font-bold text-4xl text-destructive tabular-nums">
-                {record.toKilograms} kg
+                {weight(record.toKilograms, unit)}
               </span>
             </div>
             <span className="text-sm">
-              It was never {record.fromKilograms}. The bar was recorded heavier than it is.
+              It was never {weight(record.fromKilograms, unit)}. The bar was recorded heavier than
+              it is.
             </span>
           </CardContent>
         </Card>
@@ -84,10 +95,11 @@ const Consequence = ({
 export interface SetChangeListProps {
   readonly changes: readonly SetChangeResponse[]
   readonly exerciseNames: ReadonlyMap<string, string>
+  readonly unit?: DisplayUnit
 }
 
 /** The full ledger, for anyone who wants to check the work. */
-export const SetChangeList = ({ changes, exerciseNames }: SetChangeListProps) => (
+export const SetChangeList = ({ changes, exerciseNames, unit = 'KG' }: SetChangeListProps) => (
   <ul className="m-0 grid list-none gap-2 p-0">
     {changes.map((change) => (
       <li
@@ -102,9 +114,9 @@ export const SetChangeList = ({ changes, exerciseNames }: SetChangeListProps) =>
           · {exerciseNames.get(change.exerciseId) ?? 'Exercise'}
         </span>
         <span className="text-muted-foreground text-sm line-through tabular-nums">
-          {change.fromKilograms}
+          {weight(change.fromKilograms, unit)}
         </span>
-        <span className="font-bold tabular-nums">{change.toKilograms} kg</span>
+        <span className="font-bold tabular-nums">{weight(change.toKilograms, unit)}</span>
       </li>
     ))}
   </ul>

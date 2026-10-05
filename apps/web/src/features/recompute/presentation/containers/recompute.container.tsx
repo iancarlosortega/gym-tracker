@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { OfflineNotice } from '@/components/query-state'
 import { Button } from '@/components/ui/button'
+import { useDisplayUnit } from '../../../auth/presentation/queries'
 import { StalePreviewError } from '../../application/stale-preview.error'
 import type { RecomputePreviewResponse } from '../../infrastructure/recompute.api'
 import { RecomputeConsequences, SetChangeList } from '../components/recompute-consequences'
@@ -31,6 +32,7 @@ export const RecomputeContainer = ({
   exerciseNames,
   onDone,
 }: RecomputeContainerProps) => {
+  const unit = useDisplayUnit()
   const { mutateAsync: requestPreview, isPaused: waitingForNetwork } =
     usePreviewRecompute(equipmentId)
   const { mutateAsync: applyPreview, isPending: busy } = useApplyRecompute(equipmentId)
@@ -100,14 +102,16 @@ export const RecomputeContainer = ({
       {outcome === 'stale' ? (
         <StalePreviewNotice onRefresh={() => void refresh()} />
       ) : (
-        <RecomputeConsequences exerciseNames={exerciseNames} preview={preview} />
+        <RecomputeConsequences exerciseNames={exerciseNames} preview={preview} unit={unit} />
       )}
 
       <div className={outcome === 'stale' ? 'pointer-events-none opacity-40' : undefined}>
         <Button onClick={() => setShowLedger((shown) => !shown)} variant="ghost">
           {showLedger ? 'Hide the sets' : `See all ${preview.affectedSets} sets`}
         </Button>
-        {showLedger && <SetChangeList changes={preview.changes} exerciseNames={exerciseNames} />}
+        {showLedger && (
+          <SetChangeList changes={preview.changes} exerciseNames={exerciseNames} unit={unit} />
+        )}
       </div>
 
       {outcome !== 'stale' && (

@@ -1,7 +1,11 @@
+import { type DisplayUnit, unitLabel } from '@/lib/units'
 import type { ProgressionSeriesResponse } from '../../infrastructure/statistics.api'
 
 export interface ProgressionChartProps {
+  /** Weights already converted to the user's unit. */
   readonly series: ProgressionSeriesResponse
+  /** The unit those weights are in; pin positions have none. */
+  readonly unit?: DisplayUnit
 }
 
 const WIDTH = 330
@@ -19,7 +23,7 @@ const PADDING = 26
  * The repetitions of each top set are printed under every point either way,
  * since the same load for more reps is progress a load-only chart draws flat.
  */
-export const ProgressionChart = ({ series }: ProgressionChartProps) => {
+export const ProgressionChart = ({ series, unit = 'KG' }: ProgressionChartProps) => {
   const points = series.points
 
   if (points.length === 0) {
@@ -37,7 +41,7 @@ export const ProgressionChart = ({ series }: ProgressionChartProps) => {
       : PADDING + (index * (WIDTH - PADDING * 2)) / (points.length - 1)
   const y = (value: number) => HEIGHT - PADDING - ((value - lowest) / span) * (HEIGHT - PADDING * 2)
 
-  const label = `${series.unit === 'position' ? 'Pin position' : 'Weight'} by week`
+  const label = `${series.unit === 'position' ? 'Pin position' : `Weight in ${unitLabel(unit)}`} by week`
 
   return (
     <figure className="m-0 grid gap-2">
