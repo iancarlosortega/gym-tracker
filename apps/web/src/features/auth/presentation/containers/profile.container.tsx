@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { ListSkeleton } from '@/components/loading-skeletons'
 import { QueryState } from '@/components/query-state'
+import { RollbackNotice } from '@/components/rollback-notice'
 import { EnablePocketedAlertsUseCase } from '../../../push/application/enable-pocketed-alerts.use-case'
 import { PushSubscriber } from '../../../push/infrastructure/browser-push.subscriber'
 import { pushApi } from '../../../push/infrastructure/push.api'
@@ -53,6 +54,7 @@ export const ProfileContainer = () => {
             signOutFailed={signOutOfThisPhone.isError}
             displayUnit={displayUnit}
             onChangeUnit={(unit) => changeUnit.mutate(unit)}
+            unitNotice={<RollbackNotice mutation={changeUnit} className="justify-end" />}
             onSignOut={() => signOutOfThisPhone.mutate()}
           />
         )}

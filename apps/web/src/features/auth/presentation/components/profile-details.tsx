@@ -1,4 +1,5 @@
 import { CloudUpload, LogOut } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import type { DisplayUnit } from '@/lib/units'
@@ -11,6 +12,8 @@ export interface ProfileDetailsProps {
   readonly signOutFailed: boolean
   readonly displayUnit: DisplayUnit
   readonly onChangeUnit: (unit: DisplayUnit) => void
+  /** What became of the last unit change, shown under the switch. */
+  readonly unitNotice?: ReactNode
   readonly onSignOut: () => void
 }
 
@@ -33,6 +36,7 @@ export const ProfileDetails = ({
   signOutFailed,
   displayUnit,
   onChangeUnit,
+  unitNotice,
   onSignOut,
 }: ProfileDetailsProps) => (
   <div className="grid gap-4">
@@ -66,6 +70,7 @@ export const ProfileDetails = ({
         ))}
       </div>
     </fieldset>
+    {unitNotice}
 
     <p className="flex items-center gap-2 text-muted-foreground text-sm">
       <CloudUpload className="size-4" />

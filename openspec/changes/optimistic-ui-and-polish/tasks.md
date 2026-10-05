@@ -3,10 +3,10 @@
 Strict TDD. Each unit is green before it is handed over: tests, typecheck, biome and build. Ian reviews each unit locally before it is committed to main. There are no PRs.
 
 ## S1 — Optimistic core + unit switch
-- [ ] 1.1 `lib/optimistic.ts` (D1).
+- [x] 1.1 `lib/optimistic.ts` (D1).
   - Hook tests with a real `QueryClient` and deferred `mutationFn`s cover: the patch is applied before the call resolves; it rolls back on error when the mutation is the only one pending; when several are pending, an earlier error does not undo later edits; it invalidates once, only after the last one settles; a shared `scope` runs the calls in tap order.
-- [ ] 1.2 `RollbackNotice` atom and `useRollbackNotice`. Tests: "Not saved." plus Try again re-sends the same variables.
-- [ ] 1.3 `useChangeDisplayUnit` built on the helper (scope `display-unit`). Profile shows the change at once and shows the notice on failure. Tests: the radio moves before the server answers, and lb→kg quickly ends on kg.
+- [x] 1.2 `RollbackNotice` atom and `useRollbackNotice`. Tests: "Not saved." plus Try again re-sends the same variables.
+- [x] 1.3 `useChangeDisplayUnit` built on the helper (scope `display-unit`). Profile shows the change at once and shows the notice on failure. Tests: the radio moves before the server answers, and lb→kg quickly ends on kg.
 
 ## S2 — Optimistic routines + catalog
 - [ ] 2.1 Routine rename and archive (D2).
