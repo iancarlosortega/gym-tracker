@@ -71,20 +71,16 @@ export class LoggedSet {
   }
 
   /**
-   * A snapshot must agree with the entry it describes: a PER_SIDE entry cannot
-   * resolve without the bar weight it was logged against, and an ordinal entry
-   * has no bar at all. Persisting a contradiction here would produce a set
+   * A snapshot must agree with the entry it describes: a PER_SIDE entry is
+   * resolved against exactly the bar weight it snapshots (or none), and an
+   * ordinal entry has no bar at all. Persisting a contradiction here would produce a set
    * whose history could never be recomputed correctly.
    */
   private static assertSnapshotMatchesEntry(props: LoggedSetProps): void {
     const state = props.entry.toJSON()
 
     if (state.mode === 'PER_SIDE') {
-      if (props.snapshot.barGrams === null) {
-        throw new SnapshotMismatchError(
-          'A PER_SIDE set must snapshot the bar weight it was logged against.',
-        )
-      }
+      // Both null is a set that counted no bar; only a disagreement is impossible.
       if (props.snapshot.barGrams !== state.barGrams) {
         throw new SnapshotMismatchError(
           `The snapshot bar weight ${props.snapshot.barGrams} g contradicts the entry's ${state.barGrams} g.`,

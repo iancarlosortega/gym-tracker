@@ -45,10 +45,10 @@ describe('creating equipment', () => {
     expect((await olympicBar()).barGrams).toBe(20_000)
   })
 
-  it('refuses a barbell with no bar weight', async () => {
-    await expect(create.execute({ userId, name: 'Mystery Bar', kind: 'BARBELL' })).rejects.toThrow(
-      /bar weight/i,
-    )
+  it('creates plate-loaded equipment whose bar is not counted, like a Smith', async () => {
+    const smith = await create.execute({ userId, name: 'Smith machine', kind: 'BARBELL' })
+
+    expect(smith.barGrams).toBeNull()
   })
 
   it('refuses a stack with no position count', async () => {

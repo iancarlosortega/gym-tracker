@@ -1,4 +1,4 @@
-import { fromKilograms } from '@domain/measurement/value-objects/grams.vo.js'
+import { fromKilograms, fromPounds } from '@domain/measurement/value-objects/grams.vo.js'
 import { LoadEntry } from '@domain/measurement/value-objects/load-entry.vo.js'
 import { isResolved } from '@domain/measurement/value-objects/mass-resolution.vo.js'
 import { stackPosition } from '@domain/measurement/value-objects/stack-position.vo.js'
@@ -40,10 +40,11 @@ describe('load entry parsing', () => {
     expect(() => LoadEntry.from({ mode: 'NEWTONS', grams: 20_000 })).toThrow(/unknown/i)
   })
 
-  it('rejects a PER_SIDE entry with no bar weight', () => {
-    expect(() => LoadEntry.from({ mode: 'PER_SIDE', perSideGrams: 20_000 })).toThrow(
-      /bar weight is required/i,
-    )
+  it('reads a PER_SIDE entry with no bar weight as one that counts no bar', () => {
+    const entry = LoadEntry.from({ mode: 'PER_SIDE', perSideGrams: 20_000 })
+
+    expect(entry.toJSON()).toEqual({ mode: 'PER_SIDE', perSideGrams: 20_000, barGrams: null })
+    expect(entry.resolveMass()).toEqual({ kind: 'resolved', grams: 40_000 })
   })
 
   it('accepts a well-formed PER_SIDE entry', () => {
@@ -65,6 +66,20 @@ describe('resolveMass for ratio-scale modes', () => {
     expect(LoadEntry.perSide(fromKilograms(20), fromKilograms(20)).resolveMass()).toEqual({
       kind: 'resolved',
       grams: 60_000,
+    })
+  })
+
+  it('resolves 20 kg per side on a Smith whose bar is not counted as 40 kg', () => {
+    expect(LoadEntry.perSide(fromKilograms(20), null).resolveMass()).toEqual({
+      kind: 'resolved',
+      grams: 40_000,
+    })
+  })
+
+  it('resolves 60 lb per hand on dumbbells as 120 lb', () => {
+    expect(LoadEntry.perSide(fromPounds(60)).resolveMass()).toEqual({
+      kind: 'resolved',
+      grams: 2 * fromPounds(60),
     })
   })
 

@@ -19,10 +19,11 @@ describe('creating a barbell', () => {
     expect(olympicBar().barGrams).toBe(20_000)
   })
 
-  it('refuses to exist without a bar weight, because a per-side entry could never resolve', () => {
-    expect(() => Equipment.create({ userId, name: 'Mystery Bar', kind: 'BARBELL' })).toThrow(
-      /bar weight/i,
-    )
+  it('may leave its base weight out, which then counts for nothing (a Smith bar, a sled)', () => {
+    const smith = Equipment.create({ userId, name: 'Smith machine', kind: 'BARBELL' })
+
+    expect(smith.barGrams).toBeNull()
+    expect(smith.supports('PER_SIDE')).toBe(true)
   })
 
   it('has no stack positions', () => {
@@ -80,9 +81,10 @@ describe('which measurements equipment can express', () => {
     expect(rowMachine().supports('TOTAL')).toBe(false)
   })
 
-  it('lets a free weight be logged only as a total, since it has no sides and no stack', () => {
+  it('lets a free weight be logged as a total or per hand, never by position', () => {
     expect(dumbbells().supports('TOTAL')).toBe(true)
-    expect(dumbbells().supports('PER_SIDE')).toBe(false)
+    expect(dumbbells().supports('PER_SIDE')).toBe(true)
+    expect(dumbbells().supports('STACK_POSITION')).toBe(false)
   })
 })
 
@@ -94,6 +96,10 @@ describe('changing equipment', () => {
     expect(corrected.barGrams).toBe(15_000)
     expect(bar.barGrams).toBe(20_000)
     expect(corrected.equals(bar)).toBe(true)
+  })
+
+  it('clears a base weight, so it stops counting', () => {
+    expect(olympicBar().withBarWeight(null).barGrams).toBeNull()
   })
 
   it('refuses a bar weight on equipment that has no bar', () => {

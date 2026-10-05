@@ -76,6 +76,16 @@ describe('creating a logged set', () => {
     ).toThrow(SnapshotMismatchError)
   })
 
+  it('accepts a PER_SIDE set that counts no bar, when its snapshot agrees', () => {
+    const smith = LoggedSet.create({
+      ...benchPressProps,
+      entry: LoadEntry.perSide(fromKilograms(20), null),
+      snapshot: { ...benchPressProps.snapshot, barGrams: null },
+    })
+
+    expect(smith.mass()).toEqual({ kind: 'resolved', grams: 40_000 })
+  })
+
   it('rejects an ordinal set that claims a bar weight', () => {
     expect(() =>
       LoggedSet.create({

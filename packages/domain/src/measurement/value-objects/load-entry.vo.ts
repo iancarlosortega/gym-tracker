@@ -1,5 +1,4 @@
 import {
-  MissingBarWeightError,
   MissingMeasurementModeError,
   UnknownMeasurementModeError,
 } from '@domain/measurement/errors.js'
@@ -32,7 +31,8 @@ export type MeasurementMode = (typeof MEASUREMENT_MODES)[number]
  */
 type LoadEntryState =
   | { readonly mode: 'TOTAL'; readonly grams: Grams }
-  | { readonly mode: 'PER_SIDE'; readonly perSideGrams: Grams; readonly barGrams: Grams }
+  /** `barGrams` is null when nothing is counted between the sides: a Smith bar, a sled, two hands. */
+  | { readonly mode: 'PER_SIDE'; readonly perSideGrams: Grams; readonly barGrams: Grams | null }
   | { readonly mode: 'STACK_POSITION'; readonly position: StackPosition }
 
 function isMeasurementMode(value: unknown): value is MeasurementMode {
@@ -51,7 +51,7 @@ export class LoadEntry {
     return new LoadEntry({ mode: 'TOTAL', grams: value })
   }
 
-  static perSide(perSide: Grams, bar: Grams): LoadEntry {
+  static perSide(perSide: Grams, bar: Grams | null = null): LoadEntry {
     return new LoadEntry({ mode: 'PER_SIDE', perSideGrams: perSide, barGrams: bar })
   }
 
@@ -87,13 +87,12 @@ export class LoadEntry {
     }
 
     if (mode === 'PER_SIDE') {
+      // A missing bar is a bar that is not counted, not an error.
       const bar = readNumber(source, 'barGrams')
-      if (bar === undefined) {
-        throw new MissingBarWeightError(
-          'A bar weight is required to resolve a PER_SIDE entry into a total load.',
-        )
-      }
-      return LoadEntry.perSide(grams(readNumber(source, 'perSideGrams') ?? Number.NaN), grams(bar))
+      return LoadEntry.perSide(
+        grams(readNumber(source, 'perSideGrams') ?? Number.NaN),
+        bar === undefined ? null : grams(bar),
+      )
     }
 
     return LoadEntry.stack(stackPosition(readNumber(source, 'position') ?? Number.NaN))
@@ -116,7 +115,10 @@ export class LoadEntry {
       case 'PER_SIDE':
         return {
           kind: 'resolved',
-          grams: addGrams(doubleGrams(state.perSideGrams), state.barGrams),
+          grams:
+            state.barGrams === null
+              ? doubleGrams(state.perSideGrams)
+              : addGrams(doubleGrams(state.perSideGrams), state.barGrams),
         }
       case 'STACK_POSITION':
         return {

@@ -3,9 +3,9 @@
 Strict TDD. Each unit is committed when green (tests, typecheck, biome, build).
 
 ## 1 — Domain
-- [ ] 1.1 `Equipment`: optional base for BARBELL (D1), FREE_WEIGHT supports PER_SIDE (D2), `withBarWeight(null)`. Update the pinned tests.
-- [ ] 1.2 `LoadEntry` / `LoggedSet`: optional per-side base (D3, D4); resolve 2·side + (base ?? 0).
-- [ ] 1.3 Recompute with a cleared base (D5).
+- [x] 1.1 `Equipment`: optional base for BARBELL (D1), FREE_WEIGHT supports PER_SIDE (D2), `withBarWeight(null)`. Update the pinned tests.
+- [x] 1.2 `LoadEntry` / `LoggedSet`: optional per-side base (D3, D4); resolve 2·side + (base ?? 0).
+- [x] 1.3 Recompute with a cleared base (D5).
 
 ## 2 — API
 - [ ] 2.1 Migration 0001 dropping the two checks (D6); schema; the table test accepts a null-base per-side row.

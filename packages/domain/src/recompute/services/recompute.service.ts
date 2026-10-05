@@ -31,11 +31,12 @@ export const recomputeFor = (
   sets: readonly LoggedSet[],
   tokenOf: (changes: readonly SetChange[]) => string,
 ): RecomputeDiff => {
-  const barGrams = equipment.barGrams
+  // A cleared base counts as nothing, so clearing it recomputes history too.
+  const barGrams = equipment.barGrams ?? grams(0)
   // Only the equipment being corrected. A set performed on another bar owes
   // nothing to this one, and rewriting it would corrupt history to fix history.
   const itsOwn = sets.filter((set) => set.equipmentId === equipment.id.value)
-  const changes = barGrams === null ? [] : itsOwn.flatMap((set) => changeFor(set, barGrams))
+  const changes = itsOwn.flatMap((set) => changeFor(set, barGrams))
 
   return {
     equipmentId: equipment.id.value,

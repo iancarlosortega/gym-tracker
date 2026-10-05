@@ -89,6 +89,18 @@ describe('what a corrected bar would change', () => {
     })
   })
 
+  it('recomputes past sets when the bar stops being counted, as on a Smith', () => {
+    // 20 a side on a 15 bar was 55; with the bar not counted it is 40.
+    const smith = correctedBar.withBarWeight(null)
+
+    const diff = recomputeFor(smith, [perSideSet(20, 15)], tokenOf)
+
+    expect(diff.changes[0]).toMatchObject({
+      currentGrams: fromKilograms(55),
+      recomputedGrams: fromKilograms(40),
+    })
+  })
+
   it('leaves a set that already agrees with the corrected bar alone', () => {
     const diff = recomputeFor(correctedBar, [perSideSet(20, 15)], tokenOf)
 

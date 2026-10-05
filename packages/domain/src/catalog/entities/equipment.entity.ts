@@ -21,7 +21,8 @@ export type EquipmentKind = (typeof EQUIPMENT_KINDS)[number]
  * bar it does not have.
  */
 type EquipmentSpec =
-  | { readonly kind: 'BARBELL'; readonly barGrams: Grams }
+  /** Null when the bar or sled is not counted, as on a Smith machine. */
+  | { readonly kind: 'BARBELL'; readonly barGrams: Grams | null }
   | { readonly kind: 'STACK'; readonly positions: number }
   | { readonly kind: 'FREE_WEIGHT' }
 
@@ -68,18 +69,13 @@ export class Equipment {
   }
 
   /**
-   * A barbell without a bar weight could never resolve a per-side entry, and a
-   * stack without a position count could never check one. Both are refused at
-   * creation rather than discovered when a set is logged.
+   * A stack without a position count could never check one, so it is refused
+   * at creation. A plate-loaded bar or machine may leave its base weight out:
+   * the owner does not count a Smith bar or a sled, and an empty base adds nothing.
    */
   private static specFrom(input: CreateEquipmentInput): EquipmentSpec {
     if (input.kind === 'BARBELL') {
-      if (input.barGrams === undefined) {
-        throw new InvalidEquipmentNameError(
-          'A barbell must declare its bar weight, or a per-side entry could never resolve.',
-        )
-      }
-      return { kind: 'BARBELL', barGrams: input.barGrams }
+      return { kind: 'BARBELL', barGrams: input.barGrams ?? null }
     }
 
     if (input.kind === 'STACK') {
@@ -146,7 +142,8 @@ export class Equipment {
       case 'STACK':
         return mode === 'STACK_POSITION'
       case 'FREE_WEIGHT':
-        return mode === 'TOTAL'
+        // Per side on dumbbells is per hand: two hands, nothing in between.
+        return mode === 'PER_SIDE' || mode === 'TOTAL'
     }
   }
 
@@ -154,7 +151,8 @@ export class Equipment {
     return this.props.spec.kind === 'STACK' && position <= this.props.spec.positions
   }
 
-  withBarWeight(barGrams: Grams): Equipment {
+  /** Null clears the base weight, so it stops counting. */
+  withBarWeight(barGrams: Grams | null): Equipment {
     if (this.props.spec.kind !== 'BARBELL') {
       throw new EquipmentCannotMeasureThatWayError(
         'Only a barbell has a bar weight; this equipment has none to correct.',
