@@ -8,7 +8,7 @@ Strict TDD. Commit the unit once its tests, typecheck, biome and build are green
 - [x] 1.3 The empty plan offers Add exercises, which opens the editor with the picker (D3). Covered by plan tests.
 
 ## Device verification
-- [ ] DV.1 Drag a routine's exercises by the handle, check Done looks right, and add exercises to an empty routine from its plan.
+- [x] DV.1 Drag a routine's exercises by the handle, check Done looks right, and add exercises to an empty routine from its plan. Confirmed by Ian on the iPhone (2026-10-04).
 
 ## Review Workload Forecast
 | Unit | ~Lines |
