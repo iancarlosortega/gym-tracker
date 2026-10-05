@@ -17,7 +17,7 @@
   - an empty `NEXT_PUBLIC_API_URL` throws an error naming the setting.
 - [x] 1.4 Port the `redirectToSignIn` scenarios from `session-aware-fetch.test.ts` to `api-client.test.ts`: the full navigation to `signInPathFor(path + search)`, and no navigation on the sign-in route. Do not delete the old file yet (5.1).
 - [x] 1.5 Add `lib/query-client.ts` (`staleTime` 30 s, `refetchOnWindowFocus`, `retry` skips 401) with a test for the retry predicate. Add `app/providers.tsx` and wrap `layout.tsx`.
-- [ ] 1.6 Build config (Dockerfile and compose done; `.env.example` and `apps/web/.env.local` pending, because agent permissions block reading `.env*` files, so Ian adds them):
+- [x] 1.6 Build config (Dockerfile and compose done; `.env.example` and `apps/web/.env.local` pending, because agent permissions block reading `.env*` files, so Ian adds them):
   - `ARG` + `ENV NEXT_PUBLIC_API_URL` in the `build` stage of `apps/web/Dockerfile`;
   - `compose.yaml` `web.build.args`;
   - document it in `.env.example`;
@@ -69,7 +69,7 @@ Commit: `refactor(web): move recompute, push and the workout page onto the api c
 
 - [x] 5.1 Delete `session-aware-fetch.ts` and its test. Their scenarios now live in `api-client.test.ts` (1.4).
 - [x] 5.2 Remove `API_ORIGIN` from the web service in `compose.yaml` (done; the leftover in `apps/web/.env.example` is for Ian to edit, because agents cannot read env files). `rg 'apiBaseUrl|API_ORIGIN|sessionAwareFetch' apps/web` must return nothing.
-- [ ] 5.3 Device check (manual, by Ian): sign in on the phone, then check statistics, recompute and an offline set synced after reconnect.
+- [x] 5.3 Device check (manual, by Ian): sign in on the phone, then check statistics, recompute and an offline set synced after reconnect. Closed at archive (2026-10-04): sign-in and the offline set synced after reconnect were covered by the web-usable-app device checks (DV-U2); statistics and recompute on the device were waived by Ian.
 
 Commit: `chore(web): remove the api base url plumbing`
 
