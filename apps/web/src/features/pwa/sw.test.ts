@@ -18,14 +18,19 @@ const loadWorker = ({
   cached = {} as Record<string, string>,
   cacheNames = [] as string[],
   online = true,
+  /** A network that answers only when the test says so. */
+  slow = false,
 } = {}) => {
   const listeners = new Map<string, Listener>()
   const store = new Map(Object.entries(cached).map(([url, body]) => [url, response(body)]))
   const deleted: string[] = []
+  const late: (() => void)[] = []
   const network = vi.fn(async (request: { url: string }) => {
     if (!online) throw new TypeError('offline')
+    if (slow) await new Promise<void>((resolve) => late.push(resolve))
     return response(`network ${request.url}`)
   })
+  const preload = { enabled: false }
 
   const context = {
     self: {
@@ -33,6 +38,13 @@ const loadWorker = ({
       addEventListener: (type: string, listener: Listener) => listeners.set(type, listener),
       skipWaiting: () => undefined,
       clients: { claim: async () => undefined },
+      registration: {
+        navigationPreload: {
+          enable: async () => {
+            preload.enabled = true
+          },
+        },
+      },
     },
     caches: {
       match: async (request: { url: string }) => store.get(request.url),
@@ -44,14 +56,27 @@ const loadWorker = ({
       delete: async (name: string) => deleted.push(name),
     },
     fetch: network,
+    // The worker's timers run on the test's clock, fake or real.
+    setTimeout: (callback: () => void, ms: number) => setTimeout(callback, ms),
+    clearTimeout: (handle: ReturnType<typeof setTimeout>) => clearTimeout(handle),
     // biome-ignore lint/style/useNamingConvention: the worker reads the global by its real name
     URL,
   }
   runInNewContext(readFileSync(join(process.cwd(), 'public/sw.js'), 'utf8'), context)
 
-  const request = (url: string, { mode = 'cors', rsc = false } = {}) => {
+  const pending: Promise<unknown>[] = []
+  const request = (
+    url: string,
+    {
+      mode = 'cors',
+      rsc = false,
+      preloadResponse = undefined as Promise<FakeResponse | undefined> | undefined,
+    } = {},
+  ) => {
     let answer: Promise<FakeResponse> | undefined
     listeners.get('fetch')?.({
+      preloadResponse,
+      waitUntil: (value: Promise<unknown>) => pending.push(value),
       request: {
         method: 'GET',
         url,
@@ -71,7 +96,13 @@ const loadWorker = ({
     await done
   }
 
-  return { request, activate, network, deleted }
+  /** Let every late network answer arrive, and the cache writes it started. */
+  const answerLate = async () => {
+    for (const resolve of late.splice(0)) resolve()
+    await Promise.all(pending)
+  }
+
+  return { request, activate, network, deleted, preload, answerLate, store }
 }
 
 describe('the service worker', () => {
@@ -109,11 +140,76 @@ describe('the service worker', () => {
     expect(worker.network).not.toHaveBeenCalled()
   })
 
-  it('drops the stale shell cache from the cache-first era', async () => {
-    const worker = loadWorker({ cacheNames: ['gym-shell-v2'] })
+  it('drops the older shell caches when a new build activates', async () => {
+    const worker = loadWorker({ cacheNames: ['gym-shell-v2', 'gym-shell-v3'] })
 
     await worker.activate()
 
-    expect(worker.deleted).toContain('gym-shell-v2')
+    expect(worker.deleted).toEqual(['gym-shell-v2', 'gym-shell-v3'])
+  })
+
+  it('leaves API reads to the browser, so they never wait on the worker', () => {
+    const worker = loadWorker()
+
+    expect(worker.request('https://api.test/routines?limit=200')).toBeUndefined()
+    expect(worker.network).not.toHaveBeenCalled()
+  })
+
+  it('turns on navigation preload when it activates', async () => {
+    const worker = loadWorker()
+
+    await worker.activate()
+
+    expect(worker.preload.enabled).toBe(true)
+  })
+
+  it('opens a navigation from the preloaded answer instead of fetching again', async () => {
+    const worker = loadWorker()
+
+    const page = await worker.request('https://app.test/routines', {
+      mode: 'navigate',
+      preloadResponse: Promise.resolve(response('preloaded routines')),
+    })
+
+    expect(page?.body).toBe('preloaded routines')
+    expect(worker.network).not.toHaveBeenCalled()
+  })
+
+  describe('on a network too slow to answer', () => {
+    it('shows the last copy after the time limit, then stores the fresh one', async () => {
+      vi.useFakeTimers()
+      try {
+        const worker = loadWorker({
+          cached: { 'https://app.test/routines': 'cached routines' },
+          slow: true,
+        })
+
+        const page = worker.request('https://app.test/routines', { mode: 'navigate' })
+        await vi.advanceTimersByTimeAsync(3000)
+
+        expect((await page)?.body).toBe('cached routines')
+        await worker.answerLate()
+        expect(worker.store.get('https://app.test/routines')?.body).toBe(
+          'network https://app.test/routines',
+        )
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('keeps waiting for the network when there is no copy to show', async () => {
+      vi.useFakeTimers()
+      try {
+        const worker = loadWorker({ slow: true })
+
+        const page = worker.request('https://app.test/routines', { mode: 'navigate' })
+        await vi.advanceTimersByTimeAsync(3000)
+        await worker.answerLate()
+
+        expect((await page)?.body).toBe('network https://app.test/routines')
+      } finally {
+        vi.useRealTimers()
+      }
+    })
   })
 })

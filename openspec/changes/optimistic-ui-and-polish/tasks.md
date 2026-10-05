@@ -15,8 +15,8 @@ Strict TDD. Each unit is green before it is handed over: tests, typecheck, biome
 - [x] 2.4 Creates show pending and block double submits. Check every create form for this, and add it where it is missing.
 
 ## S3 — Service worker v4
-- [ ] 3.1 Cross-origin requests are not handled. Navigation preload is enabled. The cache is `gym-shell-v4` and `v3` is deleted (D8). Covered by `sw.test.ts`.
-- [ ] 3.2 Network-first with a 3 s timeout: a cached copy is served when the network is late and the cache is updated afterwards; with no cached copy, the SW waits for the network. Covered by `sw.test.ts`.
+- [x] 3.1 Cross-origin requests are not handled. Navigation preload is enabled. The cache is `gym-shell-v4` and `v3` is deleted (D8). Covered by `sw.test.ts`.
+- [x] 3.2 Network-first with a 3 s timeout: a cached copy is served when the network is late and the cache is updated afterwards; with no cached copy, the SW waits for the network. Covered by `sw.test.ts`.
 
 ## S4 — Session in the Query cache + start navigates first
 - [ ] 4.1 Key factory entries `current`, `sessionSets(id)` and `start`. `sessionSetsQuery` merges server and queue sets with `networkMode: 'always'` and falls back to the queue offline (D4). Tests use fake-indexeddb.

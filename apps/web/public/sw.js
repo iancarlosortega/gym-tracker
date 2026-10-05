@@ -1,23 +1,29 @@
 /**
  * The application shell, cached by hand.
  *
- * Three rules:
+ * Four rules:
  *
  *  - pages and their data are network-first, refreshing the cache as they go,
  *    so a new build reaches the phone the next time it is online, and the last
  *    copy still opens the app with no network at all;
+ *  - a network that has not answered within a few seconds loses to that last
+ *    copy, so a weak signal at the gym does not freeze every tap; the late
+ *    answer still lands in the cache for next time;
  *  - content-hashed assets (`/_next/static`) are cache-first: their URL changes
  *    whenever their bytes do, so a cached copy can never be stale;
- *  - the sync queue is never touched. Those POSTs are application state, not
- *    a cache concern, and a service worker that replayed or swallowed one
- *    would be inventing sets nobody performed.
+ *  - anything on another origin, the API included, and anything that is not a
+ *    plain read is left to the browser. The worker never cached API reads, so
+ *    handling them only added its start-up time to every request; and the sync
+ *    queue's POSTs are application state, not a cache concern.
  *
- * v3 drops the v2 cache, which served every page cache-first forever and so
- * kept installed phones on whatever build they first saw.
+ * v4 drops the v3 cache along with every older one.
  */
 
-const SHELL_CACHE = 'gym-shell-v3'
+const SHELL_CACHE = 'gym-shell-v4'
 const SHELL = ['/', '/workout', '/manifest.webmanifest', '/icon.svg']
+
+/** How long a navigation waits on the network before the last copy is shown. */
+const NETWORK_TIMEOUT_MS = 3000
 
 /** Immutable by construction: the build names them after their contents. */
 const isHashedAsset = (url) => url.pathname.startsWith('/_next/static/')
@@ -29,12 +35,17 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((names) =>
-        Promise.all(names.filter((name) => name !== SHELL_CACHE).map((name) => caches.delete(name))),
-      )
-      .then(() => self.clients.claim()),
+    Promise.all([
+      // The page request starts while the worker is still waking up.
+      self.registration.navigationPreload?.enable(),
+      caches
+        .keys()
+        .then((names) =>
+          Promise.all(
+            names.filter((name) => name !== SHELL_CACHE).map((name) => caches.delete(name)),
+          ),
+        ),
+    ]).then(() => self.clients.claim()),
   )
 })
 
@@ -49,12 +60,17 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url)
 
-  if (url.origin === self.location.origin && isHashedAsset(url)) {
+  // The API and anything else off-site: the browser fetches it directly.
+  if (url.origin !== self.location.origin) {
+    return
+  }
+
+  if (isHashedAsset(url)) {
     event.respondWith(cacheFirst(request))
     return
   }
 
-  event.respondWith(networkFirst(request, url.origin === self.location.origin))
+  event.respondWith(networkFirst(event))
 })
 
 async function cacheFirst(request) {
@@ -71,21 +87,45 @@ async function cacheFirst(request) {
   return response
 }
 
-/** The network's answer when there is one, kept for the next time there is not. */
-async function networkFirst(request, keep) {
+/** Keep a good answer for the next time there is none. */
+async function keep(request, response) {
+  if (response.ok) {
+    const cache = await caches.open(SHELL_CACHE)
+    await cache.put(request, response.clone())
+  }
+  return response
+}
+
+/**
+ * The network's answer when it comes in time, the last copy when it does not.
+ *
+ * With no copy to fall back on there is nothing better to show, so the page
+ * keeps waiting for the network. Either way the network's answer, early or
+ * late, refreshes the cache.
+ */
+async function networkFirst(event) {
+  const request = event.request
+  const fromNetwork = Promise.resolve(event.preloadResponse)
+    .then((preloaded) => preloaded ?? fetch(request))
+    .then((response) => keep(request, response))
+  event.waitUntil(fromNetwork.catch(() => undefined))
+
+  let timer
+  const lastCopyWhenLate = new Promise((resolve) => {
+    timer = setTimeout(() => resolve(caches.match(request)), NETWORK_TIMEOUT_MS)
+  })
+
   try {
-    const response = await fetch(request)
-    if (keep && response.ok) {
-      const cache = await caches.open(SHELL_CACHE)
-      cache.put(request, response.clone())
-    }
-    return response
+    const first = await Promise.race([fromNetwork, lastCopyWhenLate])
+    return first ?? (await fromNetwork)
   } catch (failure) {
     const cached = await caches.match(request)
     if (cached !== undefined) {
       return cached
     }
     throw failure
+  } finally {
+    clearTimeout(timer)
   }
 }
 
