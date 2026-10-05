@@ -1,18 +1,26 @@
 /**
  * The application shell, cached by hand.
  *
- * Two rules, and the second one is the important one:
+ * Three rules:
  *
- *  - the shell is precached so the app opens with no network at all;
- *  - API requests are network-first, because a stale set list is worse than
- *    a missing one;
+ *  - pages and their data are network-first, refreshing the cache as they go,
+ *    so a new build reaches the phone the next time it is online, and the last
+ *    copy still opens the app with no network at all;
+ *  - content-hashed assets (`/_next/static`) are cache-first: their URL changes
+ *    whenever their bytes do, so a cached copy can never be stale;
  *  - the sync queue is never touched. Those POSTs are application state, not
  *    a cache concern, and a service worker that replayed or swallowed one
  *    would be inventing sets nobody performed.
+ *
+ * v3 drops the v2 cache, which served every page cache-first forever and so
+ * kept installed phones on whatever build they first saw.
  */
 
-const SHELL_CACHE = 'gym-shell-v2'
+const SHELL_CACHE = 'gym-shell-v3'
 const SHELL = ['/', '/workout', '/manifest.webmanifest', '/icon.svg']
+
+/** Immutable by construction: the build names them after their contents. */
+const isHashedAsset = (url) => url.pathname.startsWith('/_next/static/')
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(SHELL_CACHE).then((cache) => cache.addAll(SHELL)))
@@ -41,12 +49,12 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url)
 
-  if (url.origin !== self.location.origin) {
-    event.respondWith(networkFirst(request))
+  if (url.origin === self.location.origin && isHashedAsset(url)) {
+    event.respondWith(cacheFirst(request))
     return
   }
 
-  event.respondWith(cacheFirst(request))
+  event.respondWith(networkFirst(request, url.origin === self.location.origin))
 })
 
 async function cacheFirst(request) {
@@ -63,9 +71,15 @@ async function cacheFirst(request) {
   return response
 }
 
-async function networkFirst(request) {
+/** The network's answer when there is one, kept for the next time there is not. */
+async function networkFirst(request, keep) {
   try {
-    return await fetch(request)
+    const response = await fetch(request)
+    if (keep && response.ok) {
+      const cache = await caches.open(SHELL_CACHE)
+      cache.put(request, response.clone())
+    }
+    return response
   } catch (failure) {
     const cached = await caches.match(request)
     if (cached !== undefined) {
