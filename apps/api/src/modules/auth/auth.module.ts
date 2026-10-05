@@ -1,4 +1,5 @@
 import type { EnvironmentVariables } from '@api/config/environment.schema.js'
+import { ChangeDisplayUnitUseCase } from '@api/modules/auth/application/use-cases/change-display-unit.use-case.js'
 import { SeedAccountUseCase } from '@api/modules/auth/application/use-cases/seed-account.use-case.js'
 import type { SessionPolicy } from '@api/modules/auth/application/use-cases/sign-in.use-case.js'
 import { SignInUseCase } from '@api/modules/auth/application/use-cases/sign-in.use-case.js'
@@ -32,6 +33,7 @@ import { APP_GUARD } from '@nestjs/core'
 @Module({
   controllers: [SignInController, SignOutController, MeController],
   providers: [
+    ChangeDisplayUnitUseCase,
     { provide: PASSWORD_HASHER, useClass: Argon2Hasher },
     { provide: CLOCK, useClass: SystemClock },
     { provide: USER_REPOSITORY, useClass: DrizzleUserRepository },
