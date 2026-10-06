@@ -25,6 +25,8 @@ describe('getSessionSets', () => {
       loggedAt: '2026-10-04T09:05:00.000Z',
       resolvedGrams: 60000,
       stackPosition: null,
+      rawGrams: 60000,
+      revision: 0,
     }
     const { client, stub } = clientAnswering(() => ({ status: 200, data: [set] }))
 

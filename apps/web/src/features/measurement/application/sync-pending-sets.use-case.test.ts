@@ -10,6 +10,7 @@ import { CountPendingSetsUseCase } from './count-pending-sets.use-case.ts'
 import { LogSetOfflineUseCase } from './log-set-offline.use-case.ts'
 import { QueueWriteFailedError } from './queue-write-failed.error.ts'
 import { SyncPendingSetsUseCase } from './sync-pending-sets.use-case.ts'
+import { WorkoutGoneError } from './workout-gone.error.ts'
 
 const sessionId = '0199a1f0-0000-7000-8000-0000000000a1'
 const otherSessionId = '0199a1f0-0000-7000-8000-0000000000b1'
@@ -39,6 +40,19 @@ class PartialGateway implements SetSyncGateway {
 
   async push(_session: string, sets: readonly LoggedSet[]): Promise<readonly string[]> {
     return sets.map((set) => set.id).filter(this.accept)
+  }
+}
+
+/** One workout was deleted elsewhere; every other one is still there. */
+class GoneWorkoutGateway implements SetSyncGateway {
+  readonly delivered: string[] = []
+
+  constructor(private readonly gone: string) {}
+
+  async push(session: string, sets: readonly LoggedSet[]): Promise<readonly string[]> {
+    if (session === this.gone) throw new WorkoutGoneError(session)
+    this.delivered.push(session)
+    return sets.map((set) => set.id)
   }
 }
 
@@ -182,5 +196,18 @@ describe('draining the queue', () => {
     await new SyncPendingSetsUseCase(queue, gateway).execute()
 
     expect(gateway.delivered[0]?.ids).toEqual([set.id])
+  })
+})
+
+describe('sets of a workout that no longer exists', () => {
+  it('lets them go instead of retrying them forever', async () => {
+    await logSet(sessionId)
+    await logSet(otherSessionId)
+    const gateway = new GoneWorkoutGateway(sessionId)
+
+    const result = await new SyncPendingSetsUseCase(queue, gateway).execute()
+
+    expect(gateway.delivered).toEqual([otherSessionId])
+    expect(result.pending).toBe(0)
   })
 })

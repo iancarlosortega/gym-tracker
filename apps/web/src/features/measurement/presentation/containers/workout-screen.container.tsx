@@ -3,11 +3,6 @@
 import type { Clock } from '@gym/domain/auth/ports/clock.port'
 import type { SetRepository } from '@gym/domain/measurement/repositories/set.repository'
 import { fromKilograms } from '@gym/domain/measurement/value-objects/grams.vo'
-import {
-  LoadEntry,
-  type MeasurementMode,
-} from '@gym/domain/measurement/value-objects/load-entry.vo'
-import { stackPosition } from '@gym/domain/measurement/value-objects/stack-position.vo'
 import type { CompletionCue } from '@gym/domain/rest-timer/ports/completion-cue.port'
 import type { ScreenWakeLock } from '@gym/domain/rest-timer/ports/screen-wake-lock.port'
 import type { RestInterval } from '@gym/domain/rest-timer/value-objects/rest-interval.vo'
@@ -16,7 +11,6 @@ import { Plus } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
-import { type DisplayUnit, fromDisplay, spokenUnit, unitLabel } from '@/lib/units'
 import { useDisplayUnit } from '../../../auth/presentation/queries'
 import { NewEquipmentForm } from '../../../catalog/presentation/components/new-equipment-form'
 import { useCreateEquipment } from '../../../catalog/presentation/queries'
@@ -39,6 +33,7 @@ import { keypadReducer, keypadValues, openKeypad } from '../keypad/keypad.reduce
 import { SetKeypad, ValueTile } from '../keypad/set-keypad'
 import { useLastSets } from '../last-sets.queries'
 import { sessionSetsQuery } from '../session-sets.queries'
+import { entryFor, weightTile } from '../set-entry'
 import { type DoneSet, doneLabel, doneRowsFor, fromQueue } from '../workout/done-sets'
 import { LastTimeCard, lastSetLabel } from '../workout/last-time-card'
 import {
@@ -80,38 +75,6 @@ interface Resting {
   readonly exerciseName: string
   readonly lastSet: string
   readonly setId: string
-}
-
-const weightTile = (mode: MeasurementMode, perHand: boolean, unit: DisplayUnit) => {
-  const reading = { unit: unitLabel(unit), spokenUnit: spokenUnit(unit) }
-  switch (mode) {
-    case 'PER_SIDE':
-      return { label: perHand ? 'Weight per hand' : 'Weight per side', ...reading }
-    case 'STACK_POSITION':
-      return { label: 'Pin position', unit: undefined, spokenUnit: undefined }
-    case 'TOTAL':
-      return { label: 'Weight', ...reading }
-  }
-}
-
-/** Typed in the user's unit; a bar that is not counted stays null, never 0 kg. */
-const entryFor = (
-  mode: MeasurementMode,
-  value: number,
-  barKilograms: number | null,
-  unit: DisplayUnit,
-): LoadEntry => {
-  switch (mode) {
-    case 'PER_SIDE':
-      return LoadEntry.perSide(
-        fromDisplay(value, unit),
-        barKilograms === null ? null : fromKilograms(barKilograms),
-      )
-    case 'STACK_POSITION':
-      return LoadEntry.stack(stackPosition(value))
-    case 'TOTAL':
-      return LoadEntry.total(fromDisplay(value, unit))
-  }
 }
 
 const useNow = (): Date => {

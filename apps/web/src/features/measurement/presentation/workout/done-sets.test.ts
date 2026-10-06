@@ -32,13 +32,20 @@ describe('done sets', () => {
       ),
     )
 
-    expect(set).toMatchObject({ id: 's-1', grams: 60_000, position: null, pending: true })
+    expect(set).toMatchObject({
+      id: 's-1',
+      mode: 'PER_SIDE',
+      grams: 60_000,
+      rawGrams: 20_000,
+      position: null,
+      pending: true,
+    })
   })
 
   it('reads a pin as a position', () => {
     const set = fromQueue(queued('s-1', LoadEntry.stack(stackPosition(7)), '2026-10-04T09:05:00Z'))
 
-    expect(set).toMatchObject({ grams: null, position: 7 })
+    expect(set).toMatchObject({ mode: 'STACK_POSITION', grams: null, rawGrams: null, position: 7 })
   })
 
   it('reads a synced set from the server the same way', () => {
@@ -52,9 +59,11 @@ describe('done sets', () => {
       loggedAt: '2026-10-04T09:10:00.000Z',
       resolvedGrams: 62500,
       stackPosition: null,
+      rawGrams: 62500,
+      revision: 0,
     })
 
-    expect(set).toMatchObject({ grams: 62_500, pending: false })
+    expect(set).toMatchObject({ mode: 'TOTAL', grams: 62_500, rawGrams: 62_500, pending: false })
   })
 
   it('merges server and queue, the queue winning while a set is still in it', () => {
@@ -68,6 +77,8 @@ describe('done sets', () => {
       loggedAt: '2026-10-04T09:05:00.000Z',
       resolvedGrams: 60000,
       stackPosition: null,
+      rawGrams: 60000,
+      revision: 0,
     })
     const local = fromQueue(
       queued('s-1', LoadEntry.total(fromKilograms(60)), '2026-10-04T09:05:00Z'),

@@ -1,4 +1,5 @@
 import type { LoggedSet } from '@gym/domain/measurement/entities/logged-set.entity'
+import type { MeasurementMode } from '@gym/domain/measurement/value-objects/load-entry.vo'
 import { type DisplayUnit, gramsToDisplay, unitLabel } from '@/lib/units'
 import type { LoggedSetResponse } from '../../infrastructure/session-sets.api'
 import type { DoneRow } from './workout-views'
@@ -8,9 +9,12 @@ export interface DoneSet {
   readonly id: string
   readonly exerciseId: string
   readonly equipmentId: string
+  readonly mode: MeasurementMode
   readonly loggedAt: Date
   /** The resolved mass; null for a pin position, which is not a mass. */
   readonly grams: number | null
+  /** The load as typed, per side for PER_SIDE: what an edit opens on. Null for a pin. */
+  readonly rawGrams: number | null
   readonly position: number | null
   readonly reps: number
   readonly pending: boolean
@@ -24,12 +28,16 @@ export const doneLabel = (set: DoneSet, unit: DisplayUnit): string =>
 
 export const fromQueue = (set: LoggedSet): DoneSet => {
   const mass = set.mass()
+  const state = set.entry.toJSON()
   return {
     id: set.id,
     exerciseId: set.exerciseId,
     equipmentId: set.equipmentId,
+    mode: state.mode,
     loggedAt: set.loggedAt,
     grams: mass.kind === 'resolved' ? mass.grams : null,
+    rawGrams:
+      state.mode === 'TOTAL' ? state.grams : state.mode === 'PER_SIDE' ? state.perSideGrams : null,
     position: set.entry.position,
     reps: set.reps,
     pending: true,
@@ -40,8 +48,10 @@ export const fromServer = (set: LoggedSetResponse): DoneSet => ({
   id: set.id,
   exerciseId: set.exerciseId,
   equipmentId: set.equipmentId,
+  mode: set.mode as MeasurementMode,
   loggedAt: new Date(set.loggedAt),
   grams: set.resolvedGrams,
+  rawGrams: set.rawGrams,
   position: set.stackPosition,
   reps: set.reps,
   pending: false,

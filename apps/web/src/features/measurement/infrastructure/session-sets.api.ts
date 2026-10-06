@@ -13,6 +13,9 @@ export interface LoggedSetResponse {
   /** Null for a pin position, which is not a mass. */
   readonly resolvedGrams: number | null
   readonly stackPosition: number | null
+  /** The load as typed: per side for PER_SIDE. Null for a pin position. */
+  readonly rawGrams: number | null
+  readonly revision: number
 }
 
 export const getSessionSets = async (

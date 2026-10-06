@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createApiClient } from '@/lib/api-client'
 import { type StubAnswer, stubAdapter } from '@/lib/testing/stub-adapter'
+import { WorkoutGoneError } from '../application/workout-gone.error.ts'
 import { HttpSetSyncGateway } from './http-set-sync.gateway.ts'
 
 const gatewayAnswering = (answer: () => StubAnswer) => {
@@ -33,5 +34,11 @@ describe('HttpSetSyncGateway', () => {
     const { gateway } = gatewayAnswering(() => ({ status: 503 }))
 
     await expect(gateway.push('session-9', [])).rejects.toThrow('503')
+  })
+
+  it('says so when the workout no longer exists, so the queue can let its sets go', async () => {
+    const { gateway } = gatewayAnswering(() => ({ status: 404 }))
+
+    await expect(gateway.push('session-9', [])).rejects.toThrow(WorkoutGoneError)
   })
 })

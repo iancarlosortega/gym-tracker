@@ -3,6 +3,7 @@ import type { SetSyncGateway } from '@gym/domain/measurement/ports/set-sync.gate
 import type { SetRepository } from '@gym/domain/measurement/repositories/set.repository'
 import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
 import { Pagination } from '@gym/domain/shared/value-objects/pagination.vo'
+import { WorkoutGoneError } from './workout-gone.error'
 
 /** Matches the server's batch bound, so a drained page is always deliverable. */
 const BATCH_SIZE = 100
@@ -57,7 +58,10 @@ export class SyncPendingSetsUseCase {
 
     try {
       accepted = await this.gateway.push(sessionId, batch)
-    } catch {
+    } catch (error) {
+      if (error instanceof WorkoutGoneError) {
+        await Promise.all(batch.map((set) => this.queue.delete(set.id)))
+      }
       return 0
     }
 
