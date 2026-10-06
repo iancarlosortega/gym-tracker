@@ -43,7 +43,7 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once its 
   - sets grouped by exercise, in log order and in the display unit;
   - tapping a set opens the `SetEditorContainer`;
   - Delete workout: a confirmation naming the routine and date → working state → on 204 go back to History and invalidate; the workout's queued sets are dropped first (D5); a failure keeps the workout and shows a message.
-- [ ] 5.5 A Home "History" link and a Profile "History" row. `activeTab` keeps Progress current. Bump the service worker cache version.
+- [x] 5.5 A Home "History" link and a Profile "History" row. `activeTab` keeps Progress current. Bump the service worker cache version.
 
 ## Device verification
 - [ ] DV.1 Correct and delete a set during a workout, including once in airplane mode.

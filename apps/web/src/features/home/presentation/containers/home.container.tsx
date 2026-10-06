@@ -8,6 +8,7 @@ import { HomeSkeleton } from '@/components/loading-skeletons'
 import { QueryState } from '@/components/query-state'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import { localTimeZone } from '@/lib/local-time'
+import { HistoryLink } from '../../../history/presentation/components/history-link'
 import { sessionSetsQuery } from '../../../measurement/presentation/session-sets.queries'
 import { RoutineStartChoices } from '../../../routines/presentation/components/start-sheets'
 import { useRoutines } from '../../../routines/presentation/queries'
@@ -63,6 +64,7 @@ export const HomeContainer = () => {
               <section className="grid gap-3">
                 <WeekStrip weekStart={localDate(weekStart, timeZone)} trainedOn={week.trainedOn} />
                 <WeekHeadline current={week.current} previous={week.previous} />
+                <HistoryLink />
               </section>
             )}
 

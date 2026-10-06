@@ -19,7 +19,7 @@
  * v4 drops the v3 cache along with every older one.
  */
 
-const SHELL_CACHE = 'gym-shell-v4'
+const SHELL_CACHE = 'gym-shell-v5'
 const SHELL = ['/', '/workout', '/manifest.webmanifest', '/icon.svg']
 
 /** How long a navigation waits on the network before the last copy is shown. */

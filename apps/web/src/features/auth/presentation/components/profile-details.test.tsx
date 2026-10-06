@@ -33,6 +33,14 @@ describe('ProfileDetails', () => {
     expect(screen.getByText('3 sets waiting to sync')).toBeDefined()
   })
 
+  it('links to the workout history', () => {
+    render(<ProfileDetails {...props} onSignOut={vi.fn()} />)
+
+    expect(screen.getByRole('link', { name: 'Workout history' }).getAttribute('href')).toBe(
+      '/statistics/history',
+    )
+  })
+
   it('signs out', async () => {
     const onSignOut = vi.fn()
     render(<ProfileDetails {...props} onSignOut={onSignOut} />)

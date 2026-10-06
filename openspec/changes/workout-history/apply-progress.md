@@ -93,10 +93,26 @@ Status: done and committed in two parts, 4a `2a8170d` (logic) and 4b (UI).
   - `pnpm lint`: clean.
   - Web build: OK.
 
-## S5 — Web: History list and workout detail (2026-10-06)
-Status: waiting on 5.0. Design options were published at https://claude.ai/artifact/7ydVYMCcLY462ZjjzewjXn:
-- A: grouped by week (recommended);
-- B: month calendar;
-- C: summary cards.
+## S5 — Web: History list, calendar and workout detail (2026-10-06)
+Status: done and committed.
 
-No components are written until Ian picks one.
+- **5.0**: Ian picked a combination: list A by default, with a List | Calendar toggle to B (D7b).
+- **5.1**: `GET /workouts?from&to` filters `[from, to)` (`c1f393b`). `GET /workouts/:id` (`0cba457`) is registered after `/workouts/current`, and a test pins that order.
+- **5.2**:
+  - `features/history` holds the API client, `groupByWeek`, the day and time labels, and the month helpers (`monthBounds`, `monthGrid`, `byLocalDay`, `addMonths`, `monthTitle`).
+  - Queries: an infinite list, the month read, the workout summary, and `useDeleteWorkout`. The delete drops the workout's queued sets and any queued finish, then deletes on the server (`883099e`, `9c9082a`).
+  - Set edits now also invalidate history.
+- **5.3 / 5.4** (`38c90a6`):
+  - Progress | History tabs.
+  - `HistoryContainer` keeps the view in `?view=`.
+  - The week-grouped list has Show older workouts. The calendar has dots, today, a selected day and month navigation.
+  - The workout detail groups sets by exercise in the order they were first done. Each set opens the `SetEditorContainer`.
+  - Delete workout asks first (an inline alertdialog), shows a working state and a failure message, and navigates back to History on success.
+  - `DoneSetList` was extracted from `DoneSets` for reuse.
+- **5.5**: `HistoryLink` on Home (under the week headline) and on Profile. `activeTab` already maps `/statistics*` to Progress. The service worker cache moved to `gym-shell-v5`.
+- **Process note**: an early commit mixed API and web files because `pnpm lint | tail` hid lint's exit code. It was split before anything was pushed (`0cba457`, `883099e`). For `HistoryLink`, the test and the implementation were written in one step, so RED was not observed.
+- **Checks**
+  - `pnpm typecheck`: green.
+  - `pnpm test`: domain 235, web 507 and api 317, all passing.
+  - `pnpm lint`: clean.
+  - Web build: OK.

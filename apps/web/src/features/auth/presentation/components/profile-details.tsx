@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import type { DisplayUnit } from '@/lib/units'
 import { cn } from '@/lib/utils'
+import { HistoryLink } from '../../../history/presentation/components/history-link'
 
 export interface ProfileDetailsProps {
   readonly email: string
@@ -46,6 +47,8 @@ export const ProfileDetails = ({
         <strong className="break-all">{email}</strong>
       </CardContent>
     </Card>
+
+    <HistoryLink />
 
     <fieldset className="flex items-center justify-between gap-3">
       <legend className="float-left font-medium">Weights in</legend>
