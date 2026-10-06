@@ -67,6 +67,20 @@ describe('DoneSets', () => {
     expect(rows[1]).toMatch(/2.*62.5 kg × 6.*waiting to sync/)
   })
 
+  it('opens a set for editing when it is tapped', async () => {
+    const onEdit = vi.fn()
+    render(
+      <DoneSets
+        rows={[{ id: 's-1', setNumber: 1, label: '60 kg × 8', pending: false }]}
+        onEdit={onEdit}
+      />,
+    )
+
+    await userEvent.click(screen.getByRole('button', { name: 'Edit set 1, 60 kg × 8' }))
+
+    expect(onEdit).toHaveBeenCalledWith('s-1')
+  })
+
   it('shows nothing before the first set', () => {
     const { container } = render(<DoneSets rows={[]} />)
 

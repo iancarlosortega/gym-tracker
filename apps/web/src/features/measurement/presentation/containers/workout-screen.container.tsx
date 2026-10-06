@@ -33,6 +33,7 @@ import { keypadReducer, keypadValues, openKeypad } from '../keypad/keypad.reduce
 import { SetKeypad, ValueTile } from '../keypad/set-keypad'
 import { useLastSets } from '../last-sets.queries'
 import { sessionSetsQuery } from '../session-sets.queries'
+import { SetEditorContainer } from '../set-editor/set-editor.container'
 import { entryFor, weightTile } from '../set-entry'
 import { type DoneSet, doneLabel, doneRowsFor, fromQueue } from '../workout/done-sets'
 import { LastTimeCard, lastSetLabel } from '../workout/last-time-card'
@@ -124,6 +125,8 @@ export const WorkoutScreenContainer = ({
   const [chosenEquipment, setChosenEquipment] = useState<ReadonlyMap<string, string>>(new Map())
   const [sheet, setSheet] = useState<'equipment' | 'exercise' | null>(null)
   const [keypadOpen, setKeypadOpen] = useState(false)
+  /** The done set open for correcting, by id. */
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [entry, dispatch] = useReducer(
     keypadReducer,
     openKeypad({ weight: '', reps: '' }, 'weight'),
@@ -363,7 +366,15 @@ export const WorkoutScreenContainer = ({
             />
           </div>
 
-          <DoneSets rows={rows} />
+          <DoneSets rows={rows} onEdit={setEditingId} />
+          <SetEditorContainer
+            sessionId={sessionId}
+            queue={queue}
+            set={done.find((set) => set.id === editingId) ?? null}
+            setNumber={rows.find((row) => row.id === editingId)?.setNumber ?? 0}
+            perHand={perHand}
+            onClose={() => setEditingId(null)}
+          />
 
           {keypadOpen ? (
             <SetKeypad

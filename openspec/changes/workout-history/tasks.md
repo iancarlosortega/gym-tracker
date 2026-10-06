@@ -23,13 +23,13 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once its 
 - [x] 3.4 `DELETE /workouts/:id` controller (204; foreign → 404).
 
 ## S4 — Web: shared set entry, editor drawer, offline paths
-- [ ] 4.1 Extract `weightTile` and `entryFor` from `workout-screen.container.tsx` into `features/measurement/presentation/set-entry.ts` with unit tests; the container behaves as before (D8).
-- [ ] 4.2 API client `correctSet` and `deleteSet`. `HttpSetSyncGateway.push` throws `WorkoutGoneError` on 404. `SyncPendingSetsUseCase` drops that batch, while other failures keep it (D5).
-- [ ] 4.3 Set mutations:
+- [x] 4.1 Extract `weightTile` and `entryFor` from `workout-screen.container.tsx` into `features/measurement/presentation/set-entry.ts` with unit tests; the container behaves as before (D8).
+- [x] 4.2 API client `correctSet` and `deleteSet`. `HttpSetSyncGateway.push` throws `WorkoutGoneError` on 404. `SyncPendingSetsUseCase` drops that batch, while other failures keep it (D5).
+- [x] 4.3 Set mutations:
   - a queued set: `LoggedSet.correct` → `queue.save`, or `queue.delete`;
   - a synced set: `optimisticMutation` scoped `['set', id]`, which patches session sets and invalidates statistics, last sets, current and routines;
   - a DELETE that gets a 404 counts as done.
-- [ ] 4.4 `SetEditorDrawer`, presentational: keypad tiles, Save, Delete set. Opened from the open workout's done rows (`DoneSets`). The rollback notice shows on failure. RTL tests: edit while queued offline, a synced edit rolled back, delete.
+- [x] 4.4 `SetEditorDrawer`, presentational: keypad tiles, Save, Delete set. Opened from the open workout's done rows (`DoneSets`). The rollback notice shows on failure. RTL tests: edit while queued offline, a synced edit rolled back, delete.
 
 ## S5 — Web: History list and workout detail (design first)
 - [ ] 5.0 **Design options** for the History list and the workout detail, as Artifact designs. Ian picks one before any component is written (D10).

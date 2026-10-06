@@ -87,6 +87,8 @@ export interface SetKeypadProps {
   readonly last: { readonly weight: number; readonly reps: number } | null
   readonly onLog: () => void
   readonly onClose: () => void
+  /** What the main key says; "Log set N" unless the keypad is correcting a set. */
+  readonly submitLabel?: string | undefined
 }
 
 /** Shown only while a value is being edited. */
@@ -98,6 +100,7 @@ export const SetKeypad = ({
   last,
   onLog,
   onClose,
+  submitLabel,
 }: SetKeypadProps) => {
   const editingWeight = state.field === 'weight'
   const label = editingWeight ? capitalized(weightLabel) : 'Reps'
@@ -158,7 +161,7 @@ export const SetKeypad = ({
             onPress={() => dispatch({ type: 'switchField' })}
           />
           <Button type="button" className="h-full rounded-xl font-bold text-lg" onClick={onLog}>
-            Log set {setNumber}
+            {submitLabel ?? `Log set ${setNumber}`}
           </Button>
         </div>
       </div>

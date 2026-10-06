@@ -106,20 +106,47 @@ export interface DoneRow {
   readonly pending: boolean
 }
 
-export const DoneSets = ({ rows }: { readonly rows: readonly DoneRow[] }) =>
+export interface DoneSetsProps {
+  readonly rows: readonly DoneRow[]
+  /** Opens a set for correcting or deleting; without it the list is read-only. */
+  readonly onEdit?: ((id: string) => void) | undefined
+}
+
+const rowClass = 'flex w-full items-center gap-3 rounded-xl bg-card px-4 py-2.5 text-left'
+
+const DoneRowContent = ({ row }: { readonly row: DoneRow }) => (
+  <>
+    <span className="w-5 font-semibold text-muted-foreground">{row.setNumber}</span>
+    <span className="grow font-medium">{row.label}</span>
+    {row.pending && (
+      <span className="flex items-center gap-1 text-muted-foreground text-xs">
+        <CloudUpload className="size-3.5" aria-hidden="true" />
+        waiting to sync
+      </span>
+    )}
+  </>
+)
+
+export const DoneSets = ({ rows, onEdit }: DoneSetsProps) =>
   rows.length === 0 ? null : (
     <section className="grid gap-2">
       <h3 className="font-semibold text-muted-foreground text-sm">Done</h3>
       <ol className="grid gap-1">
         {rows.map((row) => (
-          <li key={row.id} className="flex items-center gap-3 rounded-xl bg-card px-4 py-2.5">
-            <span className="w-5 font-semibold text-muted-foreground">{row.setNumber}</span>
-            <span className="grow font-medium">{row.label}</span>
-            {row.pending && (
-              <span className="flex items-center gap-1 text-muted-foreground text-xs">
-                <CloudUpload className="size-3.5" aria-hidden="true" />
-                waiting to sync
-              </span>
+          <li key={row.id}>
+            {onEdit === undefined ? (
+              <div className={rowClass}>
+                <DoneRowContent row={row} />
+              </div>
+            ) : (
+              <button
+                type="button"
+                aria-label={`Edit set ${row.setNumber}, ${row.label}`}
+                className={cn(rowClass, 'min-h-touch active:bg-muted')}
+                onClick={() => onEdit(row.id)}
+              >
+                <DoneRowContent row={row} />
+              </button>
             )}
           </li>
         ))}

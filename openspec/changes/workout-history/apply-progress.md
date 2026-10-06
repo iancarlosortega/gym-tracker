@@ -68,3 +68,27 @@ Status: done and committed.
   - `pnpm test`: domain 235, web 437 and api 308, all passing.
   - `pnpm lint`: clean.
   - API build: OK.
+
+## S4 — Web: shared set entry, editor drawer, offline paths (2026-10-06)
+Status: done and committed in two parts, 4a `2a8170d` (logic) and 4b (UI).
+
+- **4a**
+  - `set-entry.ts` now holds `weightTile` and `entryFor`, moved from the workout screen, plus new `correctionFor` and `enteredValue`.
+  - `sets.api.ts`: `correctSet`, and `deleteSet`, which takes a 404 as done.
+  - `HttpSetSyncGateway` throws `WorkoutGoneError` on a 404, and `SyncPendingSetsUseCase` drops that batch.
+  - `DoneSet` and `LoggedSetResponse` gain `mode`, `rawGrams` and `revision`.
+  - `useCorrectSet` and `useDeleteSet` (`set-edits.queries.ts`) are optimistic. A queued set is rewritten or removed in IndexedDB; a synced set goes through PATCH or DELETE and rolls back on error.
+  - Tests: set-entry (9), sets.api (4), gateway 404 (1), sync drop (1), done-sets fields, and hooks (5, against a real QueryClient and fake-indexeddb).
+- **4b**
+  - Done rows become buttons labelled "Edit set N, …".
+  - `SetKeypad` gains `submitLabel`.
+  - `SetEditor` is presentational: tiles, keypad with Save, and Delete set N.
+  - `SetEditorContainer` stays mounted so the rollback notice outlives the drawer, and keys the keypad state by set.
+  - The workout screen wires it in.
+  - Tests: DoneSets edit (1), SetEditor (3), container (3).
+- **Not covered**: there is no screen-level tap-to-edit test, because the workout-screen test mocks the server's sets as empty. Both halves are tested separately, and typecheck covers the wiring. Device check DV.1 covers the rest.
+- **Checks**
+  - `pnpm typecheck`: green.
+  - `pnpm test`: domain 235, web 464 and api 308, all passing.
+  - `pnpm lint`: clean.
+  - Web build: OK.
