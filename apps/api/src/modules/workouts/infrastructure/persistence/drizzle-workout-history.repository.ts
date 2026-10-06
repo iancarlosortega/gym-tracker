@@ -30,7 +30,26 @@ export class DrizzleWorkoutHistoryRepository implements WorkoutHistoryRepository
   ): Promise<Page<WorkoutHistoryEntry>> {
     const owned = ownedWithin(userId, startedWithin)
 
-    const rows = await this.database
+    const rows = await this.entries(owned)
+      .orderBy(desc(workoutSession.startedAt), desc(workoutSession.id))
+      .limit(pagination.limit)
+      .offset(pagination.offset)
+
+    const [total] = await this.database.select({ value: count() }).from(workoutSession).where(owned)
+
+    return Page.create(rows.map(toEntry), total?.value ?? 0, pagination)
+  }
+
+  async entry(userId: string, workoutId: string): Promise<WorkoutHistoryEntry | null> {
+    const [row] = await this.entries(
+      and(eq(workoutSession.userId, userId), eq(workoutSession.id, workoutId)),
+    )
+    return row === undefined ? null : toEntry(row)
+  }
+
+  /** Each workout with its routine's name and a count of its live sets. */
+  private entries(where: SQL | undefined) {
+    return this.database
       .select({
         id: workoutSession.id,
         routineId: workoutSession.routineId,
@@ -45,28 +64,27 @@ export class DrizzleWorkoutHistoryRepository implements WorkoutHistoryRepository
         loggedSet,
         and(eq(loggedSet.sessionId, workoutSession.id), isNull(loggedSet.deletedAt)),
       )
-      .where(owned)
+      .where(where)
       .groupBy(workoutSession.id, routine.name)
-      .orderBy(desc(workoutSession.startedAt), desc(workoutSession.id))
-      .limit(pagination.limit)
-      .offset(pagination.offset)
-
-    const [total] = await this.database.select({ value: count() }).from(workoutSession).where(owned)
-
-    return Page.create(
-      rows.map((row) => ({
-        id: row.id,
-        routineId: row.routineId,
-        routineName: row.routineName,
-        startedAt: new Date(row.startedAt),
-        finishedAt: row.finishedAt === null ? null : new Date(row.finishedAt),
-        setCount: row.setCount,
-      })),
-      total?.value ?? 0,
-      pagination,
-    )
+      .$dynamic()
   }
 }
+
+const toEntry = (row: {
+  id: string
+  routineId: string | null
+  routineName: string | null
+  startedAt: Date
+  finishedAt: Date | null
+  setCount: number
+}): WorkoutHistoryEntry => ({
+  id: row.id,
+  routineId: row.routineId,
+  routineName: row.routineName,
+  startedAt: new Date(row.startedAt),
+  finishedAt: row.finishedAt === null ? null : new Date(row.finishedAt),
+  setCount: row.setCount,
+})
 
 /** Half-open, so a month's last instant and the next month's first never both count. */
 function ownedWithin(userId: string, { from, to }: StartedWithin): SQL | undefined {

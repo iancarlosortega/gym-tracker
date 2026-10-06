@@ -1,12 +1,14 @@
 import { SystemClock } from '@api/modules/auth/infrastructure/adapters/system-clock.adapter.js'
 import { RoutinesModule } from '@api/modules/routines/routines.module.js'
 import { FinishWorkoutUseCase } from '@api/modules/workouts/application/use-cases/finish-workout.use-case.js'
+import { GetWorkoutUseCase } from '@api/modules/workouts/application/use-cases/get-workout.use-case.js'
 import { ListWorkoutsUseCase } from '@api/modules/workouts/application/use-cases/list-workouts.use-case.js'
 import { ResumeWorkoutUseCase } from '@api/modules/workouts/application/use-cases/resume-workout.use-case.js'
 import { StartWorkoutUseCase } from '@api/modules/workouts/application/use-cases/start-workout.use-case.js'
 import { DrizzleWorkoutHistoryRepository } from '@api/modules/workouts/infrastructure/persistence/drizzle-workout-history.repository.js'
 import { DrizzleWorkoutSessionRepository } from '@api/modules/workouts/infrastructure/persistence/drizzle-workout-session.repository.js'
 import { FinishWorkoutController } from '@api/modules/workouts/presentation/finish-workout/finish-workout.controller.js'
+import { GetWorkoutController } from '@api/modules/workouts/presentation/get-workout/get-workout.controller.js'
 import { ListWorkoutsController } from '@api/modules/workouts/presentation/list-workouts/list-workouts.controller.js'
 import { ResumeWorkoutController } from '@api/modules/workouts/presentation/resume-workout/resume-workout.controller.js'
 import { StartWorkoutController } from '@api/modules/workouts/presentation/start-workout/start-workout.controller.js'
@@ -32,6 +34,8 @@ import { Module } from '@nestjs/common'
     ResumeWorkoutController,
     FinishWorkoutController,
     ListWorkoutsController,
+    // After ResumeWorkoutController: "current" must match before ":id".
+    GetWorkoutController,
   ],
   providers: [
     { provide: CLOCK, useClass: SystemClock },
@@ -41,6 +45,7 @@ import { Module } from '@nestjs/common'
     ResumeWorkoutUseCase,
     FinishWorkoutUseCase,
     ListWorkoutsUseCase,
+    GetWorkoutUseCase,
   ],
   exports: [WORKOUT_SESSION_REPOSITORY],
 })

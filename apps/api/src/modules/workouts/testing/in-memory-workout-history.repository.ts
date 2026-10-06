@@ -28,4 +28,11 @@ export class InMemoryWorkoutHistoryRepository implements WorkoutHistoryRepositor
       pagination,
     )
   }
+
+  async entry(userId: string, workoutId: string): Promise<WorkoutHistoryEntry | null> {
+    const found = this.entries.find((entry) => entry.userId === userId && entry.id === workoutId)
+    if (found === undefined) return null
+    const { userId: _owner, ...entry } = found
+    return entry
+  }
 }

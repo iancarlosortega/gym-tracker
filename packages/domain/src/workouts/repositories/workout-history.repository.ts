@@ -32,4 +32,6 @@ export interface WorkoutHistoryRepository {
     pagination: Pagination,
     startedWithin?: StartedWithin,
   ): Promise<Page<WorkoutHistoryEntry>>
+  /** One of the user's workouts; null when it is missing or someone else's. */
+  entry(userId: string, workoutId: string): Promise<WorkoutHistoryEntry | null>
 }

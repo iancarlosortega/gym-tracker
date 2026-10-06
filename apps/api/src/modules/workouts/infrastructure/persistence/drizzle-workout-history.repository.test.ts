@@ -129,4 +129,16 @@ describe('the workout history', () => {
     expect(page.items.map((entry) => entry.id)).toEqual([last, first])
     expect(page.total).toBe(2)
   })
+
+  it('reads one of the user’s workouts by id, and nobody else’s', async () => {
+    const mine = await workout(references.userId, '2026-10-01T18:10:00Z')
+    await set(mine)
+    const other = await firstId(
+      `INSERT INTO app_user (email, password_hash) VALUES ('other@example.test', 'hash') RETURNING id`,
+      [],
+    )
+
+    expect(await history.entry(references.userId, mine)).toMatchObject({ id: mine, setCount: 1 })
+    expect(await history.entry(other, mine)).toBeNull()
+  })
 })
