@@ -46,4 +46,16 @@ describe('listing past workouts', () => {
 
     expect((await list.execute({ userId: owner })).items).toEqual([])
   })
+
+  it('reads a range when one is asked for', async () => {
+    history.entries.push(entry(1), entry(15), entry(28))
+
+    const result = await list.execute({
+      userId: owner,
+      from: new Date(Date.UTC(2026, 8, 10)),
+      to: new Date(Date.UTC(2026, 8, 28, 8)),
+    })
+
+    expect(result.items.map((item) => item.startedAt.getUTCDate())).toEqual([15])
+  })
 })

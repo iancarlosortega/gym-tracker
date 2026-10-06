@@ -88,6 +88,13 @@ The client derives the local day from `startedAt` with the phone's zone (`local-
 - Nesting under `/statistics` keeps the Progress tab marked.
 - The layout of both pages is decided by design options (D10).
 
+### D7b: History is a week-grouped list with a calendar toggle (owner, 2026-10-06)
+**Choice**: History opens as a list grouped by local week (option A). A List | Calendar toggle switches to a month grid (option B) with a dot on each trained day; tapping a day lists that day's workouts below the grid. The view is kept in the URL (`?view=calendar`), so going back from a workout returns to the same view.
+
+The calendar reads one month at a time. `GET /workouts` gains optional `from` and `to` instants, and the history read filters `started_at` to `[from, to)`. The phone computes the month's bounds in its own zone with `local-calendar`, the same way the week strip computes its week.
+
+**Rationale**: the owner picked this combination. A range on the same endpoint keeps one history read rather than adding a second endpoint.
+
 ### D8: One set editor for the done rows and the detail
 **Choice**:
 - Extract `weightTile` and `entryFor` from `workout-screen.container.tsx` into `features/measurement/presentation/set-entry.ts` first (pure, tested).

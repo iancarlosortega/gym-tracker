@@ -114,4 +114,19 @@ describe('the workout history', () => {
     expect(page.items).toEqual([])
     expect(page.total).toBe(0)
   })
+
+  it('reads only the workouts started within a range, end excluded', async () => {
+    await workout(references.userId, '2026-09-30T23:59:59Z')
+    const first = await workout(references.userId, '2026-10-01T05:00:00Z')
+    const last = await workout(references.userId, '2026-10-31T23:00:00Z')
+    await workout(references.userId, '2026-11-01T05:00:00Z')
+
+    const page = await history.page(references.userId, Pagination.create({ limit: 200 }), {
+      from: new Date('2026-10-01T05:00:00Z'),
+      to: new Date('2026-11-01T05:00:00Z'),
+    })
+
+    expect(page.items.map((entry) => entry.id)).toEqual([last, first])
+    expect(page.total).toBe(2)
+  })
 })

@@ -10,6 +10,10 @@ export interface ListWorkoutsInput {
   readonly userId: string
   readonly limit?: number | undefined
   readonly offset?: number | undefined
+  /** Started at or after; a calendar month's first local instant. */
+  readonly from?: Date | undefined
+  /** Started before; the next month's first local instant. */
+  readonly to?: Date | undefined
 }
 
 export interface WorkoutHistoryPage {
@@ -29,6 +33,7 @@ export class ListWorkoutsUseCase {
     const page = await this.history.page(
       input.userId,
       Pagination.create({ limit: input.limit, offset: input.offset }),
+      { from: input.from, to: input.to },
     )
 
     return {

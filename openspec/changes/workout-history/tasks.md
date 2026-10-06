@@ -31,15 +31,19 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once its 
   - a DELETE that gets a 404 counts as done.
 - [x] 4.4 `SetEditorDrawer`, presentational: keypad tiles, Save, Delete set. Opened from the open workout's done rows (`DoneSets`). The rollback notice shows on failure. RTL tests: edit while queued offline, a synced edit rolled back, delete.
 
-## S5 — Web: History list and workout detail (design first)
-- [ ] 5.0 **Design options** for the History list and the workout detail, as Artifact designs. Ian picks one before any component is written (D10).
-- [ ] 5.1 History API client and queries (`GET /workouts`, infinite offset paging). Rows show the local day (phone zone), routine name or "No routine", set count, and an in-progress badge.
-- [ ] 5.2 Routes `/statistics/history` and `/statistics/history/[workoutId]`. A Progress | History switch on the Progress screen. The detail groups sets by exercise in log order, in the display unit, and each set opens the `SetEditorDrawer`.
-- [ ] 5.3 Delete workout:
-  - confirmation naming the routine and date → working state → on 204 navigate to History and invalidate;
-  - the workout's queued sets are dropped first (D5);
-  - a failure keeps the workout with a message.
-- [ ] 5.4 Home "History" link and Profile "History" row. `activeTab` keeps Progress current. Bump the service worker cache version.
+## S5 — Web: History list, calendar and workout detail
+- [x] 5.0 **Design options**: published at https://claude.ai/artifact/7ydVYMCcLY462ZjjzewjXn. Ian chose a combination: list A by default, plus a toggle to calendar B (D7b).
+- [x] 5.1 API: `GET /workouts` takes optional `from` and `to` instants. `WorkoutHistoryRepository.page` filters `started_at` to `[from, to)`. Tests cover PGlite, DTO and use case.
+- [ ] 5.2 Web history client and queries: an infinite list (offset paging) and a month read (`from`/`to`, limit 200). Pure helpers group the list by local week and bucket the month by local day.
+- [ ] 5.3 Routes `/statistics/history` and `/statistics/history/[workoutId]`, and a Progress | History switch on the Progress screen.
+  - The list shows rows grouped by week: local day, routine name or "No routine", set count, duration, and an in-progress badge.
+  - A List | Calendar toggle is kept in `?view=`.
+  - The month grid has trained-day dots, previous and next month, and a list of the selected day's workouts.
+- [ ] 5.4 Workout detail:
+  - sets grouped by exercise, in log order and in the display unit;
+  - tapping a set opens the `SetEditorContainer`;
+  - Delete workout: a confirmation naming the routine and date → working state → on 204 go back to History and invalidate; the workout's queued sets are dropped first (D5); a failure keeps the workout and shows a message.
+- [ ] 5.5 A Home "History" link and a Profile "History" row. `activeTab` keeps Progress current. Bump the service worker cache version.
 
 ## Device verification
 - [ ] DV.1 Correct and delete a set during a workout, including once in airplane mode.

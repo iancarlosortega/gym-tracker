@@ -102,4 +102,21 @@ describe('listing workouts over http', () => {
   it('refuses a negative offset', async () => {
     await request(app.getHttpServer()).get('/workouts?offset=-1').expect(400)
   })
+
+  it('passes a range on as instants', async () => {
+    await request(app.getHttpServer())
+      .get('/workouts?from=2026-10-01T05:00:00.000Z&to=2026-11-01T05:00:00.000Z&limit=200')
+      .expect(200)
+
+    expect(received).toEqual({
+      userId,
+      limit: 200,
+      from: new Date('2026-10-01T05:00:00.000Z'),
+      to: new Date('2026-11-01T05:00:00.000Z'),
+    })
+  })
+
+  it('refuses a range that is not an instant', async () => {
+    await request(app.getHttpServer()).get('/workouts?from=october').expect(400)
+  })
 })

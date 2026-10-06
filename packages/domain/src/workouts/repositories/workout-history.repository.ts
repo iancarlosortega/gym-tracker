@@ -14,6 +14,12 @@ export interface WorkoutHistoryEntry {
   readonly setCount: number
 }
 
+/** Workouts that started at or after `from` and before `to`; either bound may be left open. */
+export interface StartedWithin {
+  readonly from?: Date | undefined
+  readonly to?: Date | undefined
+}
+
 /**
  * The user's workouts, newest first, a page at a time.
  *
@@ -21,5 +27,9 @@ export interface WorkoutHistoryEntry {
  * joins the routine's name and counts sets, which a session does not hold.
  */
 export interface WorkoutHistoryRepository {
-  page(userId: string, pagination: Pagination): Promise<Page<WorkoutHistoryEntry>>
+  page(
+    userId: string,
+    pagination: Pagination,
+    startedWithin?: StartedWithin,
+  ): Promise<Page<WorkoutHistoryEntry>>
 }

@@ -27,4 +27,5 @@ preproposal:
     edit_scope: confirmed # reps and load only; the snapshot is kept (owner, 2026-10-05)
     editable_workouts: confirmed # open and finished (owner, 2026-10-05)
     delete_workout: confirmed # yes, with confirmation (owner, 2026-10-05)
+    history_layout: confirmed # list grouped by week by default, with a List | Calendar toggle to a month view (owner, 2026-10-06)
   proposal_ready: true
