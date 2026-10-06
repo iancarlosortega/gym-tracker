@@ -9,12 +9,12 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once its 
 - [x] 1.4 `InMemoryWorkoutSessionRepository.delete`. The history double arrives with its use case in S3.
 
 ## S2 — API: correct and delete a set
-- [ ] 2.1 `CorrectSetUseCase`:
+- [x] 2.1 `CorrectSetUseCase`:
   - `findOne` → `findOwnedWorkout` → build the entry from the mode and `snapshot.barGrams` (STACK checks `allowsPosition`) → `correct` → `save`;
   - a missing or foreign set → `SetNotFoundError` (D1, D2, D9).
-- [ ] 2.2 `DeleteSetUseCase`: a live, owned set → `delete` plus `PushScheduler.cancelForSet`; a missing, repeated or foreign set → 404 (D3).
-- [ ] 2.3 `PATCH /sets/:id` and `DELETE /sets/:id` controllers and DTO (`{grams?|position?, reps}`, exactly one of grams and position). `SET_NOT_FOUND` → 404 in `measurement.http-errors.ts`. Controller tests with supertest.
-- [ ] 2.4 `LoggedSetView` gains `rawGrams` and `revision`. Check the Drizzle `saveMany` upsert carries a higher-revision correction. PGlite test: a corrected row is updated and a stale revision loses.
+- [x] 2.2 `DeleteSetUseCase`: a live, owned set → `delete` plus `PushScheduler.cancelForSet`; a missing, repeated or foreign set → 404 (D3).
+- [x] 2.3 `PATCH /sets/:id` and `DELETE /sets/:id` controllers and DTO (`{grams?|position?, reps}`, exactly one of grams and position). `SET_NOT_FOUND` → 404 in `measurement.http-errors.ts`. Controller tests with supertest.
+- [x] 2.4 `LoggedSetView` gains `rawGrams` and `revision`. Check the Drizzle `saveMany` upsert carries a higher-revision correction. PGlite test: a corrected row is updated and a stale revision loses.
 
 ## S3 — API: history list and workout delete
 - [ ] 3.1 `DrizzleWorkoutHistoryRepository` and its in-memory double: one query that is user-scoped, newest first (`started_at DESC, id DESC`), with the routine name and a count of live sets, using limit and offset. PGlite tests: tombstones are not counted, another user is excluded, paging neither repeats nor skips.

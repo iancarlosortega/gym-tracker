@@ -195,6 +195,34 @@ export function describeSetRepositoryContract(harness: SetRepositoryHarness): vo
         expect(found?.revision).toBe(1)
       })
 
+      it('applies a corrected load, still resolved against the stored bar', async () => {
+        await repository.save(benchPress(ids.first))
+        await repository.save(
+          benchPress(ids.first).correct({ load: { grams: fromKilograms(25) }, reps: reps(6) }),
+        )
+
+        const found = await repository.findOne(
+          Criteria.create<SetCriteriaFields>({ id: ids.first }),
+        )
+
+        expect(found?.mass()).toEqual({ kind: 'resolved', grams: fromKilograms(70) })
+        expect(found?.reps).toBe(6)
+        expect(found?.snapshot.barGrams).toBe(fromKilograms(20))
+      })
+
+      it('moves an ordinal set to its corrected position', async () => {
+        await repository.save(machineRow(ids.second))
+        await repository.save(
+          machineRow(ids.second).correct({ load: { position: stackPosition(9) }, reps: reps(10) }),
+        )
+
+        const found = await repository.findOne(
+          Criteria.create<SetCriteriaFields>({ id: ids.second }),
+        )
+
+        expect(found?.entry.toJSON()).toEqual({ mode: 'STACK_POSITION', position: 9 })
+      })
+
       it('breaks a revision tie by the moment the set was logged', async () => {
         const later = benchPress(ids.first, new Date('2026-09-19T18:30:00.000Z'))
         const earlier = benchPress(ids.first, new Date('2026-09-19T18:00:00.000Z'))

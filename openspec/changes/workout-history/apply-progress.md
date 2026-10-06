@@ -22,3 +22,24 @@ Status: done and checked; uncommitted, awaiting Ian's local review.
   - `pnpm typecheck`: green.
   - `pnpm test`: domain 235, web 435 and api 272, all passing.
   - `pnpm lint`: clean, after biome import ordering.
+
+## S2 — API: correct and delete a set (2026-10-06)
+Status: done and committed. Ian waived review for this change.
+
+- **RED → GREEN**
+  - `correct-set.use-case.test.ts` (7 tests) and `delete-set.use-case.test.ts` (4 tests) failed with the module missing, and now pass.
+  - `correct-set.controller.test.ts` (9 tests, covering PATCH and DELETE) failed with the controller missing, and now passes.
+- **Changes**
+  - `findOwnedSet` (`find-set.ts`) reads a missing, deleted or foreign set as `SetNotFoundError`.
+  - `CorrectSetUseCase` checks a stack correction with `allowsPosition` when the machine still exists.
+  - `DeleteSetUseCase` does the soft delete plus `PushScheduler.cancelForSet`.
+  - `PATCH /sets/:id` (200 with `LoggedSetView`) and `DELETE /sets/:id` (204).
+  - `CorrectSetDto` takes exactly one of grams and position.
+  - `LoggedSetView` gains `rawGrams` and `revision`.
+  - `PushModule` now exports `PUSH_SCHEDULER`, and `MeasurementModule` imports `PushModule`.
+- **Contract**: two cases were added to `describeSetRepositoryContract`, a corrected load and a corrected position. They passed immediately on both the Drizzle (PGlite) and IndexedDB adapters, which confirms the existing upsert already carries corrections. No adapter change was needed.
+- **Checks**
+  - `pnpm typecheck`: green.
+  - `pnpm test`: domain 235, web 437 and api 294, all passing.
+  - `pnpm lint`: clean.
+  - API build: OK.

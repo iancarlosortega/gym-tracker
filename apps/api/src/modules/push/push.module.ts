@@ -45,6 +45,6 @@ import { Module } from '@nestjs/common'
     ReadPushStateUseCase,
     PushDispatchTick,
   ],
-  exports: [PUSH_SUBSCRIPTION_REPOSITORY],
+  exports: [PUSH_SUBSCRIPTION_REPOSITORY, PUSH_SCHEDULER],
 })
 export class PushModule {}

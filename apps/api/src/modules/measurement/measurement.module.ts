@@ -1,5 +1,7 @@
 import { AuthModule } from '@api/modules/auth/auth.module.js'
 import { CatalogModule } from '@api/modules/catalog/catalog.module.js'
+import { CorrectSetUseCase } from '@api/modules/measurement/application/use-cases/correct-set.use-case.js'
+import { DeleteSetUseCase } from '@api/modules/measurement/application/use-cases/delete-set.use-case.js'
 import { GetLastSetsUseCase } from '@api/modules/measurement/application/use-cases/get-last-sets.use-case.js'
 import { ListSessionSetsUseCase } from '@api/modules/measurement/application/use-cases/list-session-sets.use-case.js'
 import { LogSetsUseCase } from '@api/modules/measurement/application/use-cases/log-sets.use-case.js'
@@ -9,9 +11,12 @@ import {
   LAST_SETS_REPOSITORY,
   SET_REPOSITORY,
 } from '@api/modules/measurement/measurement.tokens.js'
+import { CorrectSetController } from '@api/modules/measurement/presentation/correct-set/correct-set.controller.js'
+import { DeleteSetController } from '@api/modules/measurement/presentation/delete-set/delete-set.controller.js'
 import { GetLastSetsController } from '@api/modules/measurement/presentation/get-last-sets/get-last-sets.controller.js'
 import { ListSessionSetsController } from '@api/modules/measurement/presentation/list-session-sets/list-session-sets.controller.js'
 import { LogSetsController } from '@api/modules/measurement/presentation/log-sets/log-sets.controller.js'
+import { PushModule } from '@api/modules/push/push.module.js'
 import { WorkoutsModule } from '@api/modules/workouts/workouts.module.js'
 import { Module } from '@nestjs/common'
 
@@ -24,14 +29,22 @@ import { Module } from '@nestjs/common'
  * through the module that owns it.
  */
 @Module({
-  imports: [WorkoutsModule, CatalogModule, AuthModule],
-  controllers: [LogSetsController, GetLastSetsController, ListSessionSetsController],
+  imports: [WorkoutsModule, CatalogModule, AuthModule, PushModule],
+  controllers: [
+    LogSetsController,
+    GetLastSetsController,
+    ListSessionSetsController,
+    CorrectSetController,
+    DeleteSetController,
+  ],
   providers: [
     { provide: SET_REPOSITORY, useClass: DrizzleSetRepository },
     { provide: LAST_SETS_REPOSITORY, useClass: DrizzleLastSetsRepository },
     LogSetsUseCase,
     GetLastSetsUseCase,
     ListSessionSetsUseCase,
+    CorrectSetUseCase,
+    DeleteSetUseCase,
   ],
   exports: [SET_REPOSITORY],
 })
