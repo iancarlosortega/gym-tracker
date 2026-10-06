@@ -1,0 +1,30 @@
+change: workout-history
+created: 2026-10-05
+artifact_store: hybrid
+execution_mode: auto
+delivery_strategy: auto-chain
+delivery_note: Sole developer. Commits to main; no PRs.
+
+phases:
+  explore: done
+  research: unselected
+  proposal: done
+  spec: done
+  design: done
+  tasks: done
+  apply: in_progress # S1 done
+  verify: pending
+  archive: pending
+
+next_recommended: apply # S2
+
+preproposal:
+  schema: gentle-ai.sdd-preproposal/v1
+  revision: 1
+  research: unselected
+  decisions:
+    history_entry_point: confirmed # Progress sub-view, plus links from Home and Profile (owner, 2026-10-05)
+    edit_scope: confirmed # reps and load only; the snapshot is kept (owner, 2026-10-05)
+    editable_workouts: confirmed # open and finished (owner, 2026-10-05)
+    delete_workout: confirmed # yes, with confirmation (owner, 2026-10-05)
+  proposal_ready: true
