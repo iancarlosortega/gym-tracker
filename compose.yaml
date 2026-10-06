@@ -78,6 +78,10 @@ services:
       FRONTEND_ORIGIN: https://${GYM_DOMAIN}
       API_ORIGIN: https://${API_DOMAIN}
       SESSION_LIFETIME_DAYS: ${SESSION_LIFETIME_DAYS:-90}
+      # Caddy is the one hop in front, so the rate limit sees the real client.
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+      AUTH_RATE_LIMIT: ${AUTH_RATE_LIMIT:-5}
+      AUTH_RATE_WINDOW_SECONDS: ${AUTH_RATE_WINDOW_SECONDS:-60}
       # Absent, the API still runs and says pocketed alerts are off.
       VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
       VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}

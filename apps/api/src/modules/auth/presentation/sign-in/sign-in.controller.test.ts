@@ -1,5 +1,6 @@
 import { DomainExceptionFilter } from '@api/common/filters/domain-exception.filter.js'
 import { SignInUseCase } from '@api/modules/auth/application/use-cases/sign-in.use-case.js'
+import { authThrottlerForTests } from '@api/modules/auth/testing/auth-throttler.testing.js'
 import { AuthenticationFailedError } from '@gym/domain/auth/errors'
 import { ConfigService } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
@@ -12,7 +13,13 @@ import { SignInController } from './sign-in.controller.ts'
 let app: NestExpressApplication
 let signInBehaviour: () => Promise<{ sessionId: string; expiresAt: Date }>
 
-const config = { get: (key: string) => (key === 'SESSION_LIFETIME_DAYS' ? 90 : 'test') }
+const settings: Record<string, unknown> = {
+  SESSION_LIFETIME_DAYS: 90,
+  NODE_ENV: 'test',
+  AUTH_RATE_LIMIT: 5,
+  AUTH_RATE_WINDOW_SECONDS: 60,
+}
+const config = { get: (key: string) => settings[key] }
 
 beforeEach(async () => {
   signInBehaviour = async () => ({
@@ -21,6 +28,7 @@ beforeEach(async () => {
   })
 
   const moduleRef = await Test.createTestingModule({
+    imports: [authThrottlerForTests(settings)],
     controllers: [SignInController],
     providers: [
       { provide: SignInUseCase, useValue: { execute: () => signInBehaviour() } },
@@ -81,5 +89,25 @@ describe('signing in over http', () => {
       .expect(401)
 
     expect(response.headers['set-cookie']).toBeUndefined()
+  })
+
+  it('refuses the sixth attempt in a minute, so passwords cannot be guessed at speed', async () => {
+    signInBehaviour = async () => {
+      throw new AuthenticationFailedError('nope')
+    }
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      await request(app.getHttpServer())
+        .post('/auth/sign-in')
+        .send({ email: 'ian@example.test', password: 'wrong' })
+        .expect(401)
+    }
+
+    const response = await request(app.getHttpServer())
+      .post('/auth/sign-in')
+      .send({ email: 'ian@example.test', password: 'wrong' })
+      .expect(429)
+
+    expect(response.headers['retry-after']).toBeDefined()
   })
 })

@@ -5,14 +5,19 @@ import type { EnvironmentVariables } from '@api/config/environment.schema.js'
 import { ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
+import type { NestExpressApplication } from '@nestjs/platform-express'
 import cookieParser from 'cookie-parser'
 
 async function bootstrap(): Promise<void> {
   // Environment validation runs while the application is created, so a
   // contradictory configuration — notably an origin pair that could never hold
   // a session — stops the process before it ever listens.
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create<NestExpressApplication>(AppModule)
   const config = app.get(ConfigService<EnvironmentVariables, true>)
+
+  // Behind Caddy, the caller is in X-Forwarded-For. The auth rate limit keys
+  // on it, so without this every request would look like the proxy.
+  app.set('trust proxy', config.get('TRUST_PROXY', { infer: true }))
 
   app.use(cookieParser())
 

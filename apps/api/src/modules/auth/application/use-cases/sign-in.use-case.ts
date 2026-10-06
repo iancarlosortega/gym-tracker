@@ -1,15 +1,10 @@
 import {
-  CLOCK,
-  PASSWORD_HASHER,
-  SESSION_POLICY,
-  SESSION_REPOSITORY,
-  USER_REPOSITORY,
-} from '@api/modules/auth/auth.tokens.js'
-import { AuthSession } from '@gym/domain/auth/entities/auth-session.entity'
+  type IssuedSession,
+  SessionIssuer,
+} from '@api/modules/auth/application/services/session-issuer.service.js'
+import { PASSWORD_HASHER, USER_REPOSITORY } from '@api/modules/auth/auth.tokens.js'
 import { AuthenticationFailedError } from '@gym/domain/auth/errors'
-import type { Clock } from '@gym/domain/auth/ports/clock.port'
 import type { PasswordHasher } from '@gym/domain/auth/ports/password-hasher.port'
-import type { AuthSessionRepository } from '@gym/domain/auth/repositories/auth-session.repository'
 import type {
   UserCriteriaFields,
   UserRepository,
@@ -23,23 +18,14 @@ export interface SignInInput {
   readonly password: string
 }
 
-export interface SignInResult {
-  readonly sessionId: string
-  readonly expiresAt: Date
-}
-
-export interface SessionPolicy {
-  readonly sessionLifetimeDays: number
-}
+export type SignInResult = IssuedSession
 
 @Injectable()
 export class SignInUseCase {
   constructor(
     @Inject(USER_REPOSITORY) private readonly users: UserRepository,
-    @Inject(SESSION_REPOSITORY) private readonly sessions: AuthSessionRepository,
     @Inject(PASSWORD_HASHER) private readonly hasher: PasswordHasher,
-    @Inject(CLOCK) private readonly clock: Clock,
-    @Inject(SESSION_POLICY) private readonly policy: SessionPolicy,
+    private readonly issuer: SessionIssuer,
   ) {}
 
   /**
@@ -67,15 +53,7 @@ export class SignInUseCase {
       throw this.failure()
     }
 
-    const session = AuthSession.create({
-      userId: user.id,
-      now: this.clock.now(),
-      lifetimeDays: this.policy.sessionLifetimeDays,
-    })
-
-    await this.sessions.save(session)
-
-    return { sessionId: session.id.value, expiresAt: session.expiresAt }
+    return this.issuer.issue(user.id)
   }
 
   private parseEmail(input: string): Email | null {

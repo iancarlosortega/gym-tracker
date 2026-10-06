@@ -1,5 +1,6 @@
 import type { EnvironmentVariables } from '@api/config/environment.schema.js'
-import { SignInUseCase } from '@api/modules/auth/application/use-cases/sign-in.use-case.js'
+import { SessionIssuer } from '@api/modules/auth/application/services/session-issuer.service.js'
+import { RegisterAccountUseCase } from '@api/modules/auth/application/use-cases/register-account.use-case.js'
 import { Public } from '@api/modules/auth/presentation/public.decorator.js'
 import {
   SESSION_COOKIE_NAME,
@@ -9,24 +10,27 @@ import { Body, Controller, HttpCode, Post, Res, UseGuards } from '@nestjs/common
 import { ConfigService } from '@nestjs/config'
 import { ThrottlerGuard } from '@nestjs/throttler'
 import type { Response } from 'express'
-import { SignInDto } from './sign-in.dto.js'
+import { SignUpDto } from './sign-up.dto.js'
 
 @Controller('auth')
 @UseGuards(ThrottlerGuard)
-export class SignInController {
+export class SignUpController {
   constructor(
-    private readonly signIn: SignInUseCase,
+    private readonly register: RegisterAccountUseCase,
+    private readonly issuer: SessionIssuer,
     private readonly config: ConfigService<EnvironmentVariables, true>,
   ) {}
 
+  /** Creates the account and signs it in, so registering lands on Home. */
   @Public()
-  @Post('sign-in')
-  @HttpCode(204)
+  @Post('sign-up')
+  @HttpCode(201)
   async handle(
-    @Body() body: SignInDto,
+    @Body() body: SignUpDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<void> {
-    const { sessionId } = await this.signIn.execute(body)
+    const user = await this.register.execute(body)
+    const { sessionId } = await this.issuer.issue(user.id)
 
     response.cookie(
       SESSION_COOKIE_NAME,

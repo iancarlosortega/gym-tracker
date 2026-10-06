@@ -1,7 +1,10 @@
 import type { EnvironmentVariables } from '@api/config/environment.schema.js'
+import {
+  SessionIssuer,
+  type SessionPolicy,
+} from '@api/modules/auth/application/services/session-issuer.service.js'
 import { ChangeDisplayUnitUseCase } from '@api/modules/auth/application/use-cases/change-display-unit.use-case.js'
 import { RegisterAccountUseCase } from '@api/modules/auth/application/use-cases/register-account.use-case.js'
-import type { SessionPolicy } from '@api/modules/auth/application/use-cases/sign-in.use-case.js'
 import { SignInUseCase } from '@api/modules/auth/application/use-cases/sign-in.use-case.js'
 import { SignOutUseCase } from '@api/modules/auth/application/use-cases/sign-out.use-case.js'
 import { ValidateSessionUseCase } from '@api/modules/auth/application/use-cases/validate-session.use-case.js'
@@ -16,13 +19,16 @@ import { Argon2Hasher } from '@api/modules/auth/infrastructure/adapters/argon2-h
 import { SystemClock } from '@api/modules/auth/infrastructure/adapters/system-clock.adapter.js'
 import { DrizzleAuthSessionRepository } from '@api/modules/auth/infrastructure/persistence/drizzle-auth-session.repository.js'
 import { DrizzleUserRepository } from '@api/modules/auth/infrastructure/persistence/drizzle-user.repository.js'
+import { AuthThrottlerOptions } from '@api/modules/auth/presentation/auth-throttler.options.js'
 import { MeController } from '@api/modules/auth/presentation/me/me.controller.js'
 import { SessionGuard } from '@api/modules/auth/presentation/session.guard.js'
 import { SignInController } from '@api/modules/auth/presentation/sign-in/sign-in.controller.js'
 import { SignOutController } from '@api/modules/auth/presentation/sign-out/sign-out.controller.js'
+import { SignUpController } from '@api/modules/auth/presentation/sign-up/sign-up.controller.js'
 import { Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
+import { ThrottlerModule } from '@nestjs/throttler'
 
 /**
  * Composition root for authentication.
@@ -31,7 +37,8 @@ import { APP_GUARD } from '@nestjs/core'
  * layer stays unaware of argon2, Drizzle and the system clock.
  */
 @Module({
-  controllers: [SignInController, SignOutController, MeController],
+  imports: [ThrottlerModule.forRootAsync({ useClass: AuthThrottlerOptions })],
+  controllers: [SignInController, SignUpController, SignOutController, MeController],
   providers: [
     ChangeDisplayUnitUseCase,
     { provide: PASSWORD_HASHER, useClass: Argon2Hasher },
@@ -45,6 +52,7 @@ import { APP_GUARD } from '@nestjs/core'
         sessionLifetimeDays: config.get('SESSION_LIFETIME_DAYS', { infer: true }),
       }),
     },
+    SessionIssuer,
     SignInUseCase,
     SignOutUseCase,
     RegisterAccountUseCase,

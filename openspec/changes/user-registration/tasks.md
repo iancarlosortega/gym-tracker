@@ -9,9 +9,9 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once `pnp
 - [x] 1.4 `DrizzleUserRepository.save` maps a unique violation to `EmailAlreadyRegisteredError` (PGlite test).
 
 ## A2 — API: sign-up endpoint, session issuer, rate limit
-- [ ] 2.1 Extract `SessionIssuer` from `SignInUseCase` (D2). The sign-in tests stay green unchanged.
-- [ ] 2.2 `SignUpDto` (shape only: email up to 320, password up to 512) and `SignUpController` `POST /auth/sign-up` → 201 + `gym_session` cookie. `authHttpErrors`: 409 and 400 mappings.
-- [ ] 2.3 `@nestjs/throttler` with the named `auth` throttler on sign-in and sign-up (D4). Add the `AUTH_RATE_LIMIT`, `AUTH_RATE_WINDOW_SECONDS` and `TRUST_PROXY` env vars to the schema and `.env.example`, and `app.set('trust proxy')`. Supertest: a 6th request → 429 with `Retry-After`; another forwarded IP is unaffected.
+- [x] 2.1 Extract `SessionIssuer` from `SignInUseCase` (D2). The sign-in tests stay green unchanged.
+- [x] 2.2 `SignUpDto` (shape only: email up to 320, password up to 512) and `SignUpController` `POST /auth/sign-up` → 201 + `gym_session` cookie. `authHttpErrors`: 409 and 400 mappings.
+- [x] 2.3 `@nestjs/throttler` with the named `auth` throttler on sign-in and sign-up (D4). Add the `AUTH_RATE_LIMIT`, `AUTH_RATE_WINDOW_SECONDS` and `TRUST_PROXY` env vars to the schema and `compose.yaml` (`.env.example` is behind a deny rule for the agent; Ian adds them by hand), and `app.set('trust proxy')`. Supertest: a 6th request → 429 with `Retry-After`; another forwarded IP is unaffected.
 
 ## W0 — Design options (before W2)
 - [ ] 0.1 Publish register-page design options as artifacts, in the sign-in page's visual language, and wait for Ian's pick ([[gymtracker-design-explorations]]).

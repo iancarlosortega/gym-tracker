@@ -1,3 +1,4 @@
+import type { SessionPolicy } from '@api/modules/auth/application/services/session-issuer.service.js'
 import {
   CLOCK,
   SESSION_POLICY,
@@ -17,7 +18,6 @@ import type {
 } from '@gym/domain/auth/repositories/user.repository'
 import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
 import { Inject, Injectable } from '@nestjs/common'
-import type { SessionPolicy } from './sign-in.use-case.js'
 
 export interface AuthenticatedCaller {
   readonly user: User

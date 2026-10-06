@@ -1,3 +1,4 @@
+import { SessionIssuer } from '@api/modules/auth/application/services/session-issuer.service.js'
 import { RegisterAccountUseCase } from '@api/modules/auth/application/use-cases/register-account.use-case.js'
 import { SignInUseCase } from '@api/modules/auth/application/use-cases/sign-in.use-case.js'
 import { SignOutUseCase } from '@api/modules/auth/application/use-cases/sign-out.use-case.js'
@@ -27,7 +28,11 @@ beforeEach(async () => {
   const hasher = new FakePasswordHasher()
 
   register = new RegisterAccountUseCase(users, hasher)
-  signIn = new SignInUseCase(users, sessions, hasher, clock, { sessionLifetimeDays: 90 })
+  signIn = new SignInUseCase(
+    users,
+    hasher,
+    new SessionIssuer(sessions, clock, { sessionLifetimeDays: 90 }),
+  )
   signOut = new SignOutUseCase(sessions)
 
   await register.execute({ email: 'ian@example.test', password: 'correct horse battery' })
