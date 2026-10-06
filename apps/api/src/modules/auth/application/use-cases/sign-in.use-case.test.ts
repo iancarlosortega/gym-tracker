@@ -1,4 +1,4 @@
-import { SeedAccountUseCase } from '@api/modules/auth/application/use-cases/seed-account.use-case.js'
+import { RegisterAccountUseCase } from '@api/modules/auth/application/use-cases/register-account.use-case.js'
 import { SignInUseCase } from '@api/modules/auth/application/use-cases/sign-in.use-case.js'
 import { SignOutUseCase } from '@api/modules/auth/application/use-cases/sign-out.use-case.js'
 import {
@@ -7,9 +7,7 @@ import {
   InMemoryAuthSessionRepository,
   InMemoryUserRepository,
 } from '@api/modules/auth/testing/in-memory-auth.js'
-import { AccountAlreadyExistsError, AuthenticationFailedError } from '@gym/domain/auth/errors'
-import type { UserCriteriaFields } from '@gym/domain/auth/repositories/user.repository'
-import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
+import { AuthenticationFailedError } from '@gym/domain/auth/errors'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 const now = new Date('2026-09-19T12:00:00.000Z')
@@ -19,7 +17,7 @@ let sessions: InMemoryAuthSessionRepository
 let clock: FixedClock
 let signIn: SignInUseCase
 let signOut: SignOutUseCase
-let seedAccount: SeedAccountUseCase
+let register: RegisterAccountUseCase
 
 beforeEach(async () => {
   users = new InMemoryUserRepository()
@@ -28,29 +26,14 @@ beforeEach(async () => {
 
   const hasher = new FakePasswordHasher()
 
-  seedAccount = new SeedAccountUseCase(users, hasher)
+  register = new RegisterAccountUseCase(users, hasher)
   signIn = new SignInUseCase(users, sessions, hasher, clock, { sessionLifetimeDays: 90 })
   signOut = new SignOutUseCase(sessions)
 
-  await seedAccount.execute({ email: 'ian@example.test', password: 'correct horse battery' })
+  await register.execute({ email: 'ian@example.test', password: 'correct horse battery' })
 })
 
-describe('seeding the single account', () => {
-  it('creates the account with a hashed password', async () => {
-    const user = await users.findOne(
-      Criteria.create<UserCriteriaFields>({ email: 'ian@example.test' }),
-    )
-
-    expect(user).not.toBeNull()
-    expect(user?.passwordHash.value).not.toContain('correct horse battery')
-  })
-
-  it('refuses to seed a second account, because this system has one user', async () => {
-    await expect(
-      seedAccount.execute({ email: 'someone@example.test', password: 'another' }),
-    ).rejects.toThrow(AccountAlreadyExistsError)
-  })
-
+describe('signing in after registering', () => {
   it('normalises the address so a capitalised sign-in still works', async () => {
     const result = await signIn.execute({
       email: '  IAN@Example.TEST ',

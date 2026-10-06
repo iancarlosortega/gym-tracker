@@ -1,13 +1,13 @@
 import 'reflect-metadata'
 import { AppModule } from '@api/app.module.js'
-import { SeedAccountUseCase } from '@api/modules/auth/application/use-cases/seed-account.use-case.js'
+import { RegisterAccountUseCase } from '@api/modules/auth/application/use-cases/register-account.use-case.js'
 import { NestFactory } from '@nestjs/core'
 
 /**
- * Create the single account, once, from the command line.
+ * Create an account from the command line.
  *
- * Deliberately not an HTTP route: this system has one user, so registration is
- * an operator action rather than an endpoint anyone can reach.
+ * An operator shortcut for the same registration the register page performs,
+ * so the password policy and the one-account-per-email rule apply here too.
  */
 async function main(): Promise<void> {
   const [email, password] = process.argv.slice(2)
@@ -21,7 +21,7 @@ async function main(): Promise<void> {
   const context = await NestFactory.createApplicationContext(AppModule, { logger: false })
 
   try {
-    await context.get(SeedAccountUseCase).execute({ email, password })
+    await context.get(RegisterAccountUseCase).execute({ email, password })
     console.log(`Account created for ${email}.`)
   } finally {
     await context.close()

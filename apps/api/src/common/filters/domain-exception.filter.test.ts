@@ -44,8 +44,12 @@ describe('mapping domain errors to http', () => {
     expect(JSON.stringify(body)).toContain('do not match an account')
   })
 
-  it('maps a duplicate account to 409', () => {
-    expect(capture(new StubError('ACCOUNT_ALREADY_EXISTS')).status).toBe(409)
+  it('maps a registered email to 409', () => {
+    expect(capture(new StubError('EMAIL_ALREADY_REGISTERED')).status).toBe(409)
+  })
+
+  it('maps a weak password to 400 with the policy message', () => {
+    expect(capture(new StubError('WEAK_PASSWORD')).status).toBe(400)
   })
 
   it('maps a measurement rule to 400', () => {

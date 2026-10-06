@@ -3,10 +3,10 @@
 Strict TDD (red → green → refactor). Each unit is a commit to main once `pnpm test`, `pnpm typecheck`, `biome check .` and the build pass. Units are sliced for the 400-line budget (auto-chain).
 
 ## A1 — Domain + API: register account
-- [ ] 1.1 `PasswordPolicy.check` (8–512 characters, no composition rules) and `WeakPasswordError` (`WEAK_PASSWORD`). Tests cover 7, 8, 512 and 513 characters and a spaced passphrase.
-- [ ] 1.2 `EmailAlreadyRegisteredError` (`EMAIL_ALREADY_REGISTERED`). Remove `AccountAlreadyExistsError` / `ACCOUNT_ALREADY_EXISTS`. Update the `User` doc ("the single account").
-- [ ] 1.3 `RegisterAccountUseCase` (D1), with in-memory tests: success, a taken email in different case and with spaces, an invalid email, a weak password. Delete `SeedAccountUseCase`; `seed-account.command.ts` uses the new use case.
-- [ ] 1.4 `DrizzleUserRepository.save` maps a unique violation to `EmailAlreadyRegisteredError` (PGlite test).
+- [x] 1.1 `checkPasswordPolicy` (`auth/services/password-policy.service.ts`) (8–512 characters, no composition rules) and `WeakPasswordError` (`WEAK_PASSWORD`). Tests cover 7, 8, 512 and 513 characters and a spaced passphrase.
+- [x] 1.2 `EmailAlreadyRegisteredError` (`EMAIL_ALREADY_REGISTERED`). Remove `AccountAlreadyExistsError` / `ACCOUNT_ALREADY_EXISTS`. Update the `User` doc ("the single account").
+- [x] 1.3 `RegisterAccountUseCase` (D1), with in-memory tests: success, a taken email in different case and with spaces, an invalid email, a weak password. Delete `SeedAccountUseCase`; `seed-account.command.ts` uses the new use case.
+- [x] 1.4 `DrizzleUserRepository.save` maps a unique violation to `EmailAlreadyRegisteredError` (PGlite test).
 
 ## A2 — API: sign-up endpoint, session issuer, rate limit
 - [ ] 2.1 Extract `SessionIssuer` from `SignInUseCase` (D2). The sign-in tests stay green unchanged.

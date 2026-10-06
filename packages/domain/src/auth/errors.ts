@@ -26,7 +26,12 @@ export class SessionExpiredError extends DomainError {
   readonly errorCode: DomainErrorCode = 'SESSION_EXPIRED'
 }
 
-/** Raised when seeding an account that already exists. */
-export class AccountAlreadyExistsError extends DomainError {
-  readonly errorCode: DomainErrorCode = 'ACCOUNT_ALREADY_EXISTS'
+/** Raised when registering an address that already has an account. */
+export class EmailAlreadyRegisteredError extends DomainError {
+  readonly errorCode: DomainErrorCode = 'EMAIL_ALREADY_REGISTERED'
+}
+
+/** Raised when a new password does not meet the password policy. */
+export class WeakPasswordError extends DomainError {
+  readonly errorCode: DomainErrorCode = 'WEAK_PASSWORD'
 }

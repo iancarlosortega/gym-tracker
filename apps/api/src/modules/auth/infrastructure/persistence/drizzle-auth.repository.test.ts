@@ -1,6 +1,7 @@
 import { createTestDatabase } from '@api/database/testing/test-database.js'
 import { AuthSession } from '@gym/domain/auth/entities/auth-session.entity'
 import { User } from '@gym/domain/auth/entities/user.entity'
+import { EmailAlreadyRegisteredError } from '@gym/domain/auth/errors'
 import type { AuthSessionCriteriaFields } from '@gym/domain/auth/repositories/auth-session.repository'
 import type { UserCriteriaFields } from '@gym/domain/auth/repositories/user.repository'
 import { PasswordHash } from '@gym/domain/auth/value-objects/password-hash.vo'
@@ -46,8 +47,25 @@ describe('the user repository', () => {
     expect(found?.email.value).toBe('ian@example.test')
   })
 
-  it('counts the accounts that exist, which is what enforces there being one', async () => {
+  it('counts the accounts that exist', async () => {
     expect(await users.count(Criteria.none<UserCriteriaFields>())).toBe(1)
+  })
+
+  it('turns a second account for the same address into the domain error, so a lost race reads as taken', async () => {
+    const rival = User.create({
+      email: 'ian@example.test',
+      passwordHash: PasswordHash.create('argon2id$other'),
+    })
+
+    await expect(users.save(rival)).rejects.toThrow(EmailAlreadyRegisteredError)
+    expect(await users.count(Criteria.none<UserCriteriaFields>())).toBe(1)
+  })
+
+  it('still updates an existing user in place', async () => {
+    await users.save(user.preferring('LB'))
+
+    const found = await users.findOne(Criteria.create<UserCriteriaFields>({ id: user.id.value }))
+    expect(found?.displayUnit).toBe('LB')
   })
 
   it('returns null for an address with no account', async () => {

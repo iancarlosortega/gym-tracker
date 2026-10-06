@@ -26,7 +26,7 @@ export interface UserProps {
   readonly createdAt: Date
 }
 
-/** The single account that owns every routine, session and set in the system. */
+/** An account, and the owner of every routine, session and set it creates. */
 export class User {
   private constructor(private readonly props: UserProps) {
     Object.freeze(this)

@@ -1,6 +1,6 @@
 import type { EnvironmentVariables } from '@api/config/environment.schema.js'
 import { ChangeDisplayUnitUseCase } from '@api/modules/auth/application/use-cases/change-display-unit.use-case.js'
-import { SeedAccountUseCase } from '@api/modules/auth/application/use-cases/seed-account.use-case.js'
+import { RegisterAccountUseCase } from '@api/modules/auth/application/use-cases/register-account.use-case.js'
 import type { SessionPolicy } from '@api/modules/auth/application/use-cases/sign-in.use-case.js'
 import { SignInUseCase } from '@api/modules/auth/application/use-cases/sign-in.use-case.js'
 import { SignOutUseCase } from '@api/modules/auth/application/use-cases/sign-out.use-case.js'
@@ -47,10 +47,10 @@ import { APP_GUARD } from '@nestjs/core'
     },
     SignInUseCase,
     SignOutUseCase,
-    SeedAccountUseCase,
+    RegisterAccountUseCase,
     ValidateSessionUseCase,
     { provide: APP_GUARD, useClass: SessionGuard },
   ],
-  exports: [SeedAccountUseCase, USER_REPOSITORY],
+  exports: [RegisterAccountUseCase, USER_REPOSITORY],
 })
 export class AuthModule {}

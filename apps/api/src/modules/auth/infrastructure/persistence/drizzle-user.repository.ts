@@ -1,6 +1,7 @@
 import { DATABASE } from '@api/database/database.module.js'
 import { appUser } from '@api/database/schema/user.table.js'
 import type { User } from '@gym/domain/auth/entities/user.entity'
+import { EmailAlreadyRegisteredError } from '@gym/domain/auth/errors'
 import type { UserCriteria, UserRepository } from '@gym/domain/auth/repositories/user.repository'
 import { Inject, Injectable } from '@nestjs/common'
 import { and, count, eq, type SQL } from 'drizzle-orm'
@@ -9,6 +10,19 @@ import { userMapper } from './user.mapper.js'
 
 export type AuthDatabase = PgDatabase<PgQueryResultHKT>
 
+/** Postgres SQLSTATE for a unique constraint violation. */
+const UNIQUE_VIOLATION = '23505'
+
+const isUniqueViolation = (error: unknown): boolean => {
+  const cause = error instanceof Error ? error.cause : undefined
+  return (
+    typeof cause === 'object' &&
+    cause !== null &&
+    'code' in cause &&
+    cause.code === UNIQUE_VIOLATION
+  )
+}
+
 @Injectable()
 export class DrizzleUserRepository implements UserRepository {
   constructor(@Inject(DATABASE) private readonly database: AuthDatabase) {}
@@ -16,17 +30,26 @@ export class DrizzleUserRepository implements UserRepository {
   async save(user: User): Promise<void> {
     const row = userMapper.toRow(user)
 
-    await this.database
-      .insert(appUser)
-      .values(row)
-      .onConflictDoUpdate({
-        target: appUser.id,
-        set: {
-          email: row.email,
-          passwordHash: row.passwordHash,
-          displayUnit: row.displayUnit,
-        },
-      })
+    try {
+      await this.database
+        .insert(appUser)
+        .values(row)
+        .onConflictDoUpdate({
+          target: appUser.id,
+          set: {
+            email: row.email,
+            passwordHash: row.passwordHash,
+            displayUnit: row.displayUnit,
+          },
+        })
+    } catch (error) {
+      // The upsert targets the id, so the only unique column left to collide
+      // on is the email: another account claimed the address first.
+      if (isUniqueViolation(error)) {
+        throw new EmailAlreadyRegisteredError('An account with that email already exists.')
+      }
+      throw error
+    }
   }
 
   async findOne(criteria: UserCriteria): Promise<User | null> {
