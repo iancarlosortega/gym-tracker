@@ -1,7 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Gym Tracker">
-  <rect width="512" height="512" fill="#101014" />
-  <g fill="none" stroke="#f5f5f7" stroke-linecap="round" stroke-width="24">
-    <path d="M160 256h192" />
-    <path d="M160 208v96M200 184v144M312 184v144M352 208v96" />
+  <!-- Maskable: the dumbbell stays inside the central 80% safe zone so a circular mask never clips it. -->
+  <rect width="512" height="512" fill="#f2b544" />
+  <!-- A week of training, rising: the background chart, Monday to Sunday. -->
+  <g fill="#dc9c2c">
+    <rect x="50" y="342" width="52" height="210" rx="18" />
+    <rect x="110" y="262" width="52" height="290" rx="18" />
+    <rect x="170" y="297" width="52" height="255" rx="18" />
+    <rect x="230" y="212" width="52" height="340" rx="18" />
+    <rect x="290" y="152" width="52" height="400" rx="18" />
+    <rect x="350" y="187" width="52" height="365" rx="18" />
+    <rect x="410" y="82" width="52" height="470" rx="18" />
+  </g>
+  <g fill="#141418" transform="translate(256 256) scale(0.96) translate(-256 -256) rotate(-45 256 256)">
+    <rect x="166" y="236" width="180" height="40" rx="14" />
+    <rect x="96" y="166" width="56" height="180" rx="18" />
+    <rect x="140" y="190" width="34" height="132" rx="12" />
+    <rect x="360" y="166" width="56" height="180" rx="18" />
+    <rect x="338" y="190" width="34" height="132" rx="12" />
   </g>
 </svg>

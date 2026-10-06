@@ -10,6 +10,14 @@ export const metadata = {
   title: 'Gym Tracker',
   description: 'Personal workout logging and progression',
   manifest: '/manifest.webmanifest',
+  icons: {
+    icon: [
+      { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    // iOS ignores SVG and manifest icons for the home screen; it reads only this.
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
+  },
   appleWebApp: { capable: true, title: 'Gym', statusBarStyle: 'black-translucent' as const },
 }
 

@@ -19,8 +19,8 @@
  * v4 drops the v3 cache along with every older one.
  */
 
-const SHELL_CACHE = 'gym-shell-v5'
-const SHELL = ['/', '/workout', '/manifest.webmanifest', '/icon.svg']
+const SHELL_CACHE = 'gym-shell-v6'
+const SHELL = ['/', '/workout', '/manifest.webmanifest', '/icon.svg', '/apple-touch-icon.png']
 
 /** How long a navigation waits on the network before the last copy is shown. */
 const NETWORK_TIMEOUT_MS = 3000
@@ -142,7 +142,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(payload.title, {
       body: payload.body,
-      icon: '/icon.svg',
+      // Notification centres want a bitmap; an SVG shows as a blank square on some phones.
+      icon: '/icon-192.png',
       badge: '/icon.svg',
       // The phone is in a pocket; the buzz is the whole point.
       vibrate: [120, 80, 120],
