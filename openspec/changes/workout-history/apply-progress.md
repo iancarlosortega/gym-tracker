@@ -92,3 +92,11 @@ Status: done and committed in two parts, 4a `2a8170d` (logic) and 4b (UI).
   - `pnpm test`: domain 235, web 464 and api 308, all passing.
   - `pnpm lint`: clean.
   - Web build: OK.
+
+## S5 — Web: History list and workout detail (2026-10-06)
+Status: waiting on 5.0. Design options were published at https://claude.ai/artifact/7ydVYMCcLY462ZjjzewjXn:
+- A: grouped by week (recommended);
+- B: month calendar;
+- C: summary cards.
+
+No components are written until Ian picks one.
