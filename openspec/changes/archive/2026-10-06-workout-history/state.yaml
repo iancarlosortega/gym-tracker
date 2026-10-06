@@ -14,9 +14,9 @@ phases:
   tasks: done
   apply: done
   verify: done # pass with warnings
-  archive: pending
+  archive: done
 
-next_recommended: device checks DV.1-DV.3, then archive
+next_recommended: none
 
 preproposal:
   schema: gentle-ai.sdd-preproposal/v1

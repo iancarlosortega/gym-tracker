@@ -76,6 +76,7 @@ While a workout is open and its screen is minimised, the web app SHALL show the 
 - **GIVEN** an open workout
 - **WHEN** Home lists routines
 - **THEN** starting another routine is unavailable until the open one is finished
+
 ### Requirement: Home reads days in local time
 
 Home's week strip and the "Last done" labels SHALL use the phone's local days.
@@ -85,6 +86,7 @@ Home's week strip and the "Last done" labels SHALL use the phone's local days.
 - **WHEN** Home is shown at 21:37 local time
 - **THEN** Push day reads "Last done today"
 - **AND** today is marked as trained in the week strip
+
 ### Requirement: Home shows the open workout's progress
 
 While a workout is open, Home's headline SHALL name its routine and how many of the routine's planned exercises are done, and SHALL lead back to the workout. A planned exercise SHALL count as done when its logged sets reach its target sets, or after one set when it has no target. Exercises added outside the plan SHALL NOT count. Sets still waiting to sync SHALL count.
@@ -115,3 +117,20 @@ While a workout is open, Home's headline SHALL name its routine and how many of 
 - **GIVEN** an open workout that follows no routine
 - **WHEN** Home is shown
 - **THEN** the headline reads "Workout in progress" and leads back to it
+
+### Requirement: History is reachable from Progress, Home and Profile
+
+History SHALL be a view inside Progress, and Home and Profile SHALL each link to it. While History or a workout from it is open, the Progress tab SHALL be marked as current.
+
+#### Scenario: From Progress
+- **WHEN** the user opens Progress
+- **THEN** they can switch to History in one tap
+
+#### Scenario: From Home
+- **WHEN** the user taps the History link on Home
+- **THEN** History opens
+- **AND** the Progress tab is marked as current
+
+#### Scenario: From Profile
+- **WHEN** the user taps History on Profile
+- **THEN** History opens

@@ -45,6 +45,7 @@ The system SHALL compare a week to another week only within the same exercise an
 - **GIVEN** an exercise logged in `STACK_POSITION` in week 1 and in `TOTAL` in week 2
 - **WHEN** week-over-week progress for that exercise is computed
 - **THEN** the system reports the mode change and does not present a single continuous trend
+
 ### Requirement: Days and weeks follow the phone's time zone
 
 The system SHALL group workouts and sets into days and weeks using the time zone of the phone that asks, and SHALL keep storing every instant unchanged. A week SHALL run from local Monday 00:00 to the next local Monday 00:00.
@@ -72,3 +73,22 @@ The system SHALL group workouts and sets into days and weeks using the time zone
 #### Scenario: An unknown zone is refused
 - **WHEN** statistics are requested with the time zone "Mars/Olympus"
 - **THEN** the request is refused as invalid and nothing is computed
+
+### Requirement: Statistics reflect corrected and deleted sets
+
+Every statistic SHALL use a set's corrected values, and SHALL leave out deleted sets and deleted workouts, from the next read on.
+
+#### Scenario: A corrected best set
+- **GIVEN** Bench's best set this week is 80 kg × 5
+- **WHEN** it is corrected to 70 kg × 5
+- **THEN** Bench's progression for this week reads 70 kg
+
+#### Scenario: A deleted set leaves the totals
+- **GIVEN** this week has 30 sets
+- **WHEN** one is deleted
+- **THEN** the week reads 29 sets
+
+#### Scenario: A deleted workout leaves the week
+- **GIVEN** this week has 3 workouts
+- **WHEN** one of them is deleted
+- **THEN** the week reads 2 workouts and its day is no longer marked as trained

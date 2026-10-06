@@ -46,9 +46,9 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once its 
 - [x] 5.5 A Home "History" link and a Profile "History" row. `activeTab` keeps Progress current. Bump the service worker cache version.
 
 ## Device verification
-- [ ] DV.1 Correct and delete a set during a workout, including once in airplane mode.
-- [ ] DV.2 Open History from Progress, Home and Profile. Read a past workout, correct a set, and see progression move.
-- [ ] DV.3 Delete a test workout. It leaves History, the week strip and "Last done".
+- [x] DV.1 Correct and delete a set during a workout, including once in airplane mode. Confirmed by Ian on the device (2026-10-06).
+- [x] DV.2 Open History from Progress, Home and Profile. Read a past workout, correct a set, and see progression move. Confirmed by Ian (2026-10-06).
+- [x] DV.3 Delete a test workout. It leaves History, the week strip and "Last done". Confirmed by Ian (2026-10-06).
 
 ## Review Workload Forecast
 | Unit | ~Lines |
