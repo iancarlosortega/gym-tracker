@@ -43,6 +43,14 @@ export const getWorkoutHistory = async (
   return data
 }
 
+export const getWorkout = async (
+  workoutId: string,
+  client: AxiosInstance = apiClient,
+): Promise<WorkoutHistoryEntry> => {
+  const { data } = await client.get<WorkoutHistoryEntry>(`/workouts/${workoutId}`)
+  return data
+}
+
 export const deleteWorkout = async (
   workoutId: string,
   client: AxiosInstance = apiClient,

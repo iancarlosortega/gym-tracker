@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createApiClient } from '@/lib/api-client'
 import { type StubAnswer, stubAdapter } from '@/lib/testing/stub-adapter'
-import { deleteWorkout, getWorkoutHistory } from './history.api.ts'
+import { deleteWorkout, getWorkout, getWorkoutHistory } from './history.api.ts'
 
 const clientAnswering = (answer: () => StubAnswer) => {
   const stub = stubAdapter(answer)
@@ -43,6 +43,16 @@ describe('getWorkoutHistory', () => {
       from: '2026-10-01T05:00:00.000Z',
       to: '2026-11-01T05:00:00.000Z',
     })
+  })
+})
+
+describe('getWorkout', () => {
+  it('reads one workout', async () => {
+    const workout = { id: 'w-1', routineName: 'Push day', setCount: 14 }
+    const { client, stub } = clientAnswering(() => ({ status: 200, data: workout }))
+
+    expect(await getWorkout('w-1', client)).toEqual(workout)
+    expect(stub.calls[0]?.url).toBe('/workouts/w-1')
   })
 })
 

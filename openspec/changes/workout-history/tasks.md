@@ -34,7 +34,7 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once its 
 ## S5 — Web: History list, calendar and workout detail
 - [x] 5.0 **Design options**: published at https://claude.ai/artifact/7ydVYMCcLY462ZjjzewjXn. Ian chose a combination: list A by default, plus a toggle to calendar B (D7b).
 - [x] 5.1 API: `GET /workouts` takes optional `from` and `to` instants. `GET /workouts/:id` returns one workout as history shows it (`WorkoutHistoryRepository.entry`), so a detail page opened directly has its routine name and times. It is registered after `/workouts/current`, and a test pins that order. `WorkoutHistoryRepository.page` filters `started_at` to `[from, to)`. Tests cover PGlite, DTO and use case.
-- [ ] 5.2 Web history client and queries: an infinite list (offset paging) and a month read (`from`/`to`, limit 200). Pure helpers group the list by local week and bucket the month by local day.
+- [x] 5.2 Web history client and queries: an infinite list (offset paging) and a month read (`from`/`to`, limit 200). Pure helpers group the list by local week and bucket the month by local day.
 - [ ] 5.3 Routes `/statistics/history` and `/statistics/history/[workoutId]`, and a Progress | History switch on the Progress screen.
   - The list shows rows grouped by week: local day, routine name or "No routine", set count, duration, and an in-progress badge.
   - A List | Calendar toggle is kept in `?view=`.

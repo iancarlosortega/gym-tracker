@@ -4,6 +4,7 @@ import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
 import { useMutation } from '@tanstack/react-query'
 import { optimisticMutation, patch } from '@/lib/optimistic'
 import type { DisplayUnit } from '@/lib/units'
+import { historyKeys } from '../../history/presentation/history.queries'
 import { statisticsKeys } from '../../statistics/presentation/queries'
 import { workoutsKeys } from '../../workouts/presentation/queries'
 import { correctSet, deleteSet } from '../infrastructure/sets.api'
@@ -27,6 +28,7 @@ const invalidatesFor = (sessionId: string) => [
   workoutsKeys.current(),
   statisticsKeys.all,
   lastSetsKeys.all,
+  historyKeys.all,
 ]
 
 /** The row as it will read once saved: a per-side change moves both sides. */
