@@ -18,3 +18,16 @@ Applied inline (the hook refuses sdd-* sub-agents). Strict TDD. Ian waived revie
 - **Follow-up for Ian:** add the three vars to `.env.example`; the agent is denied access to that file.
 - Test helper `testing/auth-throttler.testing.ts`, because `forRootAsync` ignores `extraProviders`.
 - Evidence: `pnpm test` green (domain 242, api 336, web 509), typecheck green, biome clean, api build ok.
+
+## A2 ledger note
+A2 settled `passed` at 500 changed lines, over the 400 budget (lockfile, tests, docs). The ledger asked for a maintainer decision. It was reset with the actor recorded as Ian's autonomous waiver (sole dev, commits to main, no PRs). Lint fix: `854706c`.
+
+## W1 — Web: sign-up logic (done)
+- `SignUpPort`, `SignUpUseCase` (trims the email), `HttpSignUpGateway`:
+  - 409 → `EmailTakenError`;
+  - 400 → `SignUpRejectedError(server message)`; this replaces the planned `WeakPasswordError`, because API error bodies carry no code;
+  - 429 → `RateLimitedError`;
+  - `skipSignInRedirect`.
+- `HttpSignInGateway` maps 429 → `RateLimitedError`.
+- `safeNextPath` rejects `/register`, `/register?…` and `/register/…` (exported as `REGISTER_PATH`); `/registers` is still allowed.
+- Evidence: `pnpm test` green (web 520), typecheck green, biome clean.

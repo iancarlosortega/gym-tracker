@@ -1,4 +1,9 @@
 export const SIGN_IN_PATH = '/sign-in'
+export const REGISTER_PATH = '/register'
+
+/** The page itself, or the page with a query or a trailing segment. */
+const isPage = (next: string, page: string): boolean =>
+  next === page || next.startsWith(`${page}?`) || next.startsWith(`${page}/`)
 
 /**
  * Where to go after signing in, from a `next` query parameter.
@@ -6,7 +11,7 @@ export const SIGN_IN_PATH = '/sign-in'
  * The parameter is attacker-controllable: a link to the sign-in page with
  * `next=https://evil.example` would otherwise send a freshly signed-in user
  * off-site. Only a same-origin relative path is honoured, anything else —
- * absent, absolute, protocol-relative, or the sign-in page itself — falls back
+ * absent, absolute, protocol-relative, or the sign-in or register page — falls back
  * to the home page.
  */
 export const safeNextPath = (next: string | null | undefined): string => {
@@ -24,11 +29,8 @@ export const safeNextPath = (next: string | null | undefined): string => {
     return '/'
   }
 
-  if (
-    next === SIGN_IN_PATH ||
-    next.startsWith(`${SIGN_IN_PATH}?`) ||
-    next.startsWith(`${SIGN_IN_PATH}/`)
-  ) {
+  // Signing in again would loop; registering again would offer a second account.
+  if (isPage(next, SIGN_IN_PATH) || isPage(next, REGISTER_PATH)) {
     return '/'
   }
 

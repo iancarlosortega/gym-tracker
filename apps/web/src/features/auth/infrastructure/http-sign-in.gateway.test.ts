@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createApiClient } from '@/lib/api-client'
 import { type StubAnswer, stubAdapter } from '@/lib/testing/stub-adapter'
 import { InvalidCredentialsError } from '../application/invalid-credentials.error.ts'
+import { RateLimitedError } from '../application/rate-limited.error.ts'
 import { HttpSignInGateway } from './http-sign-in.gateway.ts'
 
 const credentials = { email: 'ian@example.com', password: 'secret' }
@@ -34,6 +35,12 @@ describe('HttpSignInGateway', () => {
 
     await expect(gateway.signIn(credentials)).rejects.toBeInstanceOf(InvalidCredentialsError)
     expect(signalled()).toBe(0)
+  })
+
+  it('maps a 429 to rate limited rather than to a wrong password', async () => {
+    const { gateway } = gatewayAnswering(() => ({ status: 429 }))
+
+    await expect(gateway.signIn(credentials)).rejects.toBeInstanceOf(RateLimitedError)
   })
 
   it('reports any other refusal as a plain failure, not as a wrong password', async () => {

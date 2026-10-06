@@ -17,9 +17,9 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once `pnp
 - [ ] 0.1 Publish register-page design options as artifacts, in the sign-in page's visual language, and wait for Ian's pick ([[gymtracker-design-explorations]]).
 
 ## W1 — Web: sign-up logic
-- [ ] 1.1 `SignUpPort`, `SignUpUseCase` (trims the email), and the `EmailTakenError`, `WeakPasswordError` and `RateLimitedError` errors.
-- [ ] 1.2 `HttpSignUpGateway`: 409 / 400 / 429 mapping, `skipSignInRedirect`. Tests with a mocked axios instance.
-- [ ] 1.3 `safeNextPath` rejects `/register` (also with `?` and `/` variants). The sign-in gateway maps 429 → `RateLimitedError`.
+- [x] 1.1 `SignUpPort`, `SignUpUseCase` (trims the email), and the `EmailTakenError`, `SignUpRejectedError` (a 400 carrying the server's reason, because error bodies have no domain code) and `RateLimitedError` errors.
+- [x] 1.2 `HttpSignUpGateway`: 409 / 400 / 429 mapping, `skipSignInRedirect`. Tests with a mocked axios instance.
+- [x] 1.3 `safeNextPath` rejects `/register` (also with `?` and `/` variants). The sign-in gateway maps 429 → `RateLimitedError`.
 
 ## W2 — Web: register page and links
 - [ ] 2.1 `SignUpForm` (RHF + zod, reveal toggle, `new-password`), following the chosen design. RTL tests: min-length message, taken message with a sign-in link, pending disables submit, a 429 message.

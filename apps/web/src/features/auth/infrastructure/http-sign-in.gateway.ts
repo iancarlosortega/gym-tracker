@@ -1,6 +1,7 @@
 import { type AxiosInstance, isAxiosError } from 'axios'
 import { apiClient } from '@/lib/api-client'
 import { InvalidCredentialsError } from '../application/invalid-credentials.error'
+import { RateLimitedError } from '../application/rate-limited.error'
 import type { Credentials, SignInPort } from '../application/sign-in.port'
 
 /**
@@ -20,6 +21,9 @@ export class HttpSignInGateway implements SignInPort {
     } catch (error) {
       if (isAxiosError(error) && error.response?.status === 401) {
         throw new InvalidCredentialsError()
+      }
+      if (isAxiosError(error) && error.response?.status === 429) {
+        throw new RateLimitedError()
       }
       throw error
     }

@@ -25,6 +25,16 @@ describe('safeNextPath', () => {
     expect(safeNextPath(next)).toBe('/')
   })
 
+  it('never returns to the register page, which would offer a second account', () => {
+    expect(safeNextPath('/register')).toBe('/')
+    expect(safeNextPath('/register?next=%2Fworkout')).toBe('/')
+    expect(safeNextPath('/register/')).toBe('/')
+  })
+
+  it('still returns to a path that merely starts with the word', () => {
+    expect(safeNextPath('/registers')).toBe('/registers')
+  })
+
   it('never returns to the sign-in page, which would loop', () => {
     expect(safeNextPath('/sign-in')).toBe('/')
     expect(safeNextPath('/sign-in?next=%2Fworkout')).toBe('/')
