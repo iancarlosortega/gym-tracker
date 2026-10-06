@@ -11,6 +11,8 @@ describe('activeTab', () => {
     ['/', 'home'],
     ['/statistics', 'progress'],
     ['/statistics/0199a1f0', 'progress'],
+    ['/statistics/history', 'progress'],
+    ['/statistics/history/0199a1f0', 'progress'],
     ['/routines', 'routines'],
     ['/routines/0199a1f0', 'routines'],
     ['/exercises', 'routines'],
