@@ -17,13 +17,13 @@ let app: NestExpressApplication
 let registerBehaviour: () => Promise<User>
 let issued: string[]
 
-const settings: Record<string, unknown> = {
-  SESSION_LIFETIME_DAYS: 90,
-  NODE_ENV: 'test',
-  AUTH_RATE_LIMIT: 5,
-  AUTH_RATE_WINDOW_SECONDS: 60,
-}
-const config = { get: (key: string) => settings[key] }
+const settings = new Map<string, unknown>([
+  ['SESSION_LIFETIME_DAYS', 90],
+  ['NODE_ENV', 'test'],
+  ['AUTH_RATE_LIMIT', 5],
+  ['AUTH_RATE_WINDOW_SECONDS', 60],
+])
+const config = { get: (key: string) => settings.get(key) }
 
 const newUser = () =>
   User.create({ email: 'new@example.test', passwordHash: PasswordHash.create('fake$1') })

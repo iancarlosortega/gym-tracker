@@ -13,13 +13,13 @@ import { SignInController } from './sign-in.controller.ts'
 let app: NestExpressApplication
 let signInBehaviour: () => Promise<{ sessionId: string; expiresAt: Date }>
 
-const settings: Record<string, unknown> = {
-  SESSION_LIFETIME_DAYS: 90,
-  NODE_ENV: 'test',
-  AUTH_RATE_LIMIT: 5,
-  AUTH_RATE_WINDOW_SECONDS: 60,
-}
-const config = { get: (key: string) => settings[key] }
+const settings = new Map<string, unknown>([
+  ['SESSION_LIFETIME_DAYS', 90],
+  ['NODE_ENV', 'test'],
+  ['AUTH_RATE_LIMIT', 5],
+  ['AUTH_RATE_WINDOW_SECONDS', 60],
+])
+const config = { get: (key: string) => settings.get(key) }
 
 beforeEach(async () => {
   signInBehaviour = async () => ({

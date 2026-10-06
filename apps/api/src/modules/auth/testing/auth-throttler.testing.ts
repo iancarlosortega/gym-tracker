@@ -12,12 +12,14 @@ class StubConfigModule {}
  * module, so the stub has to arrive as an import rather than a sibling
  * provider of the controller under test.
  */
-export const authThrottlerForTests = (settings: Record<string, unknown>): DynamicModule =>
+export const authThrottlerForTests = (settings: ReadonlyMap<string, unknown>): DynamicModule =>
   ThrottlerModule.forRootAsync({
     imports: [
       {
         module: StubConfigModule,
-        providers: [{ provide: ConfigService, useValue: { get: (key: string) => settings[key] } }],
+        providers: [
+          { provide: ConfigService, useValue: { get: (key: string) => settings.get(key) } },
+        ],
         exports: [ConfigService],
       },
     ],
