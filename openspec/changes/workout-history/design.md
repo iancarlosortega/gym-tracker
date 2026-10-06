@@ -47,7 +47,7 @@ A load of the wrong kind throws `LoadCorrectionMismatchError` (`LOAD_CORRECTION_
 
 ### D4: Deleting a workout is a hard delete, and it waits for the server
 **Choice**:
-- Add `WorkoutSessionRepository.delete(id)`. `DELETE /workouts/:id` uses `findOwnedWorkout` and deletes the row. `logged_set` goes by the existing `ON DELETE CASCADE`.
+- Add `WorkoutSessionRepository.delete(id)`. `DELETE /workouts/:id` uses `findOwnedWorkout` and deletes the row. The use case and controller live in the measurement module, as `POST /workouts/:id/sets` does: it needs the set and push ports, and measurement already imports workouts, so placing it in workouts would make the imports circular. `logged_set` goes by the existing `ON DELETE CASCADE`.
 - The unsent `scheduled_push` rows of those sets are deleted first. The use case reads the session's set ids and calls the existing `PushScheduler.cancelForSet` for each, so the push port is unchanged.
 - On the web the action is pessimistic: confirm, then a working state, then on 204 navigate to History and invalidate.
 
@@ -131,9 +131,10 @@ History:          /statistics/history ─► GET /workouts?limit&offset ─► W
 | `apps/api/src/modules/measurement/presentation/{correct-set,delete-set}/*` | Create | Controllers and DTOs. |
 | `apps/api/src/modules/measurement/measurement.http-errors.ts` | Modify | `SET_NOT_FOUND` → 404. |
 | `apps/api/src/modules/measurement/presentation/logged-set.view.ts` | Modify | `rawGrams` and `revision`. |
-| `apps/api/src/modules/workouts/application/use-cases/{list-workouts,delete-workout}.use-case.ts` | Create | D4 and D6. |
+| `apps/api/src/modules/workouts/application/use-cases/list-workouts.use-case.ts` | Create | D6. |
+| `apps/api/src/modules/measurement/application/use-cases/delete-workout.use-case.ts` + `presentation/delete-workout/*` | Create | D4. |
 | `apps/api/src/modules/workouts/infrastructure/persistence/drizzle-workout-history.repository.ts` | Create | One-query history page. |
-| `apps/api/src/modules/workouts/presentation/{list-workouts,delete-workout}/*` | Create | `GET /workouts` and `DELETE /workouts/:id`. |
+| `apps/api/src/modules/workouts/presentation/list-workouts/*` | Create | `GET /workouts`. |
 | `apps/web/src/features/measurement/presentation/set-entry.ts` | Create | Extracted `weightTile` and `entryFor`. |
 | `apps/web/src/features/measurement/presentation/set-editor/*` | Create | Drawer view, container, mutations. |
 | `apps/web/src/features/measurement/infrastructure/{sets.api,http-set-sync.gateway}.ts` | Modify | `correctSet` and `deleteSet`; `WorkoutGoneError` on 404. |

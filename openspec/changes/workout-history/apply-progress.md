@@ -43,3 +43,28 @@ Status: done and committed. Ian waived review for this change.
   - `pnpm test`: domain 235, web 437 and api 294, all passing.
   - `pnpm lint`: clean.
   - API build: OK.
+
+## S3 — API: history list and workout delete (2026-10-06)
+Status: done and committed.
+
+- **RED → GREEN**
+  - `drizzle-workout-history.repository.test.ts` (3 PGlite tests: newest first with routine name and live set count; paging without repeats; user scoping).
+  - `list-workouts.use-case.test.ts` (3).
+  - `delete-workout.use-case.test.ts` (3).
+  - `list-workouts.controller.test.ts` (3).
+  - `delete-workout.controller.test.ts` (2).
+  - All failed with the module missing before the implementation.
+- **Changes**
+  - `DrizzleWorkoutHistoryRepository`: one grouped query, plus a count. Ties are broken by id.
+  - `InMemoryWorkoutHistoryRepository`.
+  - `ListWorkoutsUseCase` returns `{items, nextOffset}`.
+  - `GET /workouts?limit&offset`.
+  - `DeleteWorkoutUseCase`: ownership check, `cancelForSet` for each of the session's sets, then `sessions.delete`.
+  - `DELETE /workouts/:id` (204, 404).
+- **Deviation**: workout delete lives in the measurement module to avoid circular module imports (design D4 updated).
+- **Wiring**: a temporary test compiled the real `WorkoutsModule` and `MeasurementModule`, with PGlite as `DATABASE`, and resolved all four new use cases. It was removed afterwards.
+- **Checks**
+  - `pnpm typecheck`: green.
+  - `pnpm test`: domain 235, web 437 and api 308, all passing.
+  - `pnpm lint`: clean.
+  - API build: OK.

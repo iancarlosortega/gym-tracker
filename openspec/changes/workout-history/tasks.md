@@ -17,10 +17,10 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once its 
 - [x] 2.4 `LoggedSetView` gains `rawGrams` and `revision`. Check the Drizzle `saveMany` upsert carries a higher-revision correction. PGlite test: a corrected row is updated and a stale revision loses.
 
 ## S3 — API: history list and workout delete
-- [ ] 3.1 `DrizzleWorkoutHistoryRepository` and its in-memory double: one query that is user-scoped, newest first (`started_at DESC, id DESC`), with the routine name and a count of live sets, using limit and offset. PGlite tests: tombstones are not counted, another user is excluded, paging neither repeats nor skips.
-- [ ] 3.2 `ListWorkoutsUseCase` + `GET /workouts?limit&offset` → `{ items, nextOffset }`.
-- [ ] 3.3 `DeleteWorkoutUseCase`: `findOwnedWorkout` → `cancelForSet` for each of its sets → `sessions.delete`. Use-case test: unsent pushes for its sets are removed, other sessions are untouched.
-- [ ] 3.4 `DELETE /workouts/:id` controller (204; foreign → 404).
+- [x] 3.1 `DrizzleWorkoutHistoryRepository` and its in-memory double: one query that is user-scoped, newest first (`started_at DESC, id DESC`), with the routine name and a count of live sets, using limit and offset. PGlite tests: tombstones are not counted, another user is excluded, paging neither repeats nor skips.
+- [x] 3.2 `ListWorkoutsUseCase` + `GET /workouts?limit&offset` → `{ items, nextOffset }`.
+- [x] 3.3 `DeleteWorkoutUseCase`: `findOwnedWorkout` → `cancelForSet` for each of its sets → `sessions.delete`. Use-case test: unsent pushes for its sets are removed, other sessions are untouched.
+- [x] 3.4 `DELETE /workouts/:id` controller (204; foreign → 404).
 
 ## S4 — Web: shared set entry, editor drawer, offline paths
 - [ ] 4.1 Extract `weightTile` and `entryFor` from `workout-screen.container.tsx` into `features/measurement/presentation/set-entry.ts` with unit tests; the container behaves as before (D8).

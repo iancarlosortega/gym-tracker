@@ -12,11 +12,11 @@ phases:
   spec: done
   design: done
   tasks: done
-  apply: in_progress # S1, S2 done
+  apply: in_progress # S1-S3 done
   verify: pending
   archive: pending
 
-next_recommended: apply # S3
+next_recommended: apply # S4
 
 preproposal:
   schema: gentle-ai.sdd-preproposal/v1
