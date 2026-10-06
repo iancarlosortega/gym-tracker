@@ -1,5 +1,5 @@
 import { LoggedSet } from '@domain/measurement/entities/logged-set.entity.js'
-import { SnapshotMismatchError } from '@domain/measurement/errors.js'
+import { LoadCorrectionMismatchError, SnapshotMismatchError } from '@domain/measurement/errors.js'
 import { fromKilograms } from '@domain/measurement/value-objects/grams.vo.js'
 import { LoadEntry } from '@domain/measurement/value-objects/load-entry.vo.js'
 import { reps } from '@domain/measurement/value-objects/reps.vo.js'
@@ -127,6 +127,88 @@ describe('domain behaviour', () => {
     expect(corrected.reps).toBe(10)
     expect(original.reps).toBe(8)
     expect(corrected.revision).toBe(original.revision + 1)
+  })
+})
+
+describe('correcting a logged set', () => {
+  const totalProps = {
+    ...benchPressProps,
+    id: '0199a1f0-0000-7000-8000-000000000003',
+    entry: LoadEntry.total(fromKilograms(60)),
+    snapshot: { ...benchPressProps.snapshot, barGrams: null },
+  }
+
+  it('re-enters a total load and the reps as a new revision', () => {
+    const original = LoggedSet.create(totalProps)
+    const corrected = original.correct({ load: { grams: fromKilograms(62.5) }, reps: reps(10) })
+
+    expect(corrected.mass()).toEqual({ kind: 'resolved', grams: 62_500 })
+    expect(corrected.reps).toBe(10)
+    expect(corrected.revision).toBe(original.revision + 1)
+    expect(original.mass()).toEqual({ kind: 'resolved', grams: 60_000 })
+  })
+
+  it('resolves a per-side load against the bar it was logged with', () => {
+    const corrected = LoggedSet.create(benchPressProps).correct({
+      load: { grams: fromKilograms(25) },
+      reps: reps(8),
+    })
+
+    expect(corrected.mass()).toEqual({ kind: 'resolved', grams: 70_000 })
+    expect(corrected.snapshot.barGrams).toBe(fromKilograms(20))
+  })
+
+  it('counts no bar when the per-side set was logged without one', () => {
+    const smith = LoggedSet.create({
+      ...benchPressProps,
+      entry: LoadEntry.perSide(fromKilograms(20), null),
+      snapshot: { ...benchPressProps.snapshot, barGrams: null },
+    })
+
+    const corrected = smith.correct({ load: { grams: fromKilograms(30) }, reps: reps(8) })
+
+    expect(corrected.mass()).toEqual({ kind: 'resolved', grams: 60_000 })
+  })
+
+  it('moves a stack set to another position and still carries no mass', () => {
+    const corrected = LoggedSet.create(machineRowProps).correct({
+      load: { position: stackPosition(8) },
+      reps: reps(12),
+    })
+
+    expect(corrected.entry.toJSON()).toEqual({ mode: 'STACK_POSITION', position: 8 })
+    expect(corrected.mass().kind).toBe('not-applicable')
+  })
+
+  it('keeps everything that says how and when the set was logged', () => {
+    const original = LoggedSet.create({
+      ...benchPressProps,
+      snapshot: { ...benchPressProps.snapshot, displayUnit: 'LB' as const },
+    })
+    const corrected = original.correct({ load: { grams: fromKilograms(25) }, reps: reps(6) })
+
+    expect(corrected.id).toBe(original.id)
+    expect(corrected.sessionId).toBe(original.sessionId)
+    expect(corrected.exerciseId).toBe(original.exerciseId)
+    expect(corrected.equipmentId).toBe(original.equipmentId)
+    expect(corrected.loggedAt).toEqual(original.loggedAt)
+    expect(corrected.snapshot).toEqual(original.snapshot)
+  })
+
+  it('refuses a position for a set measured in grams', () => {
+    const set = LoggedSet.create(benchPressProps)
+
+    expect(() => set.correct({ load: { position: stackPosition(3) }, reps: reps(8) })).toThrow(
+      LoadCorrectionMismatchError,
+    )
+  })
+
+  it('refuses grams for a set measured by stack position', () => {
+    const set = LoggedSet.create(machineRowProps)
+
+    expect(() => set.correct({ load: { grams: fromKilograms(40) }, reps: reps(8) })).toThrow(
+      LoadCorrectionMismatchError,
+    )
   })
 })
 

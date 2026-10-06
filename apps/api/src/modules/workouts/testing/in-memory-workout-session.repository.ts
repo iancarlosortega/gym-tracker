@@ -40,6 +40,10 @@ export class InMemoryWorkoutSessionRepository implements WorkoutSessionRepositor
     return this.matching(criteria).length
   }
 
+  async delete(id: string): Promise<void> {
+    this.sessions.delete(id)
+  }
+
   private matching(criteria: WorkoutSessionCriteria): WorkoutSession[] {
     return [...this.sessions.values()].filter((session) => {
       const id = criteria.get('id')

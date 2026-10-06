@@ -13,6 +13,7 @@ import type {
   WorkoutSessionSortField,
 } from '@gym/domain/workouts/repositories/workout-session.repository'
 import { Inject, Injectable } from '@nestjs/common'
+import { eq } from 'drizzle-orm'
 import { workoutSessionMapper } from './workout-session.mapper.js'
 
 type WorkoutSessionRow = typeof workoutSession.$inferSelect
@@ -64,5 +65,10 @@ export class DrizzleWorkoutSessionRepository
         target: workoutSession.id,
         set: { finishedAt: row.finishedAt ?? null },
       })
+  }
+
+  /** Its sets go with it through the foreign key's cascade. */
+  async delete(id: string): Promise<void> {
+    await this.database.delete(workoutSession).where(eq(workoutSession.id, id))
   }
 }

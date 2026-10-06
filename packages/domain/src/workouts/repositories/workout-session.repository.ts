@@ -34,4 +34,6 @@ export interface WorkoutSessionRepository {
     options?: WorkoutSessionQueryOptions,
   ): Promise<Page<WorkoutSession>>
   count(criteria: WorkoutSessionCriteria): Promise<number>
+  /** Removes the session and everything logged in it. Silent when it is not there. */
+  delete(id: string): Promise<void>
 }

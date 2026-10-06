@@ -1,11 +1,12 @@
-import { SnapshotMismatchError } from '@domain/measurement/errors.js'
+import { LoadCorrectionMismatchError, SnapshotMismatchError } from '@domain/measurement/errors.js'
 import type { DisplayUnit, Grams } from '@domain/measurement/value-objects/grams.vo.js'
-import type { LoadEntry } from '@domain/measurement/value-objects/load-entry.vo.js'
+import { LoadEntry } from '@domain/measurement/value-objects/load-entry.vo.js'
 import {
   isResolved,
   type MassResolution,
 } from '@domain/measurement/value-objects/mass-resolution.vo.js'
 import type { Reps } from '@domain/measurement/value-objects/reps.vo.js'
+import type { StackPosition } from '@domain/measurement/value-objects/stack-position.vo.js'
 
 /**
  * The parameters used to resolve an entry at the moment it was logged.
@@ -30,6 +31,17 @@ export interface LoggedSetProps {
   readonly reps: Reps
   readonly loggedAt: Date
   readonly snapshot: ResolutionSnapshot
+}
+
+/**
+ * A re-entered load: grams for a set measured by mass (the per-side value for a
+ * PER_SIDE set, as it was typed), or a position for a stack set.
+ */
+export type LoadCorrection = { readonly grams: Grams } | { readonly position: StackPosition }
+
+export interface SetCorrection {
+  readonly load: LoadCorrection
+  readonly reps: Reps
 }
 
 export interface StoredLoggedSetProps extends LoggedSetProps {
@@ -151,6 +163,41 @@ export class LoggedSet {
   /** Correct the repetition count, producing a new revision of this set. */
   correctReps(reps: Reps): LoggedSet {
     return new LoggedSet({ ...this.props, reps }, this.currentRevision + 1)
+  }
+
+  /**
+   * Correct what was entered, producing a new revision of this set.
+   *
+   * The load is resolved with the snapshot taken when the set was logged, not
+   * with the equipment as it is now: a correction fixes a typo, it does not
+   * re-measure the set. Mode, equipment, time and snapshot therefore stay.
+   */
+  correct(correction: SetCorrection): LoggedSet {
+    const entry = this.reentered(correction.load)
+    return new LoggedSet({ ...this.props, entry, reps: correction.reps }, this.currentRevision + 1)
+  }
+
+  private reentered(load: LoadCorrection): LoadEntry {
+    const mode = this.props.entry.mode
+
+    if (mode === 'STACK_POSITION') {
+      if (!('position' in load)) {
+        throw new LoadCorrectionMismatchError(
+          'A stack set is corrected with a position, not grams.',
+        )
+      }
+      return LoadEntry.stack(load.position)
+    }
+
+    if (!('grams' in load)) {
+      throw new LoadCorrectionMismatchError(
+        `A ${mode} set is corrected with grams, not a position.`,
+      )
+    }
+
+    return mode === 'PER_SIDE'
+      ? LoadEntry.perSide(load.grams, this.props.snapshot.barGrams)
+      : LoadEntry.total(load.grams)
   }
 
   toJSON(): StoredLoggedSetProps {

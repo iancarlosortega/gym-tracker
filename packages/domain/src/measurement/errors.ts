@@ -34,3 +34,13 @@ export class CrossExerciseComparisonError extends DomainError {
 export class SnapshotMismatchError extends DomainError {
   readonly errorCode: DomainErrorCode = 'SNAPSHOT_MISMATCH'
 }
+
+/** Raised when a correction re-enters a load in a different kind than the set was measured in. */
+export class LoadCorrectionMismatchError extends DomainError {
+  readonly errorCode: DomainErrorCode = 'LOAD_CORRECTION_MISMATCH'
+}
+
+/** Raised when a set does not exist, or is not the caller's to see. */
+export class SetNotFoundError extends DomainError {
+  readonly errorCode: DomainErrorCode = 'SET_NOT_FOUND'
+}

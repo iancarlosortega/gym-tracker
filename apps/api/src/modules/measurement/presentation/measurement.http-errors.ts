@@ -1,6 +1,6 @@
 import type { HttpErrorMapping } from '@api/common/http/http-error-mapping.js'
 import type { MeasurementErrorCode } from '@gym/domain/shared/errors/domain-error'
-import { BadRequestException } from '@nestjs/common'
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 
 export const measurementHttpErrors: HttpErrorMapping<MeasurementErrorCode> = {
   INVALID_GRAMS: () => new BadRequestException('That weight is not a usable value.'),
@@ -15,4 +15,7 @@ export const measurementHttpErrors: HttpErrorMapping<MeasurementErrorCode> = {
     new BadRequestException('Stack positions from different exercises are not comparable.'),
   SNAPSHOT_MISMATCH: () =>
     new BadRequestException("A set's recorded equipment contradicts the entry it describes."),
+  LOAD_CORRECTION_MISMATCH: () =>
+    new BadRequestException('A set is corrected in the same kind of load it was logged in.'),
+  SET_NOT_FOUND: () => new NotFoundException('That set does not exist.'),
 }
