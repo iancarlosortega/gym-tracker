@@ -127,30 +127,35 @@ const DoneRowContent = ({ row }: { readonly row: DoneRow }) => (
   </>
 )
 
+/** The rows alone, for wherever logged sets are listed: the workout screen or History. */
+export const DoneSetList = ({ rows, onEdit }: DoneSetsProps) => (
+  <ol className="grid gap-1">
+    {rows.map((row) => (
+      <li key={row.id}>
+        {onEdit === undefined ? (
+          <div className={rowClass}>
+            <DoneRowContent row={row} />
+          </div>
+        ) : (
+          <button
+            type="button"
+            aria-label={`Edit set ${row.setNumber}, ${row.label}`}
+            className={cn(rowClass, 'min-h-touch active:bg-muted')}
+            onClick={() => onEdit(row.id)}
+          >
+            <DoneRowContent row={row} />
+          </button>
+        )}
+      </li>
+    ))}
+  </ol>
+)
+
 export const DoneSets = ({ rows, onEdit }: DoneSetsProps) =>
   rows.length === 0 ? null : (
     <section className="grid gap-2">
       <h3 className="font-semibold text-muted-foreground text-sm">Done</h3>
-      <ol className="grid gap-1">
-        {rows.map((row) => (
-          <li key={row.id}>
-            {onEdit === undefined ? (
-              <div className={rowClass}>
-                <DoneRowContent row={row} />
-              </div>
-            ) : (
-              <button
-                type="button"
-                aria-label={`Edit set ${row.setNumber}, ${row.label}`}
-                className={cn(rowClass, 'min-h-touch active:bg-muted')}
-                onClick={() => onEdit(row.id)}
-              >
-                <DoneRowContent row={row} />
-              </button>
-            )}
-          </li>
-        ))}
-      </ol>
+      <DoneSetList rows={rows} onEdit={onEdit} />
     </section>
   )
 

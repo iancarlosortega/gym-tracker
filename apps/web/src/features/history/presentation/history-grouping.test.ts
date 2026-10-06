@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import type { WorkoutHistoryEntry } from '../infrastructure/history.api'
-import { durationLabel, groupByWeek, weekdayAndDay } from './history-grouping.ts'
+import {
+  durationLabel,
+  groupByWeek,
+  weekdayAndDay,
+  workoutDay,
+  workoutTimes,
+} from './history-grouping.ts'
 
 const zone = 'America/Guayaquil'
 
@@ -63,5 +69,19 @@ describe('labels for one workout', () => {
 
   it('has no duration while the workout is open', () => {
     expect(durationLabel('2026-10-05T23:05:00Z', null)).toBeNull()
+  })
+})
+
+describe('the header of one workout', () => {
+  it('names the local day', () => {
+    expect(workoutDay('2026-10-05T01:24:00Z', zone)).toBe('Sun, Oct 4')
+  })
+
+  it('reads the local start and finish on a 24-hour clock', () => {
+    expect(workoutTimes('2026-10-01T23:10:00Z', '2026-10-02T00:05:00Z', zone)).toBe('18:10 – 19:05')
+  })
+
+  it('reads only the start while the workout is open', () => {
+    expect(workoutTimes('2026-10-05T23:05:00Z', null, zone)).toBe('from 18:05')
   })
 })

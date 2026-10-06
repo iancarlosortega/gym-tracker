@@ -35,11 +35,11 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once its 
 - [x] 5.0 **Design options**: published at https://claude.ai/artifact/7ydVYMCcLY462ZjjzewjXn. Ian chose a combination: list A by default, plus a toggle to calendar B (D7b).
 - [x] 5.1 API: `GET /workouts` takes optional `from` and `to` instants. `GET /workouts/:id` returns one workout as history shows it (`WorkoutHistoryRepository.entry`), so a detail page opened directly has its routine name and times. It is registered after `/workouts/current`, and a test pins that order. `WorkoutHistoryRepository.page` filters `started_at` to `[from, to)`. Tests cover PGlite, DTO and use case.
 - [x] 5.2 Web history client and queries: an infinite list (offset paging) and a month read (`from`/`to`, limit 200). Pure helpers group the list by local week and bucket the month by local day.
-- [ ] 5.3 Routes `/statistics/history` and `/statistics/history/[workoutId]`, and a Progress | History switch on the Progress screen.
+- [x] 5.3 Routes `/statistics/history` and `/statistics/history/[workoutId]`, and a Progress | History switch on the Progress screen.
   - The list shows rows grouped by week: local day, routine name or "No routine", set count, duration, and an in-progress badge.
   - A List | Calendar toggle is kept in `?view=`.
   - The month grid has trained-day dots, previous and next month, and a list of the selected day's workouts.
-- [ ] 5.4 Workout detail:
+- [x] 5.4 Workout detail:
   - sets grouped by exercise, in log order and in the display unit;
   - tapping a set opens the `SetEditorContainer`;
   - Delete workout: a confirmation naming the routine and date → working state → on 204 go back to History and invalidate; the workout's queued sets are dropped first (D5); a failure keeps the workout and shows a message.

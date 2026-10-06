@@ -75,3 +75,26 @@ export const durationLabel = (startedAt: string, finishedAt: string | null): str
     ? `${minutes} min`
     : `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, '0')}`
 }
+
+/** "Sun, Oct 4": the day a workout started where the phone is. */
+export const workoutDay = (startedAt: string, zone: string): string =>
+  new Date(startedAt).toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    timeZone: zone,
+  })
+
+const clock = (instant: string, zone: string) =>
+  new Date(instant).toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+    timeZone: zone,
+  })
+
+/** "18:10 – 19:05", or "from 18:05" while the workout is still open. */
+export const workoutTimes = (startedAt: string, finishedAt: string | null, zone: string): string =>
+  finishedAt === null
+    ? `from ${clock(startedAt, zone)}`
+    : `${clock(startedAt, zone)} – ${clock(finishedAt, zone)}`
