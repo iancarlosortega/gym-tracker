@@ -28,9 +28,9 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once `pnp
 - [x] 2.4 `openspec/config.yaml` context: multi-user, open registration.
 
 ## Device verification
-- [ ] DV.1 Register a second account on the phone. Home is empty and the owner's data is not visible. Sign out, then sign back in.
-- [ ] DV.2 Try the owner's email on register: the taken message appears, and its link goes to sign-in.
-- [ ] DV.3 Behind the deploy proxy: 6 quick failed sign-ins → wait message. Another device can still sign in.
+- [x] DV.1 Register a second account on the phone. Home is empty and the owner's data is not visible. Sign out, then sign back in.
+- [x] DV.2 Try the owner's email on register: the taken message appears, and its link goes to sign-in.
+- [x] DV.3 Behind the deploy proxy: 6 quick failed sign-ins → wait message. Another device can still sign in. DV.1–DV.3 confirmed by Ian on the device (2026-10-06).
 
 ## Review Workload Forecast
 | Unit | ~Lines |

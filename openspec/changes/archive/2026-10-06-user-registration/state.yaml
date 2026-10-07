@@ -12,11 +12,11 @@ phases:
   spec: done
   design: done
   tasks: done
-  apply: done # DV.1-DV.3 pending on device
+  apply: done
   verify: done # pass with warnings
-  archive: pending
+  archive: done
 
-next_recommended: archive # after DV.1-DV.3
+next_recommended: none
 
 preproposal:
   schema: gentle-ai.sdd-preproposal/v1
