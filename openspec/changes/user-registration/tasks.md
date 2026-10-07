@@ -10,7 +10,7 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once `pnp
 
 ## A2 — API: sign-up endpoint, session issuer, rate limit
 - [x] 2.1 Extract `SessionIssuer` from `SignInUseCase` (D2). The sign-in tests stay green unchanged.
-- [x] 2.2 `SignUpDto` (shape only: email up to 320, password up to 512) and `SignUpController` `POST /auth/sign-up` → 201 + `gym_session` cookie. `authHttpErrors`: 409 and 400 mappings.
+- [x] 2.2 `SignUpDto` (shape only: email up to 320, password up to 512) and `SignUpController` POST /auth/sign-up → 201 + `gym_session` cookie. `authHttpErrors`: 409 and 400 mappings.
 - [x] 2.3 `@nestjs/throttler` with the named `auth` throttler on sign-in and sign-up (D4). Add the `AUTH_RATE_LIMIT`, `AUTH_RATE_WINDOW_SECONDS` and `TRUST_PROXY` env vars to the schema and `compose.yaml` (`.env.example` is behind a deny rule for the agent; Ian adds them by hand), and `app.set('trust proxy')`. Supertest: a 6th request → 429 with `Retry-After`; another forwarded IP is unaffected.
 
 ## W0 — Design options (before W2)
@@ -19,7 +19,7 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once `pnp
 ## W1 — Web: sign-up logic
 - [x] 1.1 `SignUpPort`, `SignUpUseCase` (trims the email), and the `EmailTakenError`, `SignUpRejectedError` (a 400 carrying the server's reason, because error bodies have no domain code) and `RateLimitedError` errors.
 - [x] 1.2 `HttpSignUpGateway`: 409 / 400 / 429 mapping, `skipSignInRedirect`. Tests with a mocked axios instance.
-- [x] 1.3 `safeNextPath` rejects `/register` (also with `?` and `/` variants). The sign-in gateway maps 429 → `RateLimitedError`.
+- [x] 1.3 `safeNextPath` rejects the register route (also with a query or a trailing segment). The sign-in gateway maps 429 → `RateLimitedError`.
 
 ## W2 — Web: register page and links
 - [x] 2.1 `SignUpForm` (RHF + zod, reveal toggle, `new-password`), following the chosen design. RTL tests: min-length message, taken message with a sign-in link, pending disables submit, a 429 message.
