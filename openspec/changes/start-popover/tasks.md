@@ -3,10 +3,10 @@
 Strict TDD (red → green → refactor). Each unit is a commit to main once `pnpm test`, `pnpm typecheck`, `biome check .` and the web build pass, after Ian's local review. Units are sliced for the 400-line budget (auto-chain).
 
 ## W1 — Picker logic and views
-- [ ] 1.1 Move `lastDoneLabel` to `features/routines/presentation/last-done.ts` and re-import it in Home. Existing tests move with it and stay green.
-- [ ] 1.2 `pickableRoutines(routines, upNextId, query)` and `SEARCH_FROM = 8` (D3). Tests: up next first with the user's order kept, case-insensitive trimmed match, empty query, no match.
-- [ ] 1.3 `StartMenu`: the "Up next · N exercises" subtitle (singular for 1), the "Pick another routine" copy and a chevron. Update `start-sheets.test.tsx`.
-- [ ] 1.4 `RoutinePicker`:
+- [x] 1.1 Move `lastDoneLabel` to `features/routines/presentation/last-done.ts` and re-import it in Home. Existing tests move with it and stay green.
+- [x] 1.2 `pickableRoutines(routines, upNextId, query)` and `SEARCH_FROM = 8` (D3). Tests: up next first with the user's order kept, case-insensitive trimmed match, empty query, no match.
+- [x] 1.3 `StartMenu`: the "Up next · N exercises" subtitle (singular for 1), the "Pick another routine" copy and a chevron. Update `start-sheets.test.tsx`.
+- [x] 1.4 `RoutinePicker`:
   - back control;
   - search at `SEARCH_FROM` or more (never autofocused);
   - bounded scroll list with name, `UpNextTag` and "N ex · last done";

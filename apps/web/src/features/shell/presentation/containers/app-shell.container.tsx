@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
+import { localTimeZone } from '@/lib/local-time'
 import { RoutinePicker, StartMenu } from '../../../routines/presentation/components/start-sheets'
 import { useRoutines } from '../../../routines/presentation/queries'
 import { offlineWork } from '../../../workouts/presentation/offline-work'
@@ -98,7 +99,11 @@ const useStartSheets = () => {
               routines={routines}
               upNextId={upNext?.id ?? null}
               starting={start.isPending}
+              now={new Date()}
+              timeZone={localTimeZone()}
               onStart={startWith}
+              onBack={() => setSheet('menu')}
+              onManage={() => setSheet(null)}
             />
           )}
           {start.isError && (
