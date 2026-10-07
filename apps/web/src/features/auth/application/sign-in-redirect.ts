@@ -40,3 +40,12 @@ export const safeNextPath = (next: string | null | undefined): string => {
 /** The sign-in page, remembering where the user was headed. */
 export const signInPathFor = (currentPath: string): string =>
   `${SIGN_IN_PATH}?next=${encodeURIComponent(currentPath)}`
+
+/**
+ * Sign-in or register, keeping where the visitor was headed when they switch
+ * between the two. Only a destination `safeNextPath` accepts is carried over.
+ */
+export const authPageFor = (page: string, next: string | null | undefined): string => {
+  const destination = safeNextPath(next)
+  return destination === '/' ? page : `${page}?next=${encodeURIComponent(destination)}`
+}

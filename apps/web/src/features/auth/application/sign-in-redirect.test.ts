@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { safeNextPath, signInPathFor } from './sign-in-redirect.ts'
+import { authPageFor, safeNextPath, signInPathFor } from './sign-in-redirect.ts'
 
 describe('safeNextPath', () => {
   it('keeps a same-origin path, query and all', () => {
@@ -50,5 +50,17 @@ describe('signInPathFor', () => {
     const next = new URL(signInPathFor('/statistics/x?y=1'), 'http://h').searchParams.get('next')
 
     expect(safeNextPath(next)).toBe('/statistics/x?y=1')
+  })
+})
+
+describe('authPageFor', () => {
+  it('carries a safe destination over to the other auth page', () => {
+    expect(authPageFor('/register', '/routines')).toBe('/register?next=%2Froutines')
+  })
+
+  it('drops a destination that is home or unsafe, rather than passing it on', () => {
+    expect(authPageFor('/sign-in', undefined)).toBe('/sign-in')
+    expect(authPageFor('/sign-in', '/')).toBe('/sign-in')
+    expect(authPageFor('/sign-in', 'https://evil.example')).toBe('/sign-in')
   })
 })

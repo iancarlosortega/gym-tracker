@@ -3,14 +3,25 @@
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { InvalidCredentialsError } from '../../application/invalid-credentials.error'
+import { RateLimitedError } from '../../application/rate-limited.error'
 import { SignInUseCase } from '../../application/sign-in.use-case'
-import { safeNextPath } from '../../application/sign-in-redirect'
+import { authPageFor, REGISTER_PATH, safeNextPath } from '../../application/sign-in-redirect'
 import { HttpSignInGateway } from '../../infrastructure/http-sign-in.gateway'
 import { type SignInFailure, SignInForm, type SignInSubmission } from '../components/sign-in-form'
 
 export interface SignInContainerProps {
   /** The raw `next` query parameter; it is checked here, never trusted. */
   readonly next?: string | undefined
+}
+
+const failureFrom = (error: unknown): SignInFailure => {
+  if (error instanceof InvalidCredentialsError) {
+    return 'invalid-credentials'
+  }
+  if (error instanceof RateLimitedError) {
+    return 'rate-limited'
+  }
+  return 'unavailable'
 }
 
 export const SignInContainer = ({ next }: SignInContainerProps) => {
@@ -29,12 +40,17 @@ export const SignInContainer = ({ next }: SignInContainerProps) => {
       // cannot sign in twice.
       router.replace(safeNextPath(next))
     } catch (error) {
-      setFailure(error instanceof InvalidCredentialsError ? 'invalid-credentials' : 'unavailable')
+      setFailure(failureFrom(error))
       setPending(false)
     }
   }
 
   return (
-    <SignInForm pending={pending} failure={failure} onSubmit={(values) => void submit(values)} />
+    <SignInForm
+      pending={pending}
+      failure={failure}
+      registerHref={authPageFor(REGISTER_PATH, next)}
+      onSubmit={(values) => void submit(values)}
+    />
   )
 }

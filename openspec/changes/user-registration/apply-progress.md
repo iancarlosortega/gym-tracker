@@ -31,3 +31,17 @@ A2 settled `passed` at 500 changed lines, over the 400 budget (lockfile, tests, 
 - `HttpSignInGateway` maps 429 → `RateLimitedError`.
 - `safeNextPath` rejects `/register`, `/register?…` and `/register/…` (exported as `REGISTER_PATH`); `/registers` is still allowed.
 - Evidence: `pnpm test` green (web 520), typecheck green, biome clean.
+
+## W0 + W2 — Design and register page (done, uncommitted for Ian's review)
+- Ian picked **option A** (mirror of sign-in) on 2026-10-06.
+- `SignUpForm`:
+  - RHF + zod: the email must be usable; the password is 8–512 code points, matching the server;
+  - a length hint (`data-met`) turns `text-live` with a check at 8;
+  - failure banner: taken (with "Sign in instead" carrying `next`), rate-limited, rejected (the server's reason), unavailable;
+  - a "Sign in" footer link.
+- `SignUpContainer` maps errors to failures and calls `router.replace(safeNextPath(next))`. `/register` page: headline "Start / your log.".
+- `authPageFor(page, next)` carries only a safe, non-home `next` between the two pages.
+- Sign-in: a "New here? Create an account" link, and a `rate-limited` failure message. New `sign-in-form.test.tsx`.
+- Service worker shell cache bumped to `gym-shell-v7`. `config.yaml` context updated to open registration.
+- Evidence: `pnpm test` green (web 534, api 336, domain 242), typecheck green, biome clean, `next build` ok with `/register` listed.
+- Ledger: W2 is not yet settled. Settle it after the commit, as with A1.

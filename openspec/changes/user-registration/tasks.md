@@ -14,7 +14,7 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once `pnp
 - [x] 2.3 `@nestjs/throttler` with the named `auth` throttler on sign-in and sign-up (D4). Add the `AUTH_RATE_LIMIT`, `AUTH_RATE_WINDOW_SECONDS` and `TRUST_PROXY` env vars to the schema and `compose.yaml` (`.env.example` is behind a deny rule for the agent; Ian adds them by hand), and `app.set('trust proxy')`. Supertest: a 6th request → 429 with `Retry-After`; another forwarded IP is unaffected.
 
 ## W0 — Design options (before W2)
-- [ ] 0.1 Publish register-page design options as artifacts (published at https://claude.ai/artifact/52EZr28ckApFP353j4gtQc: A mirror, B plate meter, C two steps, D shared screen; awaiting pick), in the sign-in page's visual language, and wait for Ian's pick ([[gymtracker-design-explorations]]).
+- [x] 0.1 Publish register-page design options as artifacts (published at https://claude.ai/artifact/52EZr28ckApFP353j4gtQc: A mirror, B plate meter, C two steps, D shared screen; Ian picked A, 2026-10-06), in the sign-in page's visual language, and wait for Ian's pick ([[gymtracker-design-explorations]]).
 
 ## W1 — Web: sign-up logic
 - [x] 1.1 `SignUpPort`, `SignUpUseCase` (trims the email), and the `EmailTakenError`, `SignUpRejectedError` (a 400 carrying the server's reason, because error bodies have no domain code) and `RateLimitedError` errors.
@@ -22,10 +22,10 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once `pnp
 - [x] 1.3 `safeNextPath` rejects `/register` (also with `?` and `/` variants). The sign-in gateway maps 429 → `RateLimitedError`.
 
 ## W2 — Web: register page and links
-- [ ] 2.1 `SignUpForm` (RHF + zod, reveal toggle, `new-password`), following the chosen design. RTL tests: min-length message, taken message with a sign-in link, pending disables submit, a 429 message.
-- [ ] 2.2 `SignUpContainer` and `app/register/page.tsx`: on success, `router.replace(safeNextPath(next))`.
-- [ ] 2.3 Sign-in page: a "Create an account" link carrying `next`, plus the 429 message. Bump the service worker cache version.
-- [ ] 2.4 `openspec/config.yaml` context: multi-user, open registration.
+- [x] 2.1 `SignUpForm` (RHF + zod, reveal toggle, `new-password`), following the chosen design. RTL tests: min-length message, taken message with a sign-in link, pending disables submit, a 429 message.
+- [x] 2.2 `SignUpContainer` and `app/register/page.tsx`: on success, `router.replace(safeNextPath(next))`.
+- [x] 2.3 Sign-in page: a "Create an account" link carrying `next`, plus the 429 message. Bump the service worker cache version.
+- [x] 2.4 `openspec/config.yaml` context: multi-user, open registration.
 
 ## Device verification
 - [ ] DV.1 Register a second account on the phone. Home is empty and the owner's data is not visible. Sign out, then sign back in.

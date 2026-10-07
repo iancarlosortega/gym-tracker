@@ -2,7 +2,8 @@
 project: gymtracker
 
 context: |
-  Personal gym tracker. Single user (the owner), explicitly not a SaaS.
+  Personal gym tracker, built for the owner first. Open registration since
+  2026-10-06 (user-registration): one account per email, data scoped per user.
   Greenfield: the repository was empty at init on 2026-09-19.
   Stated stack preference: Next.js (latest) frontend + NestJS backend.
   Primary client: iPhone 16 Pro Max, used inside the gym to log sets.
