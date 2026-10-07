@@ -12,7 +12,7 @@ phases:
   spec: done
   design: done
   tasks: done
-  apply: in-progress # W1 done, awaiting review
+  apply: in-progress # W1 committed 9c8a760; W2 committed; DV pending
   verify: pending
   archive: pending
 

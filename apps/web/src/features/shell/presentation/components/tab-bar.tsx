@@ -1,13 +1,6 @@
-import {
-  CircleUser,
-  ClipboardList,
-  House,
-  type LucideIcon,
-  Plus,
-  Timer,
-  TrendingUp,
-} from 'lucide-react'
+import { CircleUser, ClipboardList, House, type LucideIcon, Timer, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 export type Tab = 'home' | 'progress' | 'routines' | 'profile'
@@ -44,17 +37,15 @@ const TabLink = ({ href, label, icon: Icon, current }: TabLinkProps) => (
   </Link>
 )
 
-const centerClass = '-mt-6 flex size-16 items-center justify-center rounded-full'
-
 export interface TabBarProps {
   readonly pathname: string
   /** While a workout runs, the middle button goes back to it instead of starting another. */
   readonly workoutOpen?: boolean
-  /** Opens the start menu; a start is a choice, not a navigation. */
-  readonly onStart: () => void
+  /** The middle button and the start choices it opens; a start is a choice, not a navigation. */
+  readonly startMenu: ReactNode
 }
 
-export const TabBar = ({ pathname, workoutOpen = false, onStart }: TabBarProps) => {
+export const TabBar = ({ pathname, workoutOpen = false, startMenu }: TabBarProps) => {
   const current = activeTab(pathname)
 
   return (
@@ -71,21 +62,12 @@ export const TabBar = ({ pathname, workoutOpen = false, onStart }: TabBarProps) 
       />
       {workoutOpen ? (
         <Link href="/workout" aria-label="Back to the workout" className="flex justify-center">
-          <span className={cn(centerClass, 'bg-live text-background')}>
+          <span className="-mt-6 flex size-16 items-center justify-center rounded-full bg-live text-background">
             <Timer className="size-7" strokeWidth={2.5} aria-hidden="true" />
           </span>
         </Link>
       ) : (
-        <button
-          type="button"
-          aria-label="Start a workout"
-          onClick={onStart}
-          className="flex justify-center"
-        >
-          <span className={cn(centerClass, 'bg-primary text-primary-foreground')}>
-            <Plus className="size-7" strokeWidth={2.5} aria-hidden="true" />
-          </span>
-        </button>
+        startMenu
       )}
       <TabLink
         href="/routines"

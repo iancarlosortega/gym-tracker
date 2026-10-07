@@ -16,11 +16,11 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once `pnp
   RTL tests cover search at 8 and not at 7, filtering, the empty message and the link href.
 
 ## W2 — Popover and shell
-- [ ] 2.1 `components/ui/popover.tsx` wrapper (D1): backdrop, positioner side top with collision padding, arrow, scale from `--transform-origin`, reduced motion.
-- [ ] 2.2 `StartPopover` (D2/D4): open and view state, sliding track with an `inert` inactive view, the view reset on close, the error message. RTL: open → choices, each choice → `onStart(id?)`, picker and back, Esc closes without starting.
-- [ ] 2.3 `TabBar` takes a `startMenu` slot instead of `onStart`, and the + rotates on `aria-expanded` (D5). Update `tab-bar.test.tsx`.
-- [ ] 2.4 `AppShellContainer`: `useStartPopover` replaces the Drawer. Same `startWith`, routines and up next, error, and mutation reset on close. Fix the affected container tests.
-- [ ] 2.5 Bump `SHELL_CACHE` to `gym-shell-v8` (D6).
+- [x] 2.1 `components/ui/popover.tsx` wrapper (D1): backdrop, positioner side top with collision padding, arrow, scale from `--transform-origin`, reduced motion.
+- [x] 2.2 `StartPopover` (D2/D4): open and view state, sliding track with an `inert` inactive view, the view reset on close, the error message. RTL: open → choices, each choice → `onStart(id?)`, picker and back, Esc closes without starting.
+- [x] 2.3 `TabBar` takes a `startMenu` slot instead of `onStart`, and the + rotates on `aria-expanded` (D5). Update `tab-bar.test.tsx`.
+- [x] 2.4 `AppShellContainer`: `useStartPopover` replaces the Drawer. Same `startWith`, routines and up next, error, and mutation reset on close. Fix the affected container tests.
+- [x] 2.5 Bump `SHELL_CACHE` to `gym-shell-v8` (D6).
 
 ## Device verification
 - [ ] DV.1 iPhone: tap + → the popover sits above the + with the caret pointing at it, × shows, the scrim dims the page, and tapping outside closes it.

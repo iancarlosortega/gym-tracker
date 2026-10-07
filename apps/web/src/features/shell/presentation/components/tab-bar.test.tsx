@@ -1,7 +1,6 @@
 /** @vitest-environment jsdom */
 import { cleanup, render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { activeTab, TabBar } from './tab-bar.tsx'
 
 afterEach(cleanup)
@@ -27,9 +26,11 @@ describe('activeTab', () => {
   })
 })
 
+const startMenu = <button type="button">Start a workout</button>
+
 describe('TabBar', () => {
   it('names every area and marks the current one', () => {
-    render(<TabBar pathname="/exercises" onStart={vi.fn()} />)
+    render(<TabBar pathname="/exercises" startMenu={startMenu} />)
 
     for (const name of ['Home', 'Progress', 'Routines', 'Profile']) {
       expect(screen.getByRole('link', { name })).toBeDefined()
@@ -41,7 +42,7 @@ describe('TabBar', () => {
 
 describe('TabBar with a workout open', () => {
   it('turns the start button into a way back to the workout', () => {
-    render(<TabBar pathname="/" workoutOpen onStart={vi.fn()} />)
+    render(<TabBar pathname="/" workoutOpen startMenu={startMenu} />)
 
     expect(screen.queryByRole('button', { name: 'Start a workout' })).toBeNull()
     expect(screen.getByRole('link', { name: 'Back to the workout' }).getAttribute('href')).toBe(
@@ -49,12 +50,10 @@ describe('TabBar with a workout open', () => {
     )
   })
 
-  it('opens the start menu from the middle button when nothing is running', async () => {
-    const onStart = vi.fn()
-    render(<TabBar pathname="/" onStart={onStart} />)
+  it('puts the start menu in the middle when nothing is running', () => {
+    render(<TabBar pathname="/" startMenu={startMenu} />)
 
-    await userEvent.click(screen.getByRole('button', { name: 'Start a workout' }))
-
-    expect(onStart).toHaveBeenCalledOnce()
+    const items = screen.getByRole('navigation').children
+    expect(items[2]?.textContent).toBe('Start a workout')
   })
 })
