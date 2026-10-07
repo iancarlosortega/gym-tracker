@@ -1,6 +1,7 @@
 import type { Database } from '@api/common/persistence/drizzle.repository.js'
 import {
   createTestDatabase,
+  resetTestDatabase,
   type SeededReferences,
   seedReferences,
 } from '@api/database/testing/test-database.js'
@@ -17,7 +18,7 @@ import { stackPosition } from '@gym/domain/measurement/value-objects/stack-posit
 import { DateRange } from '@gym/domain/shared/value-objects/date-range.vo'
 import { totalVolume } from '@gym/domain/statistics/services/volume.service'
 import { drizzle } from 'drizzle-orm/pglite'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 const week = DateRange.between(
   new Date('2026-09-14T00:00:00.000Z'),
@@ -56,8 +57,16 @@ const machineSet = (position: number, loggedAt: Date) =>
     snapshot: { barGrams: null, displayUnit: 'KG', equipmentId: references.machineId },
   })
 
-beforeEach(async () => {
+beforeAll(async () => {
   client = await createTestDatabase()
+})
+
+afterAll(async () => {
+  await client.close()
+})
+
+beforeEach(async () => {
+  await resetTestDatabase(client)
   references = await seedReferences(client)
 
   const database = drizzle(client)

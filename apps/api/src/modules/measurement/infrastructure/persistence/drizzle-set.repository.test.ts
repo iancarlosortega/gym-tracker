@@ -1,8 +1,13 @@
-import { createTestDatabase, seedReferences } from '@api/database/testing/test-database.js'
+import {
+  createTestDatabase,
+  resetTestDatabase,
+  seedReferences,
+} from '@api/database/testing/test-database.js'
 import {
   DrizzleSetRepository,
   type MeasurementDatabase,
 } from '@api/modules/measurement/infrastructure/persistence/drizzle-set.repository.js'
+import type { PGlite } from '@electric-sql/pglite'
 import { LoggedSet } from '@gym/domain/measurement/entities/logged-set.entity'
 import type { SetCriteriaFields } from '@gym/domain/measurement/repositories/set.repository'
 import { describeSetRepositoryContract } from '@gym/domain/measurement/repositories/set.repository.contract'
@@ -11,10 +16,20 @@ import { LoadEntry } from '@gym/domain/measurement/value-objects/load-entry.vo'
 import { reps } from '@gym/domain/measurement/value-objects/reps.vo'
 import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
 import { drizzle } from 'drizzle-orm/pglite'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+
+let client: PGlite
+
+beforeAll(async () => {
+  client = await createTestDatabase()
+})
+
+afterAll(async () => {
+  await client.close()
+})
 
 async function createRepository() {
-  const client = await createTestDatabase()
+  await resetTestDatabase(client)
   const references = await seedReferences(client)
 
   return {

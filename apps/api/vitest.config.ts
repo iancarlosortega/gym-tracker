@@ -19,5 +19,6 @@ export default defineConfig({
     setupFiles: ['reflect-metadata'],
     include: ['src/**/*.test.ts'],
     environment: 'node',
+    maxWorkers: '50%',
   },
 })

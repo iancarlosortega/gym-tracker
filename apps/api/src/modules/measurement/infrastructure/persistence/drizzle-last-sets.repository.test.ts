@@ -1,6 +1,7 @@
 import type { Database } from '@api/common/persistence/drizzle.repository.js'
 import {
   createTestDatabase,
+  resetTestDatabase,
   type SeededReferences,
   seedReferences,
 } from '@api/database/testing/test-database.js'
@@ -10,7 +11,7 @@ import { fromKilograms } from '@gym/domain/measurement/value-objects/grams.vo'
 import { LoadEntry } from '@gym/domain/measurement/value-objects/load-entry.vo'
 import { reps } from '@gym/domain/measurement/value-objects/reps.vo'
 import { drizzle } from 'drizzle-orm/pglite'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { DrizzleLastSetsRepository } from './drizzle-last-sets.repository.ts'
 import { DrizzleSetRepository, type MeasurementDatabase } from './drizzle-set.repository.ts'
 
@@ -44,8 +45,16 @@ const setIn = (sessionId: string, kilograms: number, loggedAt: string) =>
     snapshot: { barGrams: null, displayUnit: 'KG', equipmentId: references.barbellId },
   })
 
-beforeEach(async () => {
+beforeAll(async () => {
   client = await createTestDatabase()
+})
+
+afterAll(async () => {
+  await client.close()
+})
+
+beforeEach(async () => {
+  await resetTestDatabase(client)
   references = await seedReferences(client)
   const database = drizzle(client)
   sets = new DrizzleSetRepository(database as unknown as MeasurementDatabase)

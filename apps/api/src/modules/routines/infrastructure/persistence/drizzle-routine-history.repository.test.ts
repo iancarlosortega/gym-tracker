@@ -1,12 +1,13 @@
 import type { Database } from '@api/common/persistence/drizzle.repository.js'
 import {
   createTestDatabase,
+  resetTestDatabase,
   type SeededReferences,
   seedReferences,
 } from '@api/database/testing/test-database.js'
 import type { PGlite } from '@electric-sql/pglite'
 import { drizzle } from 'drizzle-orm/pglite'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { DrizzleRoutineHistoryRepository } from './drizzle-routine-history.repository.ts'
 
 let client: PGlite
@@ -28,8 +29,16 @@ const workout = (userId: string, routineId: string | null, startedAt: string) =>
     [userId, routineId, startedAt],
   )
 
-beforeEach(async () => {
+beforeAll(async () => {
   client = await createTestDatabase()
+})
+
+afterAll(async () => {
+  await client.close()
+})
+
+beforeEach(async () => {
+  await resetTestDatabase(client)
   references = await seedReferences(client)
   history = new DrizzleRoutineHistoryRepository(drizzle(client) as unknown as Database)
 })

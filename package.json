@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "pnpm -r build",
-    "test": "pnpm -r test",
+    "test": "pnpm -r --workspace-concurrency=1 test",
     "typecheck": "pnpm build:packages && pnpm -r typecheck",
     "lint": "biome check . && ./scripts/check-no-barrels.sh && ./scripts/check-import-placement.sh",
     "format": "biome format --write .",

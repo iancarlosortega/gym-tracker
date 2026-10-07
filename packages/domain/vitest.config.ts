@@ -11,5 +11,5 @@ export default defineConfig({
       { find: /^@domain\//, replacement: `${source}/` },
     ],
   },
-  test: { include: ['src/**/*.test.ts'], environment: 'node' },
+  test: { include: ['src/**/*.test.ts'], environment: 'node', maxWorkers: '50%' },
 })

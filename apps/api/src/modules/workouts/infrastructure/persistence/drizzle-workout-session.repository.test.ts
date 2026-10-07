@@ -1,10 +1,14 @@
 import type { Database } from '@api/common/persistence/drizzle.repository.js'
-import { createTestDatabase, seedReferences } from '@api/database/testing/test-database.js'
+import {
+  createTestDatabase,
+  resetTestDatabase,
+  seedReferences,
+} from '@api/database/testing/test-database.js'
 import { DrizzleWorkoutSessionRepository } from '@api/modules/workouts/infrastructure/persistence/drizzle-workout-session.repository.js'
 import type { PGlite } from '@electric-sql/pglite'
 import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
 import { drizzle } from 'drizzle-orm/pglite'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 describe('DrizzleWorkoutSessionRepository.delete', () => {
   const otherSessionId = '0199a1f0-0000-7000-8000-00000000f002'
@@ -13,8 +17,16 @@ describe('DrizzleWorkoutSessionRepository.delete', () => {
   let repository: DrizzleWorkoutSessionRepository
   let references: Awaited<ReturnType<typeof seedReferences>>
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = await createTestDatabase()
+  })
+
+  afterAll(async () => {
+    await client.close()
+  })
+
+  beforeEach(async () => {
+    await resetTestDatabase(client)
     references = await seedReferences(client)
     repository = new DrizzleWorkoutSessionRepository(drizzle(client) as unknown as Database)
 

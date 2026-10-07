@@ -1,10 +1,15 @@
 import type { Database } from '@api/common/persistence/drizzle.repository.js'
-import { createTestDatabase, seedReferences } from '@api/database/testing/test-database.js'
+import {
+  createTestDatabase,
+  resetTestDatabase,
+  seedReferences,
+} from '@api/database/testing/test-database.js'
 import { DrizzlePushScheduler } from '@api/modules/push/infrastructure/persistence/drizzle-push.scheduler.js'
+import type { PGlite } from '@electric-sql/pglite'
 import { ScheduledPush } from '@gym/domain/push/entities/scheduled-push.entity'
 import { Id } from '@gym/domain/shared/value-objects/id.vo'
 import { drizzle } from 'drizzle-orm/pglite'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 const now = new Date('2026-09-20T08:00:00.000Z')
 const restEndsAt = new Date('2026-09-20T08:03:00.000Z')
@@ -20,8 +25,18 @@ const alertFor = (setId: string, fireAt = restEndsAt) =>
     now,
   })
 
+let client: PGlite
+
+beforeAll(async () => {
+  client = await createTestDatabase()
+})
+
+afterAll(async () => {
+  await client.close()
+})
+
 beforeEach(async () => {
-  const client = await createTestDatabase()
+  await resetTestDatabase(client)
   const references = await seedReferences(client)
 
   userId = references.userId

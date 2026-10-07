@@ -27,6 +27,23 @@ export async function createTestDatabase(): Promise<PGlite> {
   return database
 }
 
+/**
+ * Empties every table so a test file can share one database across its tests.
+ *
+ * Building the database runs every migration, which dwarfs the cost of a test;
+ * a file builds it once and calls this before each test instead. Tables are
+ * read from the catalog so a new migration never needs a change here.
+ */
+export async function resetTestDatabase(database: PGlite): Promise<void> {
+  const { rows } = await database.query<{ tablename: string }>(
+    `SELECT tablename FROM pg_tables WHERE schemaname = 'public'`,
+  )
+  if (rows.length === 0) return
+
+  const tables = rows.map(({ tablename }) => `"${tablename}"`).join(', ')
+  await database.exec(`TRUNCATE ${tables} RESTART IDENTITY CASCADE`)
+}
+
 export interface SeededReferences {
   readonly userId: string
   readonly exerciseId: string

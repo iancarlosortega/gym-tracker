@@ -1,16 +1,25 @@
 import {
   createTestDatabase,
+  resetTestDatabase,
   type SeededReferences,
   seedReferences,
 } from '@api/database/testing/test-database.js'
 import type { PGlite } from '@electric-sql/pglite'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 let database: PGlite
 let references: SeededReferences
 
-beforeEach(async () => {
+beforeAll(async () => {
   database = await createTestDatabase()
+})
+
+afterAll(async () => {
+  await database.close()
+})
+
+beforeEach(async () => {
+  await resetTestDatabase(database)
   references = await seedReferences(database)
 })
 

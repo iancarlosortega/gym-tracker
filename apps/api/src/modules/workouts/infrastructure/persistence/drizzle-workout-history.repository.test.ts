@@ -1,13 +1,14 @@
 import type { Database } from '@api/common/persistence/drizzle.repository.js'
 import {
   createTestDatabase,
+  resetTestDatabase,
   type SeededReferences,
   seedReferences,
 } from '@api/database/testing/test-database.js'
 import type { PGlite } from '@electric-sql/pglite'
 import { Pagination } from '@gym/domain/shared/value-objects/pagination.vo'
 import { drizzle } from 'drizzle-orm/pglite'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { DrizzleWorkoutHistoryRepository } from './drizzle-workout-history.repository.ts'
 
 let client: PGlite
@@ -37,8 +38,16 @@ const set = (sessionId: string, deleted = false) =>
     [sessionId, references.exerciseId, references.barbellId, deleted ? new Date() : null],
   )
 
-beforeEach(async () => {
+beforeAll(async () => {
   client = await createTestDatabase()
+})
+
+afterAll(async () => {
+  await client.close()
+})
+
+beforeEach(async () => {
+  await resetTestDatabase(client)
   references = await seedReferences(client)
   // The seed's own session would sit at "now", ahead of every fixture below.
   await client.query('DELETE FROM workout_session')

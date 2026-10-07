@@ -1,6 +1,7 @@
 import type { Database } from '@api/common/persistence/drizzle.repository.js'
 import {
   createTestDatabase,
+  resetTestDatabase,
   type SeededReferences,
   seedReferences,
 } from '@api/database/testing/test-database.js'
@@ -14,7 +15,7 @@ import { fromKilograms } from '@gym/domain/measurement/value-objects/grams.vo'
 import { LoadEntry } from '@gym/domain/measurement/value-objects/load-entry.vo'
 import { reps } from '@gym/domain/measurement/value-objects/reps.vo'
 import { drizzle } from 'drizzle-orm/pglite'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { DrizzleEquipmentUsageRepository } from './drizzle-equipment-usage.repository.ts'
 
 let counter = 0
@@ -40,8 +41,16 @@ const barbellSet = (exerciseId: string, sessionId = references.sessionId) =>
 const insertReturningId = async (query: string, params: unknown[]): Promise<string> =>
   (await client.query<{ id: string }>(query, params)).rows[0]?.id ?? ''
 
-beforeEach(async () => {
+beforeAll(async () => {
   client = await createTestDatabase()
+})
+
+afterAll(async () => {
+  await client.close()
+})
+
+beforeEach(async () => {
+  await resetTestDatabase(client)
   references = await seedReferences(client)
 
   const database = drizzle(client)

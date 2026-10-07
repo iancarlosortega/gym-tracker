@@ -1,4 +1,5 @@
-import { createTestDatabase } from '@api/database/testing/test-database.js'
+import { createTestDatabase, resetTestDatabase } from '@api/database/testing/test-database.js'
+import type { PGlite } from '@electric-sql/pglite'
 import { AuthSession } from '@gym/domain/auth/entities/auth-session.entity'
 import { User } from '@gym/domain/auth/entities/user.entity'
 import { EmailAlreadyRegisteredError } from '@gym/domain/auth/errors'
@@ -7,7 +8,7 @@ import type { UserCriteriaFields } from '@gym/domain/auth/repositories/user.repo
 import { PasswordHash } from '@gym/domain/auth/value-objects/password-hash.vo'
 import { Criteria } from '@gym/domain/shared/value-objects/criteria.vo'
 import { drizzle } from 'drizzle-orm/pglite'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { DrizzleAuthSessionRepository } from './drizzle-auth-session.repository.ts'
 import { type AuthDatabase, DrizzleUserRepository } from './drizzle-user.repository.ts'
 
@@ -17,8 +18,18 @@ let users: DrizzleUserRepository
 let sessions: DrizzleAuthSessionRepository
 let user: User
 
+let client: PGlite
+
+beforeAll(async () => {
+  client = await createTestDatabase()
+})
+
+afterAll(async () => {
+  await client.close()
+})
+
 beforeEach(async () => {
-  const client = await createTestDatabase()
+  await resetTestDatabase(client)
   const database = drizzle(client) as unknown as AuthDatabase
 
   users = new DrizzleUserRepository(database)
