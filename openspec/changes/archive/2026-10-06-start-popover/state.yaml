@@ -12,11 +12,11 @@ phases:
   spec: done
   design: done
   tasks: done
-  apply: in-progress # W1 committed 9c8a760; W2 committed; DV pending
-  verify: pending
-  archive: pending
+  apply: done # W1 9c8a760, W2 4f8fa46
+  verify: done # pass with warnings
+  archive: done
 
-next_recommended: apply
+next_recommended: none
 
 preproposal:
   schema: gentle-ai.sdd-preproposal/v1

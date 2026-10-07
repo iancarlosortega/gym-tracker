@@ -23,9 +23,9 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once `pnp
 - [x] 2.5 Bump `SHELL_CACHE` to `gym-shell-v8` (D6).
 
 ## Device verification
-- [ ] DV.1 iPhone: tap + → the popover sits above the + with the caret pointing at it, × shows, the scrim dims the page, and tapping outside closes it.
-- [ ] DV.2 Pick another → the list slides in place. With 8 or more routines, search filters and the keyboard does not cover the list badly. A long list scrolls without scrolling the page.
-- [ ] DV.3 Start up next, another routine, and an empty workout: each opens the /workout route. While a workout is open, the center button returns to it.
+- [x] DV.1 iPhone: tap + → the popover sits above the + with the caret pointing at it, × shows, the scrim dims the page, and tapping outside closes it.
+- [x] DV.2 Pick another → the list slides in place. With 8 or more routines, search filters and the keyboard does not cover the list badly. A long list scrolls without scrolling the page.
+- [x] DV.3 Start up next, another routine, and an empty workout: each opens the /workout route. While a workout is open, the center button returns to it.
 
 ## Review Workload Forecast
 | Unit | ~Lines |
