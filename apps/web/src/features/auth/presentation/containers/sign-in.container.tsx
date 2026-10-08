@@ -2,7 +2,7 @@
 
 import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { InvalidCredentialsError } from '../../application/invalid-credentials.error'
 import { RateLimitedError } from '../../application/rate-limited.error'
 import { SignInUseCase } from '../../application/sign-in.use-case'
@@ -28,6 +28,11 @@ const failureFrom = (error: unknown): SignInFailure => {
 export const SignInContainer = ({ next }: SignInContainerProps) => {
   const router = useRouter()
   const queryClient = useQueryClient()
+
+  // Arriving signed out: whatever the last session read is not the next one's to show.
+  useEffect(() => {
+    queryClient.clear()
+  }, [queryClient])
   const signIn = useMemo(() => new SignInUseCase(new HttpSignInGateway()), [])
   const [pending, setPending] = useState(false)
   const [failure, setFailure] = useState<SignInFailure | null>(null)
@@ -38,8 +43,6 @@ export const SignInContainer = ({ next }: SignInContainerProps) => {
 
     try {
       await signIn.execute(credentials)
-      // Whatever a lapsed session left in the cache is not this session's to show.
-      queryClient.clear()
       // The pending state stays on through the navigation, so a second tap
       // cannot sign in twice.
       router.replace(safeNextPath(next))

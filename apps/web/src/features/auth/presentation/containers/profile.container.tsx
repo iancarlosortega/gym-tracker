@@ -1,6 +1,7 @@
 'use client'
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { ListSkeleton } from '@/components/loading-skeletons'
 import { QueryState } from '@/components/query-state'
@@ -17,7 +18,7 @@ import { ProfileDetails } from '../components/profile-details'
 import { useChangeDisplayUnit, useDisplayUnit, useMe } from '../queries'
 
 export const ProfileContainer = () => {
-  const client = useQueryClient()
+  const router = useRouter()
   const me = useMe()
   const pendingSets = usePendingSetCount().data ?? 0
   const displayUnit = useDisplayUnit()
@@ -33,9 +34,8 @@ export const ProfileContainer = () => {
     mutationFn: () =>
       new SignOutUseCase(
         () => signOut(),
-        () => client.clear(),
-        // A full navigation, so nothing signed-in stays in memory.
-        () => window.location.assign(SIGN_IN_PATH),
+        // Inside the loaded app: a full navigation would replay the launch.
+        () => router.replace(SIGN_IN_PATH),
       ).execute(),
   })
 
