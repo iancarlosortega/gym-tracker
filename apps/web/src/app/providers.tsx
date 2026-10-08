@@ -2,6 +2,7 @@
 
 import { type QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
+import { SignInNavigatorContainer } from '@/features/auth/presentation/containers/sign-in-navigator.container'
 import { makeQueryClient } from '@/lib/query-client'
 
 let browserQueryClient: QueryClient | undefined
@@ -19,5 +20,8 @@ const getQueryClient = (): QueryClient => {
 }
 
 export const Providers = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={getQueryClient()}>{children}</QueryClientProvider>
+  <QueryClientProvider client={getQueryClient()}>
+    <SignInNavigatorContainer />
+    {children}
+  </QueryClientProvider>
 )

@@ -1,5 +1,6 @@
 'use client'
 
+import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { EmailTakenError } from '../../application/email-taken.error'
@@ -30,6 +31,7 @@ const failureFrom = (error: unknown): SignUpFailure => {
 
 export const SignUpContainer = ({ next }: SignUpContainerProps) => {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const signUp = useMemo(() => new SignUpUseCase(new HttpSignUpGateway()), [])
   const [pending, setPending] = useState(false)
   const [failure, setFailure] = useState<SignUpFailure | null>(null)
@@ -40,6 +42,8 @@ export const SignUpContainer = ({ next }: SignUpContainerProps) => {
 
     try {
       await signUp.execute(credentials)
+      // Whatever a lapsed session left in the cache is not this session's to show.
+      queryClient.clear()
       // The pending state stays on through the navigation, so a second tap
       // cannot try to create the account twice.
       router.replace(safeNextPath(next))

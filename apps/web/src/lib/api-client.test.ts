@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createApiClient, redirectToSignIn, requireApiUrl } from './api-client.ts'
+import {
+  createApiClient,
+  redirectToSignIn,
+  requireApiUrl,
+  setSignInNavigator,
+} from './api-client.ts'
 import { stubAdapter } from './testing/stub-adapter.ts'
 
 const clientAnswering = (status: number) => {
@@ -17,6 +22,7 @@ const clientAnswering = (status: number) => {
 afterEach(() => {
   vi.unstubAllEnvs()
   vi.unstubAllGlobals()
+  setSignInNavigator(undefined)
 })
 
 describe('createApiClient', () => {
@@ -105,5 +111,28 @@ describe('redirectToSignIn', () => {
 
   it('does nothing outside the browser', () => {
     expect(() => redirectToSignIn()).not.toThrow()
+  })
+
+  it("goes through the app's router once it has one, so the page is not loaded again", () => {
+    const assign = stubLocation('/', '')
+    const navigate = vi.fn()
+    setSignInNavigator(navigate)
+
+    redirectToSignIn()
+
+    expect(navigate).toHaveBeenCalledWith('/sign-in?next=%2F')
+    expect(assign).not.toHaveBeenCalled()
+  })
+
+  it('falls back to a full navigation once the router is gone', () => {
+    const assign = stubLocation('/', '')
+    const navigate = vi.fn()
+    setSignInNavigator(navigate)
+    setSignInNavigator(undefined)
+
+    redirectToSignIn()
+
+    expect(navigate).not.toHaveBeenCalled()
+    expect(assign).toHaveBeenCalledWith('/sign-in?next=%2F')
   })
 })

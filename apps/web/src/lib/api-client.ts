@@ -32,9 +32,21 @@ export const requireApiUrl = (): string => {
   return url
 }
 
+let navigateInApp: ((path: string) => void) | undefined
+
+/**
+ * The app's router, registered once it has hydrated. Through it the redirect
+ * stays inside the page that is already loaded: a full navigation would load
+ * the app again, and the installed app's launch would play a second time.
+ */
+export const setSignInNavigator = (navigate: ((path: string) => void) | undefined): void => {
+  navigateInApp = navigate
+}
+
 /**
  * Browser only: a server render has no cookie to lose and no page to leave.
- * A full navigation rather than the router's, so nothing signed-in stays cached.
+ * Before the router is registered, a full navigation is the only way there.
+ * Data cached for the lapsed session is dropped when the next one begins.
  */
 export const redirectToSignIn = (): void => {
   if (typeof window === 'undefined') {
@@ -46,7 +58,13 @@ export const redirectToSignIn = (): void => {
   if (pathname === SIGN_IN_PATH) {
     return
   }
-  window.location.assign(signInPathFor(`${pathname}${search}`))
+
+  const target = signInPathFor(`${pathname}${search}`)
+  if (navigateInApp === undefined) {
+    window.location.assign(target)
+    return
+  }
+  navigateInApp(target)
 }
 
 /**
