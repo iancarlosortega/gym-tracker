@@ -1,6 +1,7 @@
 import './globals.css'
 import { Geist } from 'next/font/google'
 import type { ReactNode } from 'react'
+import { KeyboardInsetContainer } from '@/features/shell/presentation/containers/keyboard-inset.container'
 import { startupImages } from '@/features/splash/launch-images'
 import { SplashContainer } from '@/features/splash/presentation/containers/splash.container'
 import { cn } from '@/lib/utils'
@@ -36,6 +37,8 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover' as const,
+  // Android shrinks the page for the keyboard; iOS ignores this (KeyboardInsetContainer).
+  interactiveWidget: 'resizes-content' as const,
 }
 
 const RootLayout = ({ children }: { children: ReactNode }) => (
@@ -47,6 +50,7 @@ const RootLayout = ({ children }: { children: ReactNode }) => (
     */}
     <body className="flex min-h-dvh flex-col bg-background pt-[env(safe-area-inset-top)] text-foreground">
       <SplashContainer />
+      <KeyboardInsetContainer />
       <Providers>{children}</Providers>
     </body>
   </html>

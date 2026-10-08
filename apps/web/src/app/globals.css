@@ -147,6 +147,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Room for the iOS keyboard, which covers the page instead of shrinking it. */
+    padding-bottom: var(--keyboard-inset, 0px);
   }
   html {
     @apply font-sans;
