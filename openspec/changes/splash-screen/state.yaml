@@ -13,10 +13,10 @@ phases:
   design: done
   tasks: done
   apply: done # W1 db45ca7, W2 (this commit)
-  verify: pending
+  verify: done # pass with warnings; DV pending
   archive: pending
 
-next_recommended: verify
+next_recommended: archive # after DV.1–DV.3
 
 preproposal:
   schema: gentle-ai.sdd-preproposal/v1
