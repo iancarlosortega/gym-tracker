@@ -3,9 +3,9 @@
 Strict TDD (red → green → refactor). Each unit is a commit to main once `pnpm test`, `pnpm typecheck`, `biome check .` and the web build pass, after Ian's local review. Units are sliced for the 400-line budget (auto-chain).
 
 ## W1 — iOS launch images
-- [ ] 1.1 `features/splash/launch-images.ts`: `LAUNCH_SIZES` and `startupImages()` (D1). Tests first: exact url and media format per row, unique media, portrait only.
-- [ ] 1.2 `apps/web/scripts/launch-images.ts` generator: launch-frame SVG per size → `magick` → `public/splash/launch-{W}x{H}.png`. Verify the size table against current Apple specs and run it once. Commit the PNGs.
-- [ ] 1.3 `layout.tsx`: `appleWebApp.startupImage: startupImages()`.
+- [x] 1.1 `features/splash/launch-images.ts`: `LAUNCH_SIZES` and `startupImages()` (D1). Tests first: exact url and media format per row, unique media, portrait only.
+- [x] 1.2 `apps/web/scripts/launch-images.mts` generator: launch-frame SVG per size → `magick` → `public/splash/launch-{W}x{H}.png`. Verify the size table against current Apple specs and run it once. Commit the PNGs.
+- [x] 1.3 `layout.tsx`: `appleWebApp.startupImage: startupImages()`.
 
 ## W2 — Splash overlay
 - [ ] 2.1 `globals.css` Splash section (D3/D5): `.splash` standalone-only display, rise and lift keyframes, `splash-morph`, vanish, fade, the cap, and reduced motion.

@@ -7,7 +7,7 @@ Design E, "Rise and dock", from https://claude.ai/artifact/11LG3Pwqg4uye8eWgkgif
   - `url`: `/splash/launch-{W}x{H}.png`, in device pixels;
   - `media`: `(device-width: Wpx) and (device-height: Hpx) and (-webkit-device-pixel-ratio: R) and (orientation: portrait)`.
 - `layout.tsx` sets `appleWebApp.startupImage: startupImages()`, using Next metadata rather than hand-written `<link>`s.
-- **Generator.** `apps/web/scripts/launch-images.ts` reads `LAUNCH_SIZES`. For each size it:
+- **Generator.** `apps/web/scripts/launch-images.mts` reads `LAUNCH_SIZES`. For each size it:
   1. writes the launch-frame SVG: an amber `#f2b544` full bleed and the icon's dumbbell group, centered in a box of 300 CSS px × ratio, which is the same geometry as the overlay's art box;
   2. rasterizes it with `magick` to `public/splash/`.
 
@@ -24,7 +24,8 @@ Design E, "Rise and dock", from https://claude.ai/artifact/11LG3Pwqg4uye8eWgkgif
 | 428×926 | 3 | 12/13 Pro Max, 14 Plus |
 | 393×852 | 3 | 14 Pro, 15, 15 Pro, 16 |
 | 430×932 | 3 | 14 Pro Max, 15 Plus, 15 Pro Max, 16 Plus |
-| 402×874 | 3 | 16 Pro, 17 Pro |
+| 402×874 | 3 | 16 Pro, 17, 17 Pro |
+| 420×912 | 3 | Air |
 | 440×956 | 3 | 16 Pro Max, 17 Pro Max |
 
 - The manifest `background_color` stays `#f2b544`, so Android's generated splash matches.

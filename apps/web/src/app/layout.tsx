@@ -1,6 +1,7 @@
 import './globals.css'
 import { Geist } from 'next/font/google'
 import type { ReactNode } from 'react'
+import { startupImages } from '@/features/splash/launch-images'
 import { cn } from '@/lib/utils'
 import { Providers } from './providers'
 
@@ -18,7 +19,13 @@ export const metadata = {
     // iOS ignores SVG and manifest icons for the home screen; it reads only this.
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
   },
-  appleWebApp: { capable: true, title: 'Gym', statusBarStyle: 'black-translucent' as const },
+  appleWebApp: {
+    capable: true,
+    title: 'Gym',
+    statusBarStyle: 'black-translucent' as const,
+    // Without a picture that fits the screen exactly, iOS opens on a blank frame.
+    startupImage: startupImages(),
+  },
 }
 
 export const viewport = {
