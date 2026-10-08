@@ -15,9 +15,9 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once `pnp
 - [x] 2.5 Mount `SplashContainer` in the root layout. Bump `SHELL_CACHE` to `gym-shell-v9` (D6).
 
 ## Device verification
-- [ ] DV.1 iPhone, installed app, cold start: the system launch shows amber with the dumbbell, and the web splash continues on the same frame with no cut, blank or jump.
-- [ ] DV.2 Signed in on Home: the bars rise, the dumbbell reps, the screen shrinks to the tile and docks into the +, and the app is usable after about 2s. With a workout open, it docks into the back-to-workout button. Signed out (sign-in): the tile fades in place.
-- [ ] DV.3 Navigating between tabs never replays it. In Safari (not installed) there is no splash. With Reduce Motion on, it is a plain fade.
+- [x] DV.1 iPhone, installed app, cold start: the system launch shows amber with the dumbbell, and the web splash continues on the same frame with no cut, blank or jump.
+- [x] DV.2 Signed in on Home: the bars rise, the dumbbell reps, the screen shrinks to the tile and docks into the +, and the app is usable after about 2s. With a workout open, it docks into the back-to-workout button. Signed out (sign-in): the tile fades in place.
+- [x] DV.3 Navigating between tabs never replays it. In Safari (not installed) there is no splash. With Reduce Motion on, it is a plain fade.
 
 ## Review Workload Forecast
 | Unit | ~Lines |
