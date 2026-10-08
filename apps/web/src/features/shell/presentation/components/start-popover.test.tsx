@@ -33,6 +33,14 @@ const renderPopover = (overrides: Partial<StartPopoverProps> = {}) => {
 const open = () => userEvent.click(screen.getByRole('button', { name: 'Start a workout' }))
 
 describe('StartPopover', () => {
+  it('is where the launch docks', () => {
+    renderPopover()
+
+    expect(
+      screen.getByRole('button', { name: 'Start a workout' }).hasAttribute('data-splash-dock'),
+    ).toBe(true)
+  })
+
   it('opens the start choices from the button', async () => {
     renderPopover()
 

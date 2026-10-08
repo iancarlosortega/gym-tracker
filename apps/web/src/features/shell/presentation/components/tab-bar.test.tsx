@@ -50,6 +50,13 @@ describe('TabBar with a workout open', () => {
     )
   })
 
+  it('lets the launch dock into the way back, the circle the eye sees', () => {
+    render(<TabBar pathname="/" workoutOpen startMenu={startMenu} />)
+    const link = screen.getByRole('link', { name: 'Back to the workout' })
+
+    expect(link.querySelector('[data-splash-dock]')).not.toBeNull()
+  })
+
   it('puts the start menu in the middle when nothing is running', () => {
     render(<TabBar pathname="/" startMenu={startMenu} />)
 

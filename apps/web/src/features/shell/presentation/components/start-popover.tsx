@@ -61,6 +61,7 @@ export const StartPopover = ({
       <div className="flex justify-center">
         <PopoverTrigger
           aria-label="Start a workout"
+          data-splash-dock=""
           className="group -mt-6 flex size-16 items-center justify-center rounded-full bg-primary text-primary-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <Plus

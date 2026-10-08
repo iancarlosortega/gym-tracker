@@ -8,11 +8,11 @@ Strict TDD (red → green → refactor). Each unit is a commit to main once `pnp
 - [x] 1.3 `layout.tsx`: `appleWebApp.startupImage: startupImages()`.
 
 ## W2 — Splash overlay
-- [ ] 2.1 `globals.css` Splash section (D3/D5): `.splash` standalone-only display, rise and lift keyframes, `splash-morph`, vanish, fade, the cap, and reduced motion.
-- [ ] 2.2 `SplashScreen` presentational component (D2): tile wrapper, icon art, `data-phase`, CSS vars. RTL tests first.
-- [ ] 2.3 `SplashContainer` (D2/D3): standalone and reduced-motion checks, the 950ms gate, dock-target measure, phase transitions, and `animationend` plus safety-timeout unmount. Tests first (see the design's Testing section).
-- [ ] 2.4 `data-splash-dock` on the start + trigger and the back-to-workout circle (D4). Update the tab-bar and start-popover tests if they snapshot attributes.
-- [ ] 2.5 Mount `SplashContainer` in the root layout. Bump `SHELL_CACHE` to `gym-shell-v9` (D6).
+- [x] 2.1 `globals.css` Splash section (D3/D5): `.splash` standalone-only display, rise and lift keyframes, `splash-morph`, vanish, fade, the cap, and reduced motion.
+- [x] 2.2 `SplashScreen` presentational component (D2): tile wrapper, icon art, `data-phase`, CSS vars. RTL tests first.
+- [x] 2.3 `SplashContainer` (D2/D3): standalone and reduced-motion checks, the 950ms gate, dock-target measure, phase transitions, and `animationend` plus safety-timeout unmount. Tests first (see the design's Testing section).
+- [x] 2.4 `data-splash-dock` on the start + trigger and the back-to-workout circle (D4). Update the tab-bar and start-popover tests if they snapshot attributes.
+- [x] 2.5 Mount `SplashContainer` in the root layout. Bump `SHELL_CACHE` to `gym-shell-v9` (D6).
 
 ## Device verification
 - [ ] DV.1 iPhone, installed app, cold start: the system launch shows amber with the dumbbell, and the web splash continues on the same frame with no cut, blank or jump.

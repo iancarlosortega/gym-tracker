@@ -12,11 +12,11 @@ phases:
   spec: done
   design: done
   tasks: done
-  apply: pending
+  apply: done # W1 db45ca7, W2 (this commit)
   verify: pending
   archive: pending
 
-next_recommended: apply
+next_recommended: verify
 
 preproposal:
   schema: gentle-ai.sdd-preproposal/v1

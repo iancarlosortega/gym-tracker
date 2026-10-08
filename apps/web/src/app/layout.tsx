@@ -2,6 +2,7 @@ import './globals.css'
 import { Geist } from 'next/font/google'
 import type { ReactNode } from 'react'
 import { startupImages } from '@/features/splash/launch-images'
+import { SplashContainer } from '@/features/splash/presentation/containers/splash.container'
 import { cn } from '@/lib/utils'
 import { Providers } from './providers'
 
@@ -45,6 +46,7 @@ const RootLayout = ({ children }: { children: ReactNode }) => (
       it, and the background fills behind the clock.
     */}
     <body className="flex min-h-dvh flex-col bg-background pt-[env(safe-area-inset-top)] text-foreground">
+      <SplashContainer />
       <Providers>{children}</Providers>
     </body>
   </html>

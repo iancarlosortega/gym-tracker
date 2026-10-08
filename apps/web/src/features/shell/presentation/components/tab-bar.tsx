@@ -62,7 +62,10 @@ export const TabBar = ({ pathname, workoutOpen = false, startMenu }: TabBarProps
       />
       {workoutOpen ? (
         <Link href="/workout" aria-label="Back to the workout" className="flex justify-center">
-          <span className="-mt-6 flex size-16 items-center justify-center rounded-full bg-live text-background">
+          <span
+            data-splash-dock=""
+            className="-mt-6 flex size-16 items-center justify-center rounded-full bg-live text-background"
+          >
             <Timer className="size-7" strokeWidth={2.5} aria-hidden="true" />
           </span>
         </Link>
