@@ -1,0 +1,27 @@
+change: splash-screen
+created: 2026-10-08
+artifact_store: hybrid
+execution_mode: auto
+delivery_strategy: auto-chain
+delivery_note: Sole developer. Commits to main; no PRs.
+
+phases:
+  explore: done
+  research: unselected
+  proposal: done
+  spec: done
+  design: done
+  tasks: done
+  apply: pending
+  verify: pending
+  archive: pending
+
+next_recommended: apply
+
+preproposal:
+  schema: gentle-ai.sdd-preproposal/v1
+  revision: 1
+  research: unselected
+  decisions:
+    design_variant: confirmed # E, Rise and dock (owner, 2026-10-08)
+  proposal_ready: true
